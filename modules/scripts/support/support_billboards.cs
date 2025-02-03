@@ -27,6 +27,12 @@ datablock PlayerData(DefaultBillboardMount)
 	className = "BillboardMount";
 };
 
+//To prevent errors on `doDismount` calls.
+function DefaultBillboardMount::doDismount(%this, %obj, %forced)
+{
+	
+}
+
 datablock PlayerData(OverheadBillboardMount : DefaultBillboardMount)
 {
     shapeFile = "Add-ons/Gamemode_Eventide/modules/misc/models/billboardmount.dts";
