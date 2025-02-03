@@ -23,12 +23,14 @@ datablock PlayerData(DefaultBillboardMount)
     footPuffNumParts = 10;
     footPuffRadius = 0.25;
 
+	rideAble = false;
 	className = "BillboardMount";
 };
 
 datablock PlayerData(OverheadBillboardMount : DefaultBillboardMount)
 {
     shapeFile = "Add-ons/Gamemode_Eventide/modules/misc/models/billboardmount.dts";
+	rideAble = false;
 };
 
 function BillboardMount::OnAdd(%db,%bbm)
