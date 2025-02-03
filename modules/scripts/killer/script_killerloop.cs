@@ -179,6 +179,12 @@ function Armor::handleKillerChaseState(%this, %obj, %chasingVictims, %isActiveCh
 // Main function refactored to use support functions
 function Armor::killerContainerRadiusSearch(%this, %obj)
 {
+    //Don't do any of this stuff if the killer is invisible.
+    if(%obj.isInvisible)
+    {
+        return;
+    }
+
     %chasingVictims = 0;
     %searchDistance = 40; //80 studs, should be a decent balance for both small and large maps.
     initContainerRadiusSearch(%obj.getMuzzlePoint(0), %searchDistance, $TypeMasks::PlayerObjectType);
@@ -197,7 +203,7 @@ function Armor::killerContainerRadiusSearch(%this, %obj)
         %canSeeVictim = !isObject(containerRayCast(%obj.getEyePoint(), %victim.getMuzzlePoint(2), %typemasks, %obj));
         %victimDistance = containerSearchCurrDist();
 
-        %isActiveChase = %dot > 0.45 && %canSeeVictim && !%obj.isInvisible;
+        %isActiveChase = %dot > 0.45 && %canSeeVictim;
         if(%isActiveChase)
         {
             %chasingVictims++;
