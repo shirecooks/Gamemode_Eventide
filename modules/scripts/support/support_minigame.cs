@@ -31,10 +31,11 @@ package Eventide_Minigame
 		for(%i = 0; %i < %killers.getCount(); %i++)
 		{
 			%killer = %killers.getObject(%i);
-			%killerTeam = %killer.getTeam();
-			if(isObject(%killer.player) && isObject(%killer))
+			if(isObject(%killer) && isObject(%killer.player))
 			{
+				%killerTeam = %killer.getTeam();
 				%won = (%winner.getClassName() $= "Slayer_TeamSO" && %winner.getId() == %killerTeam.getId()) || (%winner.getClassName() $= "GameConnection" && %winner.getId() == %killer.getId());
+				
 				%killerDataBlock = %killer.getDataBlock();
 				%killerDatablock.onRoundEnd(%killer, %won);
 			}
