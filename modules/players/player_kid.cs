@@ -164,6 +164,11 @@ datablock StaticShapeData(PlayerKidTrap)
 	tickRate = 100;
 };
 
+datablock ParticleEmitterNodeData(EighthEmitterNode)
+{
+	timeMultiple = 1 / 8;
+};
+
 function PlayerKidTrap::tick(%this, %obj)
 {
 	%killer = %obj.killer;
@@ -251,7 +256,7 @@ function Player::createTrap(%obj, %pos)
 
 	%trap.trapEmitter = new ParticleEmitterNode()
 	{
-		datablock = TenthEmitterNode;
+		datablock = EighthEmitterNode;
 		emitter = KidBinaryEmitter0;
 	};
 	%trap.trapEmitter.setTransform(%trap.getTransform());
