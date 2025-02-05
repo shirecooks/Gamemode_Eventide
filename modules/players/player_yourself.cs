@@ -71,92 +71,82 @@ function PlayerYourself::onNewDatablock(%this,%obj)
 	%obj.KidGaze();
 }
 
-function PlayerYourself::EventideAppearance(%this,%obj,%client)
+function PlayerYourself::EventideAppearance(%this,%obj,%funcclient)
 {
 	%obj.hideNode("ALL");
-	%obj.unHideNode((%tempclient.chest 	? 	"femChest" : "chest"));	
-	%obj.unHideNode((%tempclient.rhand 	? 	"rhook" : "rhand"));
-	%obj.unHideNode((%tempclient.lhand 	? 	"lhook" : "lhand"));
-	%obj.unHideNode((%tempclient.rarm 	? 	"rarmSlim" : "rarm"));
-	%obj.unHideNode((%tempclient.larm 	? 	"larmSlim" : "larm"));
+	%obj.unHideNode((%funcclient.chest ? "femChest" : "chest"));	
+	%obj.unHideNode((%funcclient.rhand ? "rhook" : "rhand"));
+	%obj.unHideNode((%funcclient.lhand ? "lhook" : "lhand"));
+	%obj.unHideNode((%funcclient.rarm ? "rarmSlim" : "rarm"));
+	%obj.unHideNode((%funcclient.larm ? "larmSlim" : "larm"));
 	%obj.unHideNode("headskin");
-	
-		//Packs
-	if ($pack[%tempclient.pack] !$= "none")
+
+	if($pack[%funcclient.pack] !$= "none")
 	{
-		%obj.unHideNode($pack[%tempclient.pack]);
-		%obj.setNodeColor($pack[%tempclient.pack],%tempclient.packColor);
+		%obj.unHideNode($pack[%funcclient.pack]);
+		%obj.setNodeColor($pack[%funcclient.pack],%funcclient.packColor);
 	}
-	if ($secondPack[%tempclient.secondPack] !$= "none")
+	if($secondPack[%funcclient.secondPack] !$= "none")
 	{
-		%obj.unHideNode($secondPack[%tempclient.secondPack]);
-		%obj.setNodeColor($secondPack[%tempclient.secondPack],%tempclient.secondPackColor);
+		%obj.unHideNode($secondPack[%funcclient.secondPack]);
+		%obj.setNodeColor($secondPack[%funcclient.secondPack],%funcclient.secondPackColor);
 	}
 
-	//Hats
-	%hat = $HatMod::save::wornHat[%tempclient.bl_id];
-	if(isHat(%hat))
+	if(%funcclient.hat)
 	{
-		//Hatmod support.
-		%obj.mountHat(%hat);
-	}
-	else if (%tempclient.hat)
-	{
-		//Put on any default hats they may be wearing.
-		%hatName = $hat[%tempclient.hat];
-		%tempclient.hatString = %hatName;
-		
-		// Only check if it's the first hat
-		if (%tempclient.hat == 1)
+		%hatName = $hat[%funcclient.hat];
+		%funcclient.hatString = %hatName;
+
+		if(%funcclient.hat == 1)
 		{
-			%newhat = (%tempclient.accent ? "helmet" : "hoodie1");
+			if(%funcclient.accent) %newhat = "helmet";
+			else %newhat = "hoodie1";
 			%obj.unHideNode(%newhat);
-			%obj.setNodeColor(%newhat,%tempclient.hatColor);
+			%obj.setNodeColor(%newhat,%funcclient.hatColor);
 		}
 		else
 		{
 			%obj.unHideNode(%hatName);
-			%obj.setNodeColor(%hatName,%tempclient.hatColor);
+			%obj.setNodeColor(%hatName,%funcclient.hatColor);
 		}			
 	}
 	
-	//Legs
-	if (%tempclient.hip) %obj.unHideNode("skirt");
+	if(%funcclient.hip) %obj.unHideNode("skirt");
 	else
 	{
 		%obj.unHideNode("pants");
-		%obj.unHideNode((%tempclient.rleg ? "rpeg" : "rshoe"));
-		%obj.unHideNode((%tempclient.lleg ? "lpeg" : "lshoe"));
+		%obj.unHideNode((%funcclient.rleg ? "rpeg" : "rshoe"));
+		%obj.unHideNode((%funcclient.lleg ? "lpeg" : "lshoe"));
 	}
-
-	%obj.setHeadUp((%tempclient.pack+%tempclient.secondPack));
-
-	//Set blood colors.
-	if (%obj.bloody["lshoe"]) %obj.unHideNode("lshoe_blood");
-	if (%obj.bloody["rshoe"]) %obj.unHideNode("rshoe_blood");
-	if (%obj.bloody["lhand"]) %obj.unHideNode("lhand_blood");
-	if (%obj.bloody["rhand"]) %obj.unHideNode("rhand_blood");
-	if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
-	if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
 	
-	// Set node colors
-	%obj.setNodeColor("headskin",%tempclient.headColor);	
-	%obj.setNodeColor("chest",%tempclient.chestColor);
-	%obj.setNodeColor("femChest",%tempclient.chestColor);
-	%obj.setNodeColor("pants",%tempclient.hipColor);
-	%obj.setNodeColor("skirt",%tempclient.hipColor);	
-	%obj.setNodeColor("rarm",%tempclient.rarmColor);
-	%obj.setNodeColor("larm",%tempclient.larmColor);
-	%obj.setNodeColor("rarmSlim",%tempclient.rarmColor);
-	%obj.setNodeColor("larmSlim",%tempclient.larmColor);
-	%obj.setNodeColor("rhand",%tempclient.rhandColor);
-	%obj.setNodeColor("lhand",%tempclient.lhandColor);
-	%obj.setNodeColor("rhook",%tempclient.rhandColor);
-	%obj.setNodeColor("lhook",%tempclient.lhandColor);	
-	%obj.setNodeColor("rshoe",%tempclient.rlegColor);
-	%obj.setNodeColor("lshoe",%tempclient.llegColor);
-	%obj.setNodeColor("rpeg",%tempclient.rlegColor);
-	%obj.setNodeColor("lpeg",%tempclient.llegColor);
+	%obj.setDecalName(%funcclient.decalName);
+
+	%obj.setNodeColor("headskin",%funcclient.headColor);	
+	%obj.setNodeColor("chest",%funcclient.chestColor);
+	%obj.setNodeColor("femChest",%funcclient.chestColor);
+	%obj.setNodeColor("pants",%funcclient.hipColor);
+	%obj.setNodeColor("skirt",%funcclient.hipColor);	
+	%obj.setNodeColor("rarm",%funcclient.rarmColor);
+	%obj.setNodeColor("larm",%funcclient.larmColor);
+	%obj.setNodeColor("rarmSlim",%funcclient.rarmColor);
+	%obj.setNodeColor("larmSlim",%funcclient.larmColor);
+	%obj.setNodeColor("rhand",%funcclient.rhandColor);
+	%obj.setNodeColor("lhand",%funcclient.lhandColor);
+	%obj.setNodeColor("rhook",%funcclient.rhandColor);
+	%obj.setNodeColor("lhook",%funcclient.lhandColor);	
+	%obj.setNodeColor("rshoe",%funcclient.rlegColor);
+	%obj.setNodeColor("lshoe",%funcclient.llegColor);
+	%obj.setNodeColor("rpeg",%funcclient.rlegColor);
+	%obj.setNodeColor("lpeg",%funcclient.llegColor);
+	
+	//Set blood colors.
+	%obj.setNodeColor("lshoe_blood", "0.7 0 0 1");
+	%obj.setNodeColor("rshoe_blood", "0.7 0 0 1");
+	%obj.setNodeColor("lhand_blood", "0.7 0 0 1");
+	%obj.setNodeColor("rhand_blood", "0.7 0 0 1");
+	%obj.setNodeColor("chest_blood_front", "0.7 0 0 1");
+	%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
+	%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
 }
 
 function PlayerKidTrap::tick(%this, %obj)
