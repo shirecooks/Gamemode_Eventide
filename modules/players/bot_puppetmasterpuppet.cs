@@ -101,7 +101,7 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
     %target = %obj.target;
     %currentTime = getSimTime();
 
-    %obj.setMoveSpeed(0.5);
+    %obj.setMoveSpeed(0.4);
     
     // Target search logic
     if(!%target && %obj.lastSearchTime < %currentTime)
@@ -158,7 +158,7 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
             // Line of sight check
             %targetpos = %target.getPosition();
             %playerpos = %obj.getPosition();
-            %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;
+            %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;            
 
             // Calculate the dot product to determine if the target is within the visible range
             %targetDirection = vectorNormalize(vectorSub(%targetPos, %playerPos));
@@ -173,10 +173,13 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
 
             if (!isObject(%obstruction) && %dotProduct > 0.5 && %distanceToTarget < 50) %obj.cannotSeeTarget = 0; // Target visible            
             else %obj.cannotSeeTarget++;// Target not visible
+
+            %obj.hasBeenChasing++;
             
-            if(%obj.cannotSeeTarget >= 15)
+            if(%obj.cannotSeeTarget >= 15 || %obj.hasBeenChasing >= 25)
             {
                 %obj.target = 0;
+                %obj.hasBeenChasing = 0;
                 %obj.cannotSeeTarget = 0;
                 %obj.clearMoveX();
                 %obj.clearMoveY();
@@ -202,7 +205,7 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
 			{
 				%obj.playThread(2, "activate2");
 
-				if(getRandom(1,10) == 1 && %obj.getEnergyLevel() == %this.maxEnergy)
+				if(getRandom(1,5) == 1 && %obj.getEnergyLevel() == %this.maxEnergy)
 				{
 					%this.leap(%obj);
 				}			
@@ -211,7 +214,7 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
             if(%distance < 2)
             {
                 // Use ontrigger for killer melee
-		%this.onTrigger(%obj,0,1);
+		        %this.onTrigger(%obj,0,1);
                 
                 %obj.playAudio(3, "melee_tanto" @ getRandom(1, 3) @ "_sound");
                 cancel(%obj.BotLoopSched);
