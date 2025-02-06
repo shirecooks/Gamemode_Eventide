@@ -75,7 +75,7 @@ function MountGroup::Mount(%o,%player)
 function MountGroup::AVBillboard(%o,%player,%light,%tag)
 {
 	// See if the playe already has a mount
-	%mount = %player.getMountedObject(%o.slot);
+	%mount = %player.getMountNodeObject(%o.slot);
 	if(!%mount)
 	{
 		if(!%o.mount(%player))
@@ -94,7 +94,7 @@ function MountGroup::AVBillboard(%o,%player,%light,%tag)
 	// Loop through all of the clients and add the billboard for them
 	%group = ClientGroup;
 	%count = %group.getCount();
-	%mount = %player.getMountedObject(%o.slot);
+	%mount = %player.getMountNodeObject(%o.slot);
 	for(%i = 0; %i < %count; %i++)
 	{
 		%player = %group.getObject(%i).player;
@@ -104,7 +104,6 @@ function MountGroup::AVBillboard(%o,%player,%light,%tag)
 		}
 		%avGroup = %group.getObject(%i).AVBillboardGroup;
 		// Appending the object id to the tag so future clears only effect their own group
-		
 		%bb = BillboardMount_AddAVBillboard(%mount, %avGroup, %light, %o @ "_" @ %tag);
 	}
 }
@@ -113,7 +112,7 @@ function MountGroup::AVBillboard(%o,%player,%light,%tag)
 function MountGroup::clearAVBillboards(%o,%player,%tag)
 {
 	// See if the playe already has a mount
-	%mount = %player.getMountedObject(%o.slot);
+	%mount = %player.getMountNodeObject(%o.slot);
 	if(!%mount)
 	{
 		if(!%o.mount(%player))
@@ -132,7 +131,7 @@ function MountGroup::clearAVBillboards(%o,%player,%tag)
 	// Loop through all of the clients and clear the billboard for them
 	%group = ClientGroup;
 	%count = %group.getCount();
-	%mount = %player.getMountedObject(%o.slot);
+	%mount = %player.getMountNodeObject(%o.slot);
 	for(%i = 0; %i < %count; %i++)
 	{
 		%group.getObject(%i).AVBillboardGroup.Clear(%o @ "_" @ %tag);
