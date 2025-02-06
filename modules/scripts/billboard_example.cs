@@ -165,4 +165,4 @@ package MountGroup_Billboards
 };
 activatePackage(MountGroup_Billboards);
 
-$Eventide::BillboardMounts = MountGroup_Create(OverheadBillboardMount, 12, 5);
+$Eventide::BillboardMounts = MountGroup_Create(OverheadBillboardMount, 12, 8);
