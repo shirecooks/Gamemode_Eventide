@@ -11,7 +11,6 @@ datablock itemData(overcoatItem)
 	canDrop      = true;
 	image        = overcoatImage;
 	uiName   = "Overcoat";
-	//iconName = "";
 };
 
 datablock shapeBaseImageData(overcoatImage)
@@ -59,28 +58,20 @@ datablock shapeBaseImageData(overcoatMountedImage)
 	stateName[0] = "Activate";
 	stateTimeoutValue[0] = 0.1;
 	stateTransitionOnTimeout[0] = "Idle";
-	stateSound[0] = weaponSwitchSound;
-	
+	stateSound[0] = weaponSwitchSound;	
 	stateName[1] = "Idle";
 	stateAllowImageChange[1] = true;
 };
 
 function overcoatImage::onFire(%this, %obj, %slot)
 {
-	%client = %obj.client;
-	if(isObject(%obj))
+	if(isObject(%obj) && %obj.getMountedImage(1) !$= nametoID("overcoatMountedImage"))
 	{
-		if(%obj.getMountedImage(1) $= nametoID(overcoatMountedImage))
-			%obj.unmountImage(1);
-		else
-		{
-			%obj.unmountImage(1);
-			%obj.mountImage(overcoatMountedImage, 1);
-		}
-	}
+		%obj.mountImage("overcoatMountedImage", 1);
+	}	
 }
 
 function overcoatMountedImage::onMount(%this,%obj,%slot)
 {
-	%obj.hideNode(armor);
+	%obj.hideNode("armor");
 }

@@ -16,16 +16,14 @@ datablock ItemData(RadioItem)
 datablock ShapeBaseImageData(RadioImage)
 {
 	className = "WeaponImage";
-	projectileType = "Projectile";
-	projectile = "";
-	item = "RadioItem";
-	mountpoint = 0;
+	item = "RadioItem";		
 	shapefile = RadioItem.shapeFile;
+	mountpoint = 0;
+
 	stateName[0] = "Activate";
 	stateSound[0] = "radio_change_sound";
 	stateTimeoutValue[0] = "0";
-	stateTransitionOnTimeout[0] = "Ready";	
-	
+	stateTransitionOnTimeout[0] = "Ready";		
 	stateName[1] = "Ready";
 	stateTimeoutValue[1] = 0;
 };
@@ -34,7 +32,12 @@ function RadioImage::onMount(%this, %obj, %slot)
 {	
 	if(!%obj.radioInformed && isObject(%obj.client))
 	{
-		%obj.client.centerPrint("<font:Impact:25>\c3Keep the radio in your inventory to <br>\c3broadcast to other survivors!",3);
+		%obj.client.centerPrint("<font:Impact:25>\c3Keep the radio in your inventory to <br>\c3Chat with other survivors",3);
 		%obj.radioInformed = true;
 	}
 }
+
+function RadioItem::onAdd(%this, %obj)
+{
+	%item.playaudio(3,"radio_unmount_sound");
+}	

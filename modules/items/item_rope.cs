@@ -1,4 +1,4 @@
-datablock ItemData(Rope)
+datablock ItemData(RopeItem)
 {
 	shapeFile = "./models/Rope.dts";
 	rotate = false;
@@ -10,7 +10,7 @@ datablock ItemData(Rope)
 	uiName = "Rope";
 	iconName = "";
 	doColorShift = false;	
-	image = RopeImage;
+	image = "RopeImage";
 	canDrop = true;
 };
 
@@ -23,11 +23,11 @@ datablock ShapeBaseImageData(RopeImage)
 	eyeOffset = 0;
 	rotation = eulerToMatrix("0 0 0");	
 	className = "WeaponImage";
-	item = Rope;	
+	item = "RopeItem";	
 	armReady = true;
 	doColorShift = false;	
 	stateName[0]					= "Activate";
-	stateSound[0]					= weaponSwitchSound;
+	stateSound[0]					= "weaponSwitchSound";
 	stateTimeoutValue[0]			= 0.15;
 	stateSequence[0]				= "Ready";
 	stateTransitionOnTimeout[0]		= "Ready";
@@ -38,13 +38,3 @@ datablock ShapeBaseImageData(RopeImage)
 	stateScript[2]					= "onUse";
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
-
-function RopeImage::onMount(%this,%obj,%slot)
-{
-	%obj.playThread(0,"armReady");
-}
-
-function RopeImage::onUnMount(%this,%obj,%slot)
-{
-	%obj.playThread(0,"root");
-}

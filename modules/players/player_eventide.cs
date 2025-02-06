@@ -674,7 +674,14 @@ function EventidePlayer::dropAllTools(%this,%obj)
 	%inventoryToolCount = (%obj.hoarderToolCount) ? %obj.hoarderToolCount : %obj.getDataBlock().maxTools;
 	for (%i = 0; %i < %inventoryToolCount; %i++) if (isObject(%obj.tool[%i]))
 	{
-		// Drop all of the player's tools
+		// Clear the player's tool
+		if(isObject(%obj.client))
+		{					
+			%obj.tool[%i] = 0;
+			messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
+		}
+		
+		// Spawn the item
 		%item = new Item()
 		{
 			dataBlock = %obj.tool[%i];
@@ -683,24 +690,15 @@ function EventidePlayer::dropAllTools(%this,%obj)
 			minigame = %minigame;
 		};
 		
+		// Set the item's velocity
 		%item.setVelocity(vectorAdd(%obj.getVelocity(),getRandom(-4,4) SPC getRandom(-4,4) SPC getRandom(4,8)));
-
-		if(%item.getDatablock().getName() $= "RadioItem")
-		{
-			%item.playaudio(3,"radio_unmount_sound");
-		}
 		
 		if (!isObject(Eventide_MinigameGroup)) 
 		{
 			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
-		}				
-		Eventide_MinigameGroup.add(%item); // Add the item to the minigame group for cleanup when the minigame ends or restarts
-
-		if(isObject(%obj.client))
-		{					
-			%obj.tool[%i] = 0;
-			messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
 		}
+
+		Eventide_MinigameGroup.add(%item); // Add the item to the minigame group for cleanup when the minigame ends or restarts		
 	}
 }
 
@@ -814,7 +812,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		// Condition for the skinwalker
 		if (%obj.isSkinwalker)
 		{
-			// The disguise is about to be broken, now that the player has been hurt.
+			// The disguise is about to be broken, now that the player has been hurt
 			if (getRandom(1,4) == 1) 
 			{
 				%sound = "skinwalker_pain_sound";	
@@ -838,26 +836,22 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 function EventidePlayerDowned::onNewDataBlock(%this,%obj)
 {
 	Parent::onNewDataBlock(%this,%obj);
-	
-	%obj.setActionThread((!%obj.isCrouched()) ? "sit" : "root",1);
 	%this.DownLoop(%obj);
 }
 
 function EventidePlayerDowned::DownLoop(%this,%obj)
 { 
-	// Do not continue if the player is dead, invalid, or not this datablock specifically
+	// Do not continue if the player is dead, invalid, or not the downed datablock anymore
 	if (!isobject(%obj) || %obj.getstate() $= "Dead" || %obj.getDataBlock() != %this) 
 	{
 		return;
 	}
-	
+
 	// Force the player to sit if they are not already, and and they are not crouched
 	if (!%obj.isCrouched())
 	{
 		%obj.setActionThread("sit",1);
 	}
-
-	%obj.startDrippingBlood(1000);
 
 	// Update victim's face
 	if(isObject(%obj.faceConfig))
@@ -876,7 +870,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 	// If the player is not being saved, then continue the down loop
 	if (!%obj.isBeingSaved && %obj.lastDownLoop < getSimTime())
 	{
-		// As the player loses health, the loop gets faster, which increases the urgency
+		// As the player loses health, the loop gets faster
 		%obj.lastDownLoop = getSimTime() + mClampF((100-%obj.getDamageLevel()) * 15,200,1100);
 
 		if (isObject(%obj.client)) 
@@ -884,6 +878,9 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 			%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/2) ? 2 : 1;
 			%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
 		}
+
+		// Start the blood drip effect
+		%obj.startDrippingBlood(1000);
 		
 		%obj.addHealth(-1);
 		%pulse = 0.1 + ((%obj.getDamageLevel() / 100) * 0.75);
@@ -910,7 +907,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 
 function EventidePlayer::onDisabled(%this,%obj)
 {
-	EventidePlayerDowned::onDisabled(%this,%obj); // Call the downed handler
+	EventidePlayerDowned::onDisabled(%this,%obj);
 }
 
 function EventidePlayer::onRemove(%this, %obj)
@@ -918,16 +915,12 @@ function EventidePlayer::onRemove(%this, %obj)
 	EventidePlayerDowned::onRemove(%this, %obj);
 }
 
-// Handler method for survivor death
-// 1. Removes mounted images and plays a death animation.
-// 2. Notifies the killer with a sound and visual effect (if applicable).
-// 3. Updates the player's client vignette settings.
-// 4. Drops the player's tools and plays sounds for specific items (e.g., a radio).
-// 5. Handles special death conditions like "render death" or zombification.
-
 function EventidePlayerDowned::onDisabled(%this,%obj)
 {	
 	Parent::onDisabled(%this,%obj);
+
+	//TODO: Quick-fix for corpses standing up on death
+	%obj.playThread(1, "Death1");
 
 	// Remove all mounted images and stop all animation threads
 	for (%j = 0; %j < 4; %j++)
@@ -942,9 +935,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	%genderSound = (!%obj.client.chest) ? "male" : "female";
 	%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
 	%sound = %genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound";	
-	%obj.playaudio(0,%sound);
-		
-	%obj.playThread(1, "Death1"); //TODO: Quick-fix for corpses standing up on death. Need to create a systematic way of using animation threads.
+	%obj.playaudio(0,%sound);	
 
 	// Let the killer know that a survivor has been killed
 	%killers = getCurrentKillers();
@@ -961,8 +952,9 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	// Only do this if the client exists
 	if (isObject(%obj.client))
 	{
-		%funcclient = (isObject(%obj.ghostclient)) ? %obj.ghostclient : %obj.client;
-		commandToClient(%funcclient, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
+		%nClient = (isObject(%obj.ghostclient)) ? %obj.ghostclient : %obj.client;
+		commandToClient(%nClient, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
+		EventidePlayer.dropAllTools(%obj);
 
 		// Clear the tunnel vision effect
 		if(%obj.tunnelvision)
@@ -971,48 +963,43 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 		}
 		
 		if (isObject(%minigame = getMinigamefromObject(%obj)))
-		{			
-			EventidePlayer.dropAllTools(%obj);
-
-			// Varying conditions on how the player was killed, do not return on either condition if the player is already marked for death
-			if (%obj.markedforRenderDeath || %obj.shireZombify)
+		{		
+			if (%obj.markedforRenderDeath) 
 			{
-				if (%obj.markedforRenderDeath) 
-				{
-					%minigame.playSound("render_kill_sound");
-				}
-	
-				if (%obj.shireZombify)
-				{
-					%bot = new AIPlayer()
-					{
-						dataBlock = "ShireZombieBot";
-						minigame = %obj.ghostClient.minigame;
-						ghostclient = %obj.ghostclient;
-					};				
-	
-					if (!isObject(Eventide_MinigameGroup)) missionCleanup.add(new SimGroup(Eventide_MinigameGroup));
-					Eventide_MinigameGroup.add(%bot);
-					%bot.setTransform(%obj.getTransform());
-				}
-	
+				%minigame.playSound("render_kill_sound");
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 				%obj.schedule(33,delete);
 			}
+
+			if (%obj.shireZombify)
+			{
+				%bot = new AIPlayer()
+				{
+					dataBlock = "ShireZombieBot";
+					minigame = %obj.ghostClient.minigame;
+					ghostclient = %obj.ghostclient;
+				};				
+
+				if (!isObject(Eventide_MinigameGroup)) missionCleanup.add(new SimGroup(Eventide_MinigameGroup));
+				Eventide_MinigameGroup.add(%bot);
+				%bot.setTransform(%obj.getTransform());
+				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
+				%obj.schedule(33,delete);
+			}			
 		}
 	}	
 }
 
-//Called whenever a survivor dies or escapes. Fires an event if the survivor is the last one standing.
 function EventidePlayerDowned::onRemove(%this, %obj)
 {
-	// Remove the downed billboard
-	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	Parent::onRemove(%this, %obj);
 	
-	%minigame = getMinigameFromObject(%obj);
-	if(isObject(%minigame) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
+	// Remove the downed billboard if it still exists
+	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+
+	// If there is one remaining survivor, then call the minigame's onLastSurvivor function
+	if(isObject(%minigame = getMinigameFromObject(%obj)) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
 	{
 		%minigame.onLastSurvivor();
-	}
-	parent::onRemove(%this, %obj);
+	}	
 }
