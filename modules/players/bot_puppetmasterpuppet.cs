@@ -100,6 +100,8 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
     %obj.BotLoopSched = %this.schedule(500, onBotLoop, %obj);    
     %target = %obj.target;
     %currentTime = getSimTime();
+
+    %obj.setMoveSpeed(0.75);
     
     // Target search logic
     if(!%target && %obj.lastSearchTime < %currentTime)
