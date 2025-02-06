@@ -16,10 +16,10 @@ datablock PlayerData(PuppetMasterPuppet : PlayerRenowned)
 	killermeleehitsoundamount = 3;
 
 	rechargeRate = 0.35;
-	runForce = 5616;
-	maxForwardSpeed = 8;
-	maxBackwardSpeed = 7;
-	maxSideSpeed = 7;
+	runForce = 1000;
+	maxForwardSpeed = 8.5;
+	maxBackwardSpeed = 7.5;
+	maxSideSpeed = 7.5;
 	maxDamage = 50;
 	showenergybar = true;
 };
@@ -90,6 +90,26 @@ function PuppetMasterPuppet::onAdd(%this,%obj)
 	
     %obj.setMoveSlowdown(0);
     %this.onBotLoop(%obj);    
+}
+
+function PuppetMasterPuppet::runFromTarget(%this,%obj,%target)
+{
+    if(!isObject(%obj) || %obj.getState() $= "Dead" || !isObject(%target)) return;
+	
+    %obj.clearAim();
+
+	%pos = %obj.getPosition();
+	%bPos = %target.getPosition();
+	
+    %direction = vectorNormalize(vectorSub(%pos, %bPos));
+    %dif = vectorScale(%direction, 100); // was 50
+
+    %final = vectorAdd(%pos, getWords(%dif, 0, 1) SPC "2"); // Added height directly
+    %randomOffset = vectorScale(getRandom(-10, 10) SPC getRandom(-10, 10) SPC 0, 6);
+    %final = vectorAdd(%final, %randomOffset);
+
+    %obj.setAimLocation(%final);
+	%obj.setMoveY(1);
 }
 
 function PuppetMasterPuppet::onBotLoop(%this, %obj)
@@ -169,18 +189,17 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
             // Check visibility conditions: no obstruction, within field of view, and within distance
             %distanceToTarget = vectorDist(%playerPos, %targetPos);
 
-            if (!isObject(%obstruction) && %dotProduct > 0.5 && %distanceToTarget < 50) %obj.cannotSeeTarget = 0; // Target visible            
-            else %obj.cannotSeeTarget++;// Target not visible
-
+            %obj.cannotSeeTarget = (!isObject(%obstruction) && %dotProduct > 0.5 && %distanceToTarget < 50) ? 0 : %obj.cannotSeeTarget + 1; // Update visibility status
             %obj.hasBeenChasing++;
             
             if(%obj.cannotSeeTarget >= 15 || %obj.hasBeenChasing >= 10)
             {
-                %obj.target = 0;
-                %obj.hasBeenChasing = 0;
-                %obj.cannotSeeTarget = 0;
                 %obj.clearMoveX();
                 %obj.clearMoveY();
+                %this.runFromTarget(%obj, %target);
+                %obj.hasBeenChasing = 0;
+                %obj.cannotSeeTarget = 0;                
+                %obj.target = 0;
             }
         }
     }
