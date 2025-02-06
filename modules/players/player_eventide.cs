@@ -857,6 +857,8 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		%obj.setActionThread("sit",1);
 	}
 
+	%obj.startDrippingBlood(1000);
+
 	// Update victim's face
 	if(isObject(%obj.faceConfig))
 	{
