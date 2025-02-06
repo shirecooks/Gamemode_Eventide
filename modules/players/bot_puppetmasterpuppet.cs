@@ -176,7 +176,7 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
 
             %obj.hasBeenChasing++;
             
-            if(%obj.cannotSeeTarget >= 15 || %obj.hasBeenChasing >= 25)
+            if(%obj.cannotSeeTarget >= 15 || %obj.hasBeenChasing >= 10)
             {
                 %obj.target = 0;
                 %obj.hasBeenChasing = 0;
