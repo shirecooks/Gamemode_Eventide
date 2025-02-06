@@ -491,6 +491,8 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : 0;
 			%victim.setDatablock("EventidePlayer");
 			%victim.playthread(0,"root");	
+
+			$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
 			return;
 		}					
 	}
