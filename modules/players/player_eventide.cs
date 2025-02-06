@@ -432,7 +432,7 @@ function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 
 			case 4: if (%obj.isSkinwalker)
 					{
-						return PlayerSkinwalker.Transform(%obj);
+						PlayerSkinwalker.Transform(%obj);
 					}
 					else
 					{
@@ -476,7 +476,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 	if (%bool && vectorDist(%obj.getPosition(),%victim.getPosition()) < 3)
 	{	
 		// The victim will be saved after 4 ticks if the player is still holding left click
-		if (%obj.reviveDownedCounter <= 4)
+		if (%obj.reviveDownedCounter <= 5)
 		{			
 			%obj.reviveDownedCounter++;
 			%this.CounterPrint(%obj,%obj.client,%obj.reviveDownedCounter,"Get up!");
@@ -484,28 +484,34 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 
 			// The mender class will save the victim faster
 			cancel(%obj.reviveDownedSched);
-			%obj.reviveDownedSched = %this.schedule((%obj.survivorClass $= "mender") ? 375 : 1000,reviveDowned,%obj,%victim,%bool);
+			%obj.reviveDownedSched = %this.schedule((%obj.survivorClass $= "mender") ? 300 : 750,reviveDowned,%obj,%victim,%bool);
 			return;
 		}
 		else
 		{
 			%obj.setTempSpeed(); // Reset the player's speed
-			%obj.reviveDownedCounter = 0;
-			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
+			%obj.reviveDownedCounter = 0;			
 			%stringformat = "<font:impact:30>\c3";
 
-			if (isObject(%obj.client)) %obj.client.centerprint(%stringformat @ "You revived" SPC %victim.client.name,1);
+			// Message the savior
+			if (isObject(%obj.client))
+			{
+				%obj.client.centerprint(%stringformat @ "You revived" SPC %victim.client.name,1);
+			}
+			
+			// Message the saved victim and apply the effects
 			if (isObject(%victim.client)) 
 			{
 				%victim.client.centerprint(%stringformat @ "You were revived by" SPC %obj.client.name,1);			
 				%victim.getdataBlock().pulsingScreen(%victim);
 			}
 
+			// Clear the billboard
+			$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
+			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
 			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : 0;
 			%victim.setDatablock("EventidePlayer");
-			%victim.playthread(0,"root");	
-
-			$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
+			%victim.playthread(0,"root");				
 			return;
 		}					
 	}
