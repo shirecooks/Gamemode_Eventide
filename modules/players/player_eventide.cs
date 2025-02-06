@@ -369,8 +369,8 @@ function EventidePlayer::Shove(%this,%obj)
 		setTimescale($oldTimescale);
 		
 		%pos = %obj.getEyePoint();
-		%radius = 0.25;
 		%eyeVec = %obj.getEyeVector();
+		%radius = 0.25;		
 		%mask = $TypeMasks::PlayerObjectType;
 
 		initContainerRadiusSearch(%pos,%radius,%mask);
@@ -379,20 +379,25 @@ function EventidePlayer::Shove(%this,%obj)
 			%obscure = containerRayCast(%obj.getEyePoint(),%hit.getHackPosition(),$TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType, %obj);
 			%dot = vectorDot(%obj.getEyeVector(),vectorNormalize(vectorSub(%hit.getHackPosition(),%obj.getHackPosition())));
 
-			if (%hit == %obj || isObject(%obscure) || %dot < 0.5) continue;
-			if (%hit.getState() $= "Dead") continue;
+			if (%hit == %obj || %hit.getState() $= "Dead" || isObject(%obscure) || %dot < 0.5)
+			{
+				continue;
+			}
 
 			serverPlay3D("melee_shove_sound",%hit.getHackPosition());
 			%hit.playThread(2,"jump");
-			
-			if (!%obj.shoveForce) %obj.shoveForce = 1;
-			%shoveForce = %obj.shoveForce;
-			if(%hit.getDatablock().getName() $= "PuppetMasterPuppet") %shoveforce = 2.5;
 
+			if (!%obj.shoveForce)
+			{
+				%obj.shoveForce = 1;
+			}
+
+			%shoveForce = (%hit.getDatablock().getName() $= "PuppetMasterPuppet") ? 2 : %obj.shoveForce;
 			%exhausted = (%obj.staminaCount >= 5) ? 2 : 1;
+						
 			%forwardimpulse = (((%obj.survivorclass $= "fighter") ? 950 : 800) / %exhausted) * %shoveForce;
 			%zimpulse = (((%obj.survivorclass $= "fighter") ? 325 : 200) / %exhausted) * %shoveForce;
-			%hit.applyimpulse(%hit.getPosition(),VectorAdd(VectorScale(%obj.getEyeVector(),%forwardimpulse),"0 0 " @ %zimpulse));
+			%hit.setVelocity(VectorAdd(VectorScale(%obj.getEyeVector(),%forwardimpulse),"0 0 " @ %zimpulse));
 		}												
 	}
 }
@@ -435,7 +440,10 @@ function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 					}
 		}
 	}
-	else if (isObject(%obj.isSaving)) %this.reviveDowned(%obj,%obj.isSaving,false);
+	else if (isObject(%obj.isSaving))
+	{
+		%this.reviveDowned(%obj,%obj.isSaving,false);
+	}
 }
 
 function EventidePlayer::CounterPrint(%this,%obj, %client, %amount, %message)
@@ -460,6 +468,11 @@ function EventidePlayer::CounterPrint(%this,%obj, %client, %amount, %message)
 
 function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 {
+	if(!isObject(%obj) || !isObject(%victim) || %obj.getState() $= "Dead" || %victim.getState() $= "Dead")
+	{
+		return;
+	}
+	
 	if (%bool && vectorDist(%obj.getPosition(),%victim.getPosition()) < 3)
 	{	
 		// The victim will be saved after 4 ticks if the player is still holding left click
