@@ -932,6 +932,9 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 		%obj.playThread(%j,"root");
 	}
 
+	// Remove the downed billboard
+	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+
 	%genderSound = (!%obj.client.chest) ? "male" : "female";
 	%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
 	%sound = %genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound";	
@@ -999,6 +1002,9 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 //Called whenever a survivor dies or escapes. Fires an event if the survivor is the last one standing.
 function EventidePlayerDowned::onRemove(%this, %obj)
 {
+	// Remove the downed billboard
+	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	
 	%minigame = getMinigameFromObject(%obj);
 	if(isObject(%minigame) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
 	{
