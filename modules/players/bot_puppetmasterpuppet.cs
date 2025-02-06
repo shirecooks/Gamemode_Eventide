@@ -17,9 +17,9 @@ datablock PlayerData(PuppetMasterPuppet : PlayerRenowned)
 
 	rechargeRate = 0.35;
 	runForce = 5616;
-	maxForwardSpeed = 10.47;
-	maxBackwardSpeed = 5.98;
-	maxSideSpeed = 8.58;
+	maxForwardSpeed = 8;
+	maxBackwardSpeed = 7;
+	maxSideSpeed = 7;
 	maxDamage = 50;
 	showenergybar = true;
 };
@@ -100,8 +100,6 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
     %obj.BotLoopSched = %this.schedule(500, onBotLoop, %obj);    
     %target = %obj.target;
     %currentTime = getSimTime();
-
-    %obj.setMoveSpeed(0.4);
     
     // Target search logic
     if(!%target && %obj.lastSearchTime < %currentTime)
