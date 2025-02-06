@@ -6,7 +6,7 @@ datablock fxLightData(downedAVBillboard : DefaultAVBillboard)
 	flarebitmap = "add-ons/gamemode_eventide/modules/misc/icons/icon_downed.png";
 	uiName = "downedAVBillboard";
 
-	ConstantSize = 5;
+	ConstantSize = 2;
 	flareColor = "1 1 1 1";
 };
 
