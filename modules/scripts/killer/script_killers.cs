@@ -272,7 +272,7 @@ function GameConnection::PlaySkullFrames(%client,%frame)
 
 function GameConnection::playAmbiance(%client)
 {
-	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 3);
+	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 4);
 	%client.SetChaseMusic(%ambientMusicDatablock, false);
 }
 
