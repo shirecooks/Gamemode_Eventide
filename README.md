@@ -23,7 +23,7 @@
 - Carbon Zypher for Special FX Design
 - Nozero for Modeling
 - Conan for Coding
-- Monoblaster for Items
+- Monoblaster for Items and billboards
 - Eagle517 for Coding
 - Rose The Floran for Building
 - Pickled for Building
