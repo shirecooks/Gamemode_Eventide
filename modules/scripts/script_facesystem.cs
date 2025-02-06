@@ -622,10 +622,10 @@ package Gamemode_Eventide_FaceSystem
         parent::onNewDataBlock(%this, %player);
         if(isObject(%player.client) && !%player.getDataBlock().isKiller)
         {
-            if(isObject(%obj.victimreplicatedclient))
+            if(isObject(%player.victimreplicatedclient))
             {
                 //Skinwalker support: Need to pull the face appearance from the victim's client, not the skinwalker's.
-                %client = %obj.victimreplicatedclient;
+                %client = %player.victimreplicatedclient;
             }
             else
             {
