@@ -26,3 +26,4 @@ exec("./player_captain.cs");
 exec("./player_mastermind.cs");
 exec("./player_kid.cs");
 exec("./player_yourself.cs");
+exec("./player_diver.cs");

@@ -80,7 +80,7 @@ function PuppetMasterPuppet::onDisabled(%this,%obj)
 	
 	%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 	%obj.sourceclient.setcontrolobject(%obj.source);
-	%obj.source.mountimage("sm_stunImage",2);
+	%obj.source.mountimage("sm_stunImage",3);
 	%obj.delete();
 }
 

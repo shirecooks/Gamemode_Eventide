@@ -83,6 +83,7 @@ function PlayerGenocide::onNewDatablock(%this,%obj)
 {
 	Parent::onNewDatablock(%this,%obj);
 	%obj.mountImage("shovelImage",1);
+	%obj.mountImage("overcoatMountedImage",2);
 	%obj.setScale("1 1 1");
 
     %obj.gazeTickRate = %this.gazeTickRate;

@@ -151,6 +151,7 @@ function PlayerDisfigured::EventideAppearance(%this,%obj,%client)
 	{
 		%obj.faceConfigShowFaceTimed("Neutral", -1);
 	}
+	%obj.setDecalName("disfigureddecal");
 	%obj.setNodeColor("rarm",%skinColor);
 	%obj.setNodeColor("larmslim",%bloodColor);
 	%obj.setNodeColor("femchest",%dressColor);
