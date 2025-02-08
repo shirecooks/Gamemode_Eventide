@@ -1,6 +1,9 @@
 # Dead by Daylight Inspired Gamemode for Blockland
 
-## Required Add-Ons
+## ‼️Required Client Add-Ons‼️
+- **Support_CustomCDN**
+
+## ‼️Required Server Add-Ons‼️
 - Support_CustomCDN  
 - Gamemode_Slayer  
 - Event_BrickText  
