@@ -269,7 +269,7 @@ function servercmdGetPeggPrefs(%client)
 
 function Armor::onLand(%data, %obj, %horiz)
 {
-	if (!$Pref::Server::PF::landingFX || %obj.isInvisible) return;
+	if (!$Pref::Server::PF::landingFX || %obj.isInvisible || %obj.isCrouched()) return;
 
 	$oldTimescale = getTimescale();
 	setTimescale((getRandom(75,150)*0.01) * $oldTimescale);
