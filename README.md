@@ -4,7 +4,8 @@
 - **Support_CustomCDN**
 
 ## ‼️Required Server Add-Ons‼️
-- Support_CustomCDN  
+- Script_Blood
+- Support_CustomCDN
 - Gamemode_Slayer  
 - Event_BrickText  
 - Item_Medical  
