@@ -100,10 +100,9 @@ package CustomCDNServer
 			}
 		}
         
-		if(%client.customCDN)
+		if(!%client.customCDN)
         {
-            commandToClient(%client, 'messageBoxOK', "Add-On Required", "<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required, please download it on Blockland Glass before proceeding");
-            %client.schedule(500,delete);
+            %client.delete("<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required, please download it on Blockland Glass and restart the game");
         }
 
         return %ret;
