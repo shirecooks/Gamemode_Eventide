@@ -585,7 +585,7 @@ function PeggFootsteps(%obj, %lastVert)
 		    // Make the player fall faster
 			%obj.addvelocity("0 0 -0.1");
 
-		    if (%velz < -15)
+		    if (%velz < -25)
 		    {
 		        if (%obj.lastFallSpamClick+getRandom(50,250) < getSimTime())
 				{
