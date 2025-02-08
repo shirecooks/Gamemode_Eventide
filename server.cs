@@ -102,7 +102,7 @@ package CustomCDNServer
         
 		if(!%client.customCDN)
         {
-            %client.delete("<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required, please download it on Blockland Glass and restart the game");
+           return "<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required, please download it on Blockland Glass and restart the game";
         }
 
         return %ret;
