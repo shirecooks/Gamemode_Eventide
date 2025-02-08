@@ -225,7 +225,7 @@ function bottleImage::onFire(%this,%obj,%slot)
 				if(%obj.bottlehit < 3) %hit.Damage(%obj, %hit.getPosition(), 10, $DamageType::Bottle);
 				else
 				{
-					%hit.mountimage("sm_stunImage",2);
+					%hit.mountimage("sm_stunImage",3);
 					%hit.Damage(%obj, %hit.getPosition(), 20, $DamageType::BottleBroken);
 				}
 				

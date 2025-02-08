@@ -272,7 +272,7 @@ function BreakActionShotgunProjectile::onCollision(%data, %proj, %col, %fade, %p
 {
 	if(%col.getClassName() $= "Player")
 	{
-		%col.mountimage("sm_stunImage",2);
+		%col.mountimage("sm_stunImage",3);
 	}
 	parent::onCollision(%data, %proj, %col, %fade, %pos, %normal);
 }

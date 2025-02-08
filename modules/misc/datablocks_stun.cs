@@ -65,7 +65,7 @@ datablock ShapeBaseImageData(sm_stunImage)
 
 function sm_stunImage::onMount(%this,%obj)
 {
-	%obj.schedule(2500,unmountImage,2);
+	%obj.schedule(2500,unmountImage,3);
 	%obj.setactionthread("sit",1);
 	%obj.stunned = 1;
 	%playerDatablock = %obj.getDatablock();

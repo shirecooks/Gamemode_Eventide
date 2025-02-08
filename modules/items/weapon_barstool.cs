@@ -151,7 +151,7 @@ function sm_barStoolImage::onFire(%this,%obj,%slot)
 				if(%obj.barstoolhit < 3) %hit.Damage(%obj, %hit.getPosition(), 25, $DamageType::barStool);
 				else
 				{
-					%hit.mountimage("sm_stunImage",2);
+					%hit.mountimage("sm_stunImage",3);
 					%hit.Damage(%obj, %hit.getPosition(), 50, $DamageType::barStool);
 				}
 				

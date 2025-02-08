@@ -92,7 +92,7 @@ function StunGunImage::onDetonate(%this, %obj, %slot)
 
             if(%nearbyplayer == %obj) continue;
 
-            if(%nearbyplayer.getDataBlock().isKiller) %nearbyplayer.mountimage("sm_stunImage",2);                        
+            if(%nearbyplayer.getDataBlock().isKiller) %nearbyplayer.mountimage("sm_stunImage",3);                        
         }
     }      
 }

@@ -198,7 +198,7 @@ function sm_poolCueImage::onFire(%this,%obj,%slot)
 
 			if((%hit.getType() & $TypeMasks::PlayerObjectType) && minigameCanDamage(%obj,%hit))
 			{
-				%hit.mountimage("sm_stunImage",2);
+				%hit.mountimage("sm_stunImage",3);
 				%hit.Damage(%obj, %hit.getPosition(), 50, $DamageType::barStool);
 				%hit.applyImpulse(%hit.getposition(),vectorAdd(vectorScale(%obj.getMuzzleVector(0),1500),"0 0 750"));			
 			}			
