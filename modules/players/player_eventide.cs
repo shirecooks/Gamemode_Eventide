@@ -938,15 +938,15 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 {	
 	Parent::onDisabled(%this,%obj);
 
-	//TODO: Quick-fix for corpses standing up on death
-	%obj.playThread(1, "Death1");
-
 	// Remove all mounted images and stop all animation threads
 	for (%j = 0; %j < 4; %j++)
 	{
 		%obj.unmountimage(%j);
 		%obj.playThread(%j,"root");
 	}
+
+	//TODO: Quick-fix for corpses standing up on death
+	%obj.playThread(1, "Death1");
 
 	// Remove the downed billboard
 	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
