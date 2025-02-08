@@ -75,8 +75,8 @@ package Eventide_Player
 		%forcescale = %force/25 * %oscale;
 		%obj.spawnExplosion(pushBroomProjectile,%forcescale SPC %forcescale SPC %forcescale);
 		
-		if(%obj.isCrouching()) return;
-		
+		if(%obj.isCrouched()) return;
+
 		serverPlay3D("impact_" @ (%force < 40 ? "medium" : "hard") @ getRandom(1,3) @ "_sound",%obj.getPosition());
 
 		// Play a sound if the player is falling
