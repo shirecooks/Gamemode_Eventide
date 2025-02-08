@@ -12,6 +12,7 @@ exec("./support/support_stringutilities.cs");
 exec("./support/support_vectorutilities.cs");
 exec("./support/support_texttransfer.cs");
 exec("./support/support_billboards.cs");
+exec("./support/support_cdnoverride.cs");
 exec("./script_itemparticle.cs");
 exec("./script_itemspawning.cs");
 exec("./billboard_example.cs");
