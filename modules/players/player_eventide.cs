@@ -904,19 +904,6 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		%obj.addHealth(-1);
 		%pulse = 0.1 + ((%obj.getDamageLevel() / 100) * 0.75);
 		%obj.setDamageFlash(%pulse);
-
-		// Scream every 5-10 seconds
-		if ($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownCall+getRandom(5000,10000) < getSimTime())
-		{
-			%obj.lastDownCall = getSimTime();			
-
-			%genderSound = (!%obj.client.chest) ? "male" : "female";
-			%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
-			%sound = %genderSound @ "_shock" @ getRandom(1, %genderSoundAmount) @ "_sound";
-
-			%obj.playaudio(0,%sound);
-			%obj.playthread(3,"plant");
-		}
 	}
 
 	// Keep the loop going unless the first condition is met
