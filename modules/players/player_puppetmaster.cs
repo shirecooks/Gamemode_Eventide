@@ -177,7 +177,7 @@ package Eventide_PuppetMasterBotToggle
 		// Ensure the player is valid and is the Puppet Master
 	    if (%client.player.getDataBlock().getName() $= "PlayerPuppetMaster" && isObject(Eventide_MinigameGroup))
 	    {
-			if(isObject(%client.player.getMountedImage(2)) && %client.player.getMountedImage(2).getName() $= "sm_stunImage")
+			if(isObject(%client.player.getMountedImage(3)) && %client.player.getMountedImage(3).getName() $= "sm_stunImage")
 			return;
 
 	        // Populate the temporary puppet list
