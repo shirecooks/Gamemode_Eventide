@@ -32,6 +32,7 @@ function MiniGameSO::randomizeEventideItems(%minigame)
                                 case 4: %brick.setItem("FlareItem");
 								case 5: %brick.setItem("GauzeItem");
 								case 6: %brick.setItem("AirhornItem");
+                                case 7: %brick.setItem("ZombiePillsItem");
                                 default: %brick.setItem("none");
                             }
 
