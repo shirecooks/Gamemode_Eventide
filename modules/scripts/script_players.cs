@@ -69,13 +69,15 @@ package Eventide_Player
 		if (%obj.isInvisible || !isObject(%obj))
 		{
 			return;
-		}
-
-		serverPlay3D("impact_" @ (%force < 40 ? "medium" : "hard") @ getRandom(1,3) @ "_sound",%obj.getPosition());
+		}		
 
 		%oScale = getWord(%obj.getScale(),2);
 		%forcescale = %force/25 * %oscale;
 		%obj.spawnExplosion(pushBroomProjectile,%forcescale SPC %forcescale SPC %forcescale);
+		
+		if(%obj.isCrouching()) return;
+		
+		serverPlay3D("impact_" @ (%force < 40 ? "medium" : "hard") @ getRandom(1,3) @ "_sound",%obj.getPosition());
 
 		// Play a sound if the player is falling
 		if (%obj.getState() !$= "Dead" && getWord(%vec,2) > %obj.getdataBlock().minImpactSpeed * 2)
