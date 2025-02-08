@@ -396,7 +396,7 @@ function EventidePlayer::Shove(%this,%obj)
 			%exhausted = (%obj.staminaCount >= 5) ? 2 : 1;
 						
 			%forwardimpulse = (((%obj.survivorclass $= "fighter") ? 2.5 : 1.25) / %exhausted) * %shoveForce;
-			%zimpulse = (((%obj.survivorclass $= "fighter") ? 10 : 25) / %exhausted) * %shoveForce;
+			%zimpulse = (((%obj.survivorclass $= "fighter") ? 5 : 2.5) / %exhausted) * %shoveForce;
 			%hit.setVelocity(VectorAdd(VectorScale(%obj.getEyeVector(),%forwardimpulse),"0 0 " @ %zimpulse));
 		}												
 	}
