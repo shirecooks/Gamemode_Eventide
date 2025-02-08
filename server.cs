@@ -80,6 +80,44 @@ if(%fatalError)
     return;
 }
 
+package CustomCDNServer
+{
+	function GameConnection::onConnectRequest(%client, %netAddress, %LANname, %blid, %clanPrefix, %clanSuffix, %clientNonce,%g, %h, %i, %j, %k, %l, %m, %n, %o, %p)
+	{
+		%ret = Parent::onConnectRequest(%client, %netAddress, %LANname, %blid, %clanPrefix, %clanSuffix, %clientNonce,%g, %h, %i, %j, %k, %l, %m, %n, %o, %p);			
+		
+		%client.customCDN = false;
+
+		for(%cnt = 0; %cnt < getLineCount(%h); %cnt++)
+		{
+			%line = getLine(%h, %cnt);
+			if(getField(%line, 0) $= "CustomCDN")
+			{
+				%client.customCDN = true;
+				%client.customCDNUrl = $CustomCDN::CDN_to_clients;
+				%client.customCDNversion = getField(%line, 1);
+				break;
+			}
+		}
+        
+		if(%client.customCDN)
+        {
+            return %ret;
+        }
+        else
+        {
+            return commandToClient(%client, 'messageBoxOK', "Add-On Required", "<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required, please download it on Blockland Glass before proceeding");
+        }
+        
+	}
+};
+
+if(isPackage(CustomCDNServer)) 
+{
+    deactivatePackage(CustomCDNServer);
+    activatePackage(CustomCDNServer);
+}
+
 // Execute essential scripts and preferences first
 exec("./prefs.cs");
 exec("./modules/scripts/module_scripts.cs");
