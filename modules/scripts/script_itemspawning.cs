@@ -26,7 +26,7 @@ function MiniGameSO::randomizeEventideItems(%minigame)
 
             case "_item":   switch(getRandom(1,12)) // Randomly pick an item to spawn, anything greater than 6 will be none
                             {
-                                case 1: %brick.setItem("RadioItem");
+                                case 1: %brick.setItem($MinigameLocalChat ? "RadioItem" : "ShotgunSlugItem");
                                 case 2: %brick.setItem("ZombieMedpackItem");
                                 case 3: %brick.setItem("SodaItem");
                                 case 4: %brick.setItem("FlareItem");
