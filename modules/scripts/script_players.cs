@@ -75,7 +75,7 @@ package Eventide_Player
 		%forcescale = %force/25 * %oscale;
 		%obj.spawnExplosion(pushBroomProjectile,%forcescale SPC %forcescale SPC %forcescale);
 		
-		if(%obj.isCrouched()) return;
+		if(%obj.isCrouched() || %force < %this.minImpactSpeed) return;
 
 		serverPlay3D("impact_" @ (%force < 40 ? "medium" : "hard") @ getRandom(1,3) @ "_sound",%obj.getPosition());
 
