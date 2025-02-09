@@ -75,11 +75,24 @@ function brickEventideRitual::DisplayText(%this, %obj, %name, %color, %distance,
 
 function brickEventideRitual::ritualCheck(%this,%obj)
 {
-	if(!isObject(%obj)) return;
+	if(!isObject(%obj)) return;	
 
 	%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced, "0.8 0.1 0.75", "20");
 
-	if(%obj.ritualsPlaced < 10 && isObject(%minigame = getMiniGameFromObject($EventideEventCaller.getGroup().client)))
+	if(MiniGameGroup.getCount())
+	{
+		for(%i = 0; %i < MiniGameGroup.getCount(); %i++)
+		{
+			if(isObject(%minigame = MiniGameGroup.getObject(i)) && strstr(strlwr(%minigame.title), "eventide") != -1)
+			{
+				%eventideminigame = %minigame;
+				break;
+			}
+		}						
+	}
+	else %eventideminigame = 0;
+
+	if(%obj.ritualsPlaced < 10 && isObject(%eventideminigame))
 	{
 		initContainerRadiusSearch(%obj.getPosition(), 2.5, $TypeMasks::ItemObjectType | $TypeMasks::PlayerObjectType);		
 		while(%scan = containerSearchNext())
@@ -155,27 +168,23 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 
 			if(%obj.ritualsPlaced >= 10)
 			{
-				%minigame.centerprintall("<font:Impact:40>\c3All rituals are complete!",3);
-				%minigame.playSound("round_start_sound");
+				%eventideminigame.centerprintall("<font:Impact:40>\c3All rituals are complete!",3);
+				%eventideminigame.playSound("round_start_sound");
 
-				//For each client on the server, disable their chase music. Call an extra function on killers.
 				for(%i = 0; %i < ClientGroup.getCount(); %i++)
 				{
 					%client = ClientGroup.getObject(%i);
-					//Disable chase and ambient music.
-					if(isObject(%client.EventidemusicEmitter))
-					{
-						%client.EventidemusicEmitter.delete();
-					}
 
-					//Killer functionality.
-					if(isObject(%client.player))
+					// Set the music to hurry					
+					if(isObject(%client.EventideMusicEmitter))
 					{
-						%playerDatablock = %client.player.getDatablock();
-						if(%playerDatablock.isKiller)
-						{
-							%playerDatablock.onAllRitualsPlaced(%client.player);
-						}
+						%client.SetChaseMusic("musicData_eventide_hurry",false);
+					}
+					
+					// Call the killer's onAllRitualsPlaced function
+					if(isObject(%client.player) && %client.player.getDatablock().isKiller)
+					{
+						%client.player.getDatablock().onAllRitualsPlaced(%client.player);
 					}
 				}
 			}

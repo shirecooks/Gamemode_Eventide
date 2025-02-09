@@ -218,15 +218,19 @@ function Armor::onRoundEnd(%this, %obj, %won)
 
 function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
 {
-    if(!isObject(%client) || !isObject(%songname) || (isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10))
-	{
-		//The `Eventide_MinigameRitualGroup` check prevents chase or ambient music from playing when all rituals have been completed.
+    // Do not continue if there is no client, invalid song, or if the ritual is complete
+	if(!isObject(%client) || !isObject(%songname))
+	{		
 		return;    
 	}
+
+	// If the ritual is complete and the song is not the hurry song, return
+	if((isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10) && strlwr(%songname) !$= "musicData_eventide_hurry")
+	{
+		return;
+	}
     
-	//Delete the old emitter, if it's playing other music.
-	%currentMusicEmitter = %client.EventidemusicEmitter;
-	if(isObject(%currentMusicEmitter)) 
+	if(isObject(%currentMusicEmitter = %client.EventideMusicEmitter)) 
 	{
 		if(%currentMusicEmitter.profile $= %songname)
 		{
@@ -234,11 +238,11 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
 		}
 		else
 		{
-			%client.EventidemusicEmitter.delete();
+			%client.EventideMusicEmitter.delete();
 		}
 	}
 
-    %client.EventidemusicEmitter = new AudioEmitter()
+    %client.EventideMusicEmitter = new AudioEmitter()
     {
         position = "9e9 9e9 9e9";
         profile = %songname;
@@ -247,8 +251,9 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
         useProfileDescription = false;
         is3D = false;
     };
-    MissionCleanup.add(%client.EventidemusicEmitter);
-	adjustObjectScopeToAll(%client.EventidemusicEmitter, false, %client);
+
+    MissionCleanup.add(%client.EventideMusicEmitter);
+	adjustObjectScopeToAll(%client.EventideMusicEmitter, false, %client);
 }
 
 function GameConnection::PlaySkullFrames(%client,%frame)
@@ -265,7 +270,6 @@ function GameConnection::PlaySkullFrames(%client,%frame)
 
 	%client.centerprint("<br><br><bitmap:Add-ons/Gamemode_Eventide/modules/misc/icons/skullFrames/SkullFrame" @ %frame @ ">",0.2);
 
-	// Schedule next frame, preventing duplication
 	cancel(%client.SkullFrameSched);
 	%client.SkullFrameSched = %client.schedule(60, PlaySkullFrames, %frame++);
 }
@@ -283,9 +287,9 @@ function GameConnection::StopChase(%client)
 		return;
 	}
 
-    if(isObject(%client.EventidemusicEmitter))
+    if(isObject(%client.EventideMusicEmitter))
 	{
-		%client.EventidemusicEmitter.delete();
+		%client.EventideMusicEmitter.delete();
 	}
 
 	//Play ambiant music track.
