@@ -21,6 +21,7 @@ package CustomCDNServer
 		if(!%client.customCDN)
         {
            warn("Client" SPC %client.getBLID() SPC "is missing CustomCDN, refusing connection");
+		   talk("Client" SPC %client.getBLID() SPC "is missing CustomCDN, everyone point and laugh at them XD");
 		   return "<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required to play on this server";
         }
 
