@@ -738,7 +738,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		// More blood splatter the more damage the player has taken
 		for (%i = 0; %i < getRandom(2,4); %i++) 
 		{
-			createBloodSplatterExplosion(%position, vectorNormalize(vectorSub(%position, %sourceObject.getEyePoint())), "1 1 1");			
+			createBloodSplatterExplosion(%position, %position, "1 1 1");			
 		}
 		
 		%genderSound = (!%obj.client.chest) ? "male" : "female";
@@ -746,7 +746,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		%sound = %genderSound @ "_pain" @ getRandom(1, %genderSoundAmount) @ "_sound";
 
 		// The disguise is about to be broken, now that the player has been hurt
-		if (getRandom(1,10) == 1) 
+		if (getRandom(1,10) == 1) 	
 		{
 			%sound = "skinwalker_pain_sound";	
 			if (!isObject(%obj.victim) && !isEventPending(%obj.monsterTransformschedule)) 
@@ -754,6 +754,8 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 				PlayerSkinwalker.monsterTransform(%obj,true);
 			}
 		}
+
+		%obj.playaudio(0,%sound);
 		
 		return;
 	}
