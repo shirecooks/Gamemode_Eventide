@@ -48,7 +48,7 @@ package Eventide_Player
 	{
 		Parent::setControlObject(%this,%obj);
 
-		talk("setControlObject");
+		talk("setControlObject, %obj = " @ %obj @ ", %this = " @ %this);
 		
 		if (%obj == %this.player && %obj.getDatablock().maxTools != %this.lastMaxTools)
 		{
