@@ -15,21 +15,25 @@ datablock PlayerData(emptyPlayer : playerStandardArmor)
 	uiName = "";
 };
 
-function emptyPlayer::onAdd(%this, %obj) {
+function emptyPlayer::onAdd(%this, %obj) 
+{
 	%obj.setDamageLevel(%this.maxDamage);	
 }
 
 function emptyPlayer::onRemove(%this, %obj)
 {
-	if(isObject(%obj.light)) { 
+	if(isObject(%obj.light)) 
+	{ 
 		%obj.light.delete();
 	}
 }
 
 // Overwrite methods to prevent the bot from being removed
-function emptyPlayer::doDismount(%this, %obj, %forced) {
+function emptyPlayer::doDismount(%this, %obj, %forced) 
+{
 	return;
 }
-function emptyPlayer::onDisabled(%this, %obj) {
+function emptyPlayer::onDisabled(%this, %obj) 
+{
 	return;
 }

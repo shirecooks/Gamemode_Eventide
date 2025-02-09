@@ -15,7 +15,7 @@ exec("./support/support_billboards.cs");
 exec("./support/support_cdnoverride.cs");
 exec("./script_itemparticle.cs");
 exec("./script_itemspawning.cs");
-exec("./billboard_example.cs");
+exec("./script_billboards.cs");
 exec("./script_chatsystem.cs");
 exec("./killer/script_killers.cs");
 exec("./killer/script_killerloop.cs");
