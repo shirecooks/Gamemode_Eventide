@@ -22,7 +22,7 @@ datablock PlayerData(PlayerShire : PlayerRenowned)
 	killerchasesoundamount = 1;
 	
 	killernearsound = "shire_looking";
-	killernearsoundamount = 8;
+	killernearsoundamount = 9;
 
     killertauntsound = "shire_kill";
     killertauntsoundamount = 2;

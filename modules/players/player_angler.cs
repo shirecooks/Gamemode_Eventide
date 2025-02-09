@@ -205,6 +205,14 @@ function PlayerAngler::onPeggFootstep(%this,%obj)
 	%obj.spawnExplosion("Eventide_footstepShakeProjectile", 0.5 + (getRandom() / 2));
 }
 
+function PlayerAngler::onExitStun(%this, %obj)
+{
+	%obj.playAudio(1, "angler_enraged_sound");
+	%obj.setTempSpeed(1.2);
+	%obj.schedule(5000, settempspeed,1);
+	%obj.mountImage(HateImage, 2);
+}
+
 function PlayerAngler::onKillerHit(%this,%obj,%hit)
 {		
 	if(isObject(%obj.hookrope))
