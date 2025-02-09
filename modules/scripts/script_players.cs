@@ -46,11 +46,6 @@ package Eventide_Player
 	
 	function GameConnection::setControlObject(%client,%obj)
 	{		
-		if(isObject(%client.getControlObject()) && %client.getControlObject().getState() !$= "Dead" && %client.getControlObject().getDataBlock().getName() $= "ShireZombieBot")
-		{
-			return;
-		}
-		
 		Parent::setControlObject(%client,%obj);
 		
 		if (%obj == %client.player && %obj.getDatablock().maxTools != %client.lastMaxTools)

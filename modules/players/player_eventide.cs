@@ -998,6 +998,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 				// Make the player a ghost
 				%obj.client.schedule(33,setControlObject,%bot);
 				%obj.client.camera.schedule(33,setMode,"Observer");
+				%obj.client.schedule(33,setDead,false);
 				%client.centerPrint("<font:impact:30>\c3You are now a ghost, work with the killer to hunt down the survivors!", 1);
 			}			
 		}
