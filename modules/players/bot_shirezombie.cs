@@ -3,7 +3,8 @@ datablock PlayerData(ShireZombieBot : EventidePlayer)
 	uiName = "";
 	isKiller = true;
     uiName = "";
-    maxDamage = 9999;
+    maxDamage = 50;
+    thirdpersonlonly = true;
 	maxForwardSpeed = 5.95;
 	maxBackwardSpeed = 3.4;
 	maxSideSpeed = 5.1;
