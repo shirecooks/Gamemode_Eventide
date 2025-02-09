@@ -44,16 +44,19 @@ package Eventide_Player
 		}
 	}
 	
-	function GameConnection::setControlObject(%this,%obj)
-	{
-		Parent::setControlObject(%this,%obj);
-
-		talk("setControlObject, %obj = " @ %obj @ ", %this = " @ %this);
-		
-		if (%obj == %this.player && %obj.getDatablock().maxTools != %this.lastMaxTools)
+	function GameConnection::setControlObject(%client,%obj)
+	{		
+		if(isObject(%client.getControlObject()) && %client.getControlObject().getState() !$= "Dead" && %client.getControlObject().getDataBlock().getName() $= "ShireZombieBot")
 		{
-			%this.lastMaxTools = %obj.getDatablock().maxTools;
-			commandToClient(%this,'PlayGui_CreateToolHud',%obj.getDatablock().maxTools);
+			return;
+		}
+		
+		Parent::setControlObject(%client,%obj);
+		
+		if (%obj == %client.player && %obj.getDatablock().maxTools != %client.lastMaxTools)
+		{
+			%client.lastMaxTools = %obj.getDatablock().maxTools;
+			commandToClient(%client,'PlayGui_CreateToolHud',%obj.getDatablock().maxTools);
 		}
 	}	
 	
