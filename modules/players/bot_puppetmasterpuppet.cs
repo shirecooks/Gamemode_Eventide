@@ -230,12 +230,11 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
             if(%distance < 2)
             {
                 // Use ontrigger for killer melee
-		        %this.onTrigger(%obj,0,1);
-                
+		        %this.onTrigger(%obj,0,1);                                
                 %obj.playAudio(3, "melee_tanto" @ getRandom(1, 3) @ "_sound");
-                cancel(%obj.BotLoopSched);
-                %obj.playThread(3, "activate2");
                 %obj.setMoveX(0);
+
+                cancel(%obj.BotLoopSched);
                 %obj.BotLoopSched = %this.schedule(2000, onBotLoop, %obj);
             }
         }

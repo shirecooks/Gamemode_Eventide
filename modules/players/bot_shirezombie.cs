@@ -153,7 +153,7 @@ function ShireZombieBot::onBotLoop(%this, %obj)
                 
             if(%distance < 2)
             {
-                %target.damage(%obj, %target.getWorldBoxCenter(), 30, $DamageType::Default);
+                %target.damage(%obj, %target.getWorldBoxCenter(), 20, $DamageType::Default);
                 %target.setTempSpeed(0.5);
                 %target.schedule(1000, setTempSpeed, 1);
                 %target.playThread(3, "plant");
