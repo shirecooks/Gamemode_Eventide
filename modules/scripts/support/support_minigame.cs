@@ -55,6 +55,7 @@ package Eventide_Minigame
 			$EventideRitualBrick.ritualsPlaced = 0;
 			$EventideRitualBrick.gemcount = 0;
 			$EventideRitualBrick.candlecount = 0;
+			$EventideRitualBrick.setEmitter();
 		}
 
 		%minigame.escapedCount = 0;

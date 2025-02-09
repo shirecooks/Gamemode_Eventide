@@ -77,7 +77,12 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 {
 	if(!isObject(%obj)) return;	
 
-	%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced, "0.8 0.1 0.75", "20");
+	
+	if(%obj.ritualsPlaced < 10)
+	{
+		%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced, "0.8 0.1 0.75", "20");
+	}
+	else %this.DisplayText(%obj,"", "0 0 0", "0");
 
 	if(MiniGameGroup.getCount())
 	{
@@ -168,8 +173,10 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 
 			if(%obj.ritualsPlaced >= 10)
 			{
-				%eventideminigame.centerprintall("<font:Impact:40>\c3All rituals are complete!",3);
+				serverPlay3D("generator_explode_sound",%obj.getPosition());
 				%eventideminigame.playSound("round_start_sound");
+				%obj.setEmitter("LaserEmitterA");				
+				%obj.spawnExplosion("horseRayProjectile","2 2 2");				
 
 				for(%i = 0; %i < ClientGroup.getCount(); %i++)
 				{
