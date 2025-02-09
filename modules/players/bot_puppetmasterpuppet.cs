@@ -79,9 +79,8 @@ function PuppetMasterPuppet::onDisabled(%this,%obj)
 	Parent::onDisabled(%this,%obj);
 	
 	%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
-	%obj.sourceclient.setcontrolobject(%obj.source);
 	%obj.source.mountimage("sm_stunImage",3);
-	%obj.delete();
+	%obj.schedule(33,delete);
 }
 
 function PuppetMasterPuppet::onAdd(%this,%obj)

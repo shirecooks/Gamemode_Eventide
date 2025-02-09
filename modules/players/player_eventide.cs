@@ -987,7 +987,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 			{
 				%minigame.playSound("render_kill_sound");
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
-				%obj.schedule(33,delete);
+				%obj.delete();
 			}
 
 			if (%obj.shireZombify)
@@ -1003,13 +1003,10 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 				Eventide_MinigameGroup.add(%bot);
 				%bot.setTransform(%obj.getTransform());
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
-				%obj.schedule(33,delete);
+				%obj.delete();
 
-				// Make the player a ghost
-				%obj.client.schedule(33,setControlObject,%bot);
-				%obj.client.camera.schedule(33,setMode,"Observer");
-				%obj.client.schedule(33,setDead,false);
-				%client.centerPrint("<font:impact:30>\c3You are now a ghost, work with the killer to hunt down the survivors!", 1);
+				%obj.client.schedule(1000,setControlObject,%bot);
+				%obj.client.camera.schedule(1000,setMode,"Observer");
 			}			
 		}
 	}	

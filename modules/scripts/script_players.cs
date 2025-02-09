@@ -53,6 +53,11 @@ package Eventide_Player
 			%client.lastMaxTools = %obj.getDatablock().maxTools;
 			commandToClient(%client,'PlayGui_CreateToolHud',%obj.getDatablock().maxTools);
 		}
+
+		if(isObject(%client.getControlObject()) && %client.getControlObject().getDataBlock().getName() $= "ShireZombieBot")
+        {
+            %client.player = %client.getControlObject();
+        }
 	}	
 	
 	function gameConnection::applyBodyColors(%client) 
