@@ -732,6 +732,32 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 {
 	%minigame = getMinigamefromObject(%obj);
 
+	// Condition for the skinwalker
+	if (%damage && %obj.isSkinwalker)
+	{
+		// More blood splatter the more damage the player has taken
+		for (%i = 0; %i < getRandom(2,4); %i++) 
+		{
+			createBloodSplatterExplosion(%position, vectorNormalize(vectorSub(%position, %sourceObject.getEyePoint())), "1 1 1");			
+		}
+		
+		%genderSound = (!%obj.client.chest) ? "male" : "female";
+		%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
+		%sound = %genderSound @ "_pain" @ getRandom(1, %genderSoundAmount) @ "_sound";
+
+		// The disguise is about to be broken, now that the player has been hurt
+		if (getRandom(1,10) == 1) 
+		{
+			%sound = "skinwalker_pain_sound";	
+			if (!isObject(%obj.victim) && !isEventPending(%obj.monsterTransformschedule)) 
+			{ 
+				PlayerSkinwalker.monsterTransform(%obj,true);
+			}
+		}
+		
+		return;
+	}
+
 	//Some killers have projectile weapons, and this allows you to call the onIncapacitateVictim
 	if(isObject(%sourceObject))
 	{	
@@ -830,22 +856,6 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		%genderSound = (!%obj.client.chest) ? "male" : "female";
 		%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
 		%sound = %genderSound @ "_pain" @ getRandom(1, %genderSoundAmount) @ "_sound";
-
-		// Condition for the skinwalker
-		if (%obj.isSkinwalker)
-		{
-			// The disguise is about to be broken, now that the player has been hurt
-			if (getRandom(1,4) == 1) 
-			{
-				%sound = "skinwalker_pain_sound";	
-				if (!isObject(%obj.victim) && !isEventPending(%obj.monsterTransformschedule)) 
-				{ 
-					PlayerSkinwalker.monsterTransform(%obj,true);
-				}
-			}
-
-			%obj.setHealth(%this.maxDamage);
-		}
 
 		if (%obj.getState() !$= "Dead" && %obj.lastDamageCall < getSimTime())
 		{
