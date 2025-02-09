@@ -301,18 +301,10 @@ function EventidePlayer::onActivate(%this,%obj)
 		if (%obj.AntiPossession >= 15)
 		{
 			if (isObject(%obj.Possesser))
-			{
-				%obj.Possesser.client.Camera.setMode("Corpse", %obj.Possesser);
-				%obj.Possesser.client.setControlObject(%obj.Possesser.client.camera);
+			{								
 				%obj.Possesser.client.centerprint("<font:Impact:30>\c3Your victim broke free!",2);
-
-				cancel(%obj.Possesser.returnObserveSchedule);
-				%obj.Possesser.returnObserveSchedule = %obj.Possesser.schedule(4000,ClearRenownedEffect);
-				
-				%obj.Possesser.playthread(2,"undo");
-				%obj.Possesser.playthread(3,"activate2");
-				%obj.Possesser.mountImage("RenownedPossessedImage",3);
-				%obj.Possesser.playaudio(3,"renowned_melee" @ getRandom(0,2) @ "_sound");
+				%obj.Possesser.PossessedPlayer = "";
+				%obj.Possesser.mountImage("sm_stunImage",3);
 			}
 
 			%obj.client.centerprint("<color:FFFFFF><font:Impact:40>You broke free!",1);

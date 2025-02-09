@@ -187,13 +187,20 @@ function PlayerRenowned::onTrigger(%this, %obj, %trig, %press)
 								%obj.client.setControlObject(%search);
 								%obj.returnObserveSchedule = %obj.schedule(4000,ClearRenownedEffect);
 
-								%search.client.centerprint("<color:FFFFFF><font:Impact:40>You are being controlled, press E to break free!",2);
+								if(isObject(%search.client))
+								{
+									%search.client.centerprint("<color:FFFFFF><font:Impact:40>You are being controlled, press E to break free!",2);
+								}
+								
 								%search.Possesser = %obj;
 								%search.isPossessed = true;
-								%obj.setEnergyLevel(0);
-								%obj.playthread(2,"leftrecoil");
 								%search.mountImage("RenownedPossessedImage",3);
 								%search.schedule(4000,ClearRenownedEffect);
+
+								%obj.PossessedPlayer = %search;
+								%obj.setEnergyLevel(0);
+								%obj.playthread(2,"leftrecoil");
+								%this.PossessDistanceCheck(%obj);								
 							}
 							else %obj.setEnergyLevel(%obj.getEnergyLevel()-50);
 						}		
@@ -203,10 +210,37 @@ function PlayerRenowned::onTrigger(%this, %obj, %trig, %press)
 	}	
 }
 
+function PlayerRenowned::onDamage(%this, %obj, %delta)
+{
+	Parent::onDamage(%this, %obj, %delta);
+	if(%obj.getState() !$= "Dead")
+	{
+		%obj.playaudio(0,"renowned_pain" @ getRandom(1, 4) @ "_sound");
+		%obj.faceConfigShowFace("Pain");
+	}
+}
+
+function PlayerRenowned::PossessDistanceCheck(%this,%obj)
+{
+	if(!isObject(%obj) || %obj.getState() $= "Dead" || !isObject(%obj.PossessedPlayer)) return;
+
+	// Clear the effect when the victim is close enough to the killer
+	if(VectorDist(%obj.getPosition(),%obj.PossessedPlayer.getPosition()) < 3)
+	{
+		%obj.ClearRenownedEffect();
+		%obj.PossessedPlayer.ClearRenownedEffect();
+		cancel(%obj.returnObserveSchedule);
+		return;
+	}
+	
+	%obj.PossessDistanceCheckSched = %this.schedule(100,PossessDistanceCheck,%obj);
+}
+
 function Player::ClearRenownedEffect(%obj)
 {
 	if(!isObject(%obj) || !(%obj.getType() & $TypeMasks::PlayerObjectType)) return;
 	
+	%obj.Possesser.PossessedPlayer = "";
 	%obj.AntiPossession = "";
 	%obj.Possesser = "";
 	%obj.isPossessed = "";
@@ -218,15 +252,5 @@ function Player::ClearRenownedEffect(%obj)
 		case "Player": 	%obj.client.setControlObject(%obj);
 						%obj.client.camera.setMode("Observer");
 		case "AIPlayer": %obj.setControlObject(%obj);
-	}
-}
-
-function PlayerRenowned::onDamage(%this, %obj, %delta)
-{
-	Parent::onDamage(%this, %obj, %delta);
-	if(%obj.getState() !$= "Dead")
-	{
-		%obj.playaudio(0,"renowned_pain" @ getRandom(1, 4) @ "_sound");
-		%obj.faceConfigShowFace("Pain");
 	}
 }
