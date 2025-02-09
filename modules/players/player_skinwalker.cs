@@ -215,6 +215,11 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
 		else
 		{
 			%obj.setdatablock("EventidePlayer");
+
+			for (%j = 0; %j < 4; %j++)
+			{
+				%obj.playThread(%j,"root");
+			}
 		}	        
     }
 }
