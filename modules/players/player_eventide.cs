@@ -961,6 +961,12 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	// Only do this if the client exists
 	if (isObject(%obj.client))
 	{
+		// If there is one remaining survivor, then call the minigame's onLastSurvivor function
+		if(isObject(%minigame = getMinigameFromObject(%obj)) && %obj.client.getRemainingTeamMembers() == 1)
+		{
+			%minigame.onLastSurvivor();
+		}	
+
 		%nClient = (isObject(%obj.ghostclient)) ? %obj.ghostclient : %obj.client;
 		commandToClient(%nClient, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
 		EventidePlayer.dropAllTools(%obj);
