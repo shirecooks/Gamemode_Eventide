@@ -47,6 +47,8 @@ package Eventide_Player
 	function GameConnection::setControlObject(%this,%obj)
 	{
 		Parent::setControlObject(%this,%obj);
+
+		talk("setControlObject");
 		
 		if (%obj == %this.player && %obj.getDatablock().maxTools != %this.lastMaxTools)
 		{
