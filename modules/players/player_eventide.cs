@@ -296,7 +296,7 @@ function EventidePlayer::onActivate(%this,%obj)
 	{		
 		%obj.playthread(2,"activate2");
 		%obj.AntiPossession = mClampF(%obj.AntiPossession+1, 0, 15);
-		%this.CounterPrint(%obj,%obj.client,%obj.AntiPossession/2,"Left click to regain control!");		
+		%this.CounterPrint(%obj,%obj.client,%obj.AntiPossession/2,"Left click to regain control!");
 
 		if (%obj.AntiPossession >= 15)
 		{
@@ -994,6 +994,11 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 				%bot.setTransform(%obj.getTransform());
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 				%obj.schedule(33,delete);
+
+				// Make the player a ghost
+				%obj.client.schedule(33,setControlObject,%bot);
+				%obj.client.camera.schedule(33,setMode,"Observer");
+				%client.centerPrint("<font:impact:30>\c3You are now a ghost, work with the killer to hunt down the survivors!", 1);
 			}			
 		}
 	}	
