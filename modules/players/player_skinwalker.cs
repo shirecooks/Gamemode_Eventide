@@ -198,6 +198,11 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
             %obj.playaudio(3,"skinwalker_change_sound");            
         }
 
+		if(%obj.getdataBlock().getName() $= "EventidePlayer" && getRandom(1,25) == 1)
+		{
+			%obj.faceConfigShowFace("Smirk");
+		}
+
         %obj.playthread(0,"plant");
         %obj.Transformschedule = %this.schedule(100,Transform,%obj,%bool,%count+1);
     }
