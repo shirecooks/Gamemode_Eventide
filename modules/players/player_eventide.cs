@@ -555,14 +555,12 @@ function EventidePlayer::EventideAppearance(%this,%obj,%client)
 
 	//Hats
 	%hat = $HatMod::save::wornHat[%tempclient.bl_id];
-	if(isHat(%hat))
+	if(isFunction(isHat) && isHat(%hat))
 	{
-		//Hatmod support.
 		%obj.mountHat(%hat);
 	}
 	else if (%tempclient.hat)
-	{
-		//Put on any default hats they may be wearing.
+	{	
 		%hatName = $hat[%tempclient.hat];
 		%tempclient.hatString = %hatName;
 		
@@ -591,7 +589,6 @@ function EventidePlayer::EventideAppearance(%this,%obj,%client)
 
 	%obj.setHeadUp((%tempclient.pack+%tempclient.secondPack));
 
-	//Set blood colors.
 	if (%obj.bloody["lshoe"]) %obj.unHideNode("lshoe_blood");
 	if (%obj.bloody["rshoe"]) %obj.unHideNode("rshoe_blood");
 	if (%obj.bloody["lhand"]) %obj.unHideNode("lhand_blood");
@@ -599,17 +596,21 @@ function EventidePlayer::EventideAppearance(%this,%obj,%client)
 	if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
 	if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
 
-	//Face system functionality: prevent face from being overwritten by an avatar update.
+	//Face system functionality
 	if (isObject(%obj.faceConfig))
 	{
 		%neededFacePack = (%obj.client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]);
-		if (%obj.faceConfig.getFacePack() !$= %neededFacePack) {		
-			//If the player updated their avatar, give them a new face pack to reflect it.
+		if (%obj.faceConfig.getFacePack() !$= %neededFacePack) 
+		{		
 			%obj.createFaceConfig(%neededFacePack);
 		}
 		%obj.faceConfigShowFace((%obj.faceConfig.currentFace !$= "") ? %obj.faceConfig.currentFace : "");
 	}
-	else %obj.setFaceName(%tempclient.faceName); // Use the default player face if the player doesn't have a face system
+	else 
+	{
+		// Use default face
+		%obj.setFaceName(%tempclient.faceName);
+	}
 	
 	%obj.setDecalName(%tempclient.decalName);
 
@@ -650,7 +651,8 @@ function EventidePlayerDowned::EventideAppearance(%this,%obj,%funcclient)
 
 function EventidePlayer::tunnelVision(%this,%obj,%bool)
 {
-	if (!isObject(%obj) || !isObject(%obj.client) || %obj.getState() $= "Dead") {
+	if (!isObject(%obj) || !isObject(%obj.client) || %obj.getState() $= "Dead") 
+	{
 		return;
 	}
 
@@ -660,7 +662,8 @@ function EventidePlayer::tunnelVision(%this,%obj,%bool)
 		%obj.tunnelVision = mClampF(%obj.tunnelVision + 0.1, 0, 1);
 		commandToClient(%obj.client, 'SetVignette', true, "0 0 0" SPC %obj.tunnelVision);
 
-		if (%obj.tunnelVision >= 1) {
+		if (%obj.tunnelVision >= 1) 
+		{
 			return;
 		}
 	}
@@ -685,12 +688,16 @@ function EventidePlayer::tunnelVision(%this,%obj,%bool)
 
 function EventidePlayer::dropAllTools(%this,%obj)
 {
-	if(!isObject(%obj) || !isObject(getMinigamefromObject(%obj))) return;
+	if(!isObject(%obj) || !isObject(getMinigamefromObject(%obj)))
+	{
+		return;
+	}
 
 	%obj.unmountimage(0);
 	
 	// Check if the player is a hoarder class for the tool count	
 	%inventoryToolCount = (%obj.hoarderToolCount) ? %obj.hoarderToolCount : %obj.getDataBlock().maxTools;
+
 	for (%i = 0; %i < %inventoryToolCount; %i++) if (isObject(%obj.tool[%i]))
 	{
 		// Clear the player's tool
@@ -723,10 +730,13 @@ function EventidePlayer::dropAllTools(%this,%obj)
 
 function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType)
 {
-	//Some killers have projectile weapons, and this allows you to call the `onIncapacitateVictim` on them if they use one.
+	%minigame = getMinigamefromObject(%obj);
+
+	//Some killers have projectile weapons, and this allows you to call the onIncapacitateVictim
 	if(isObject(%sourceObject))
 	{	
 		%sourceDatablock = %sourceObject.getDataBlock();
+
 		if(%sourceDatablock.getClassName() $= "ProjectileData")
 		{
 			%sourceDatablock = %sourceObject.sourceObject.getDatablock();
@@ -739,26 +749,24 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 	}	
 
 	// Dont let the player die if they havent been downed yet
-	if(%obj.getState() !$= "Dead" && %damage+%obj.getdamageLevel() >= %this.maxDamage) //%damage < mFloor(%this.maxDamage/1.33) //This is commented out to prevent homing rockets from being fatal.
+	if(%obj.getState() !$= "Dead" && %damage+%obj.getdamageLevel() >= %this.maxDamage)
     {   
 		if(!%obj.wasDowned)
 		{
-			// Work in progress billboard for downed players, still not working :(
+			// Add the downed billboard to the player
 			$Eventide::BillboardMounts.AVBillboard(%obj,"downedAVBillboard","Downed");
 
 			// Reset the player's health, and set the player to be downed
-			%obj.wasDowned = true; // They have been downed once, they wont be able to go down again until they are healed
+			%obj.wasDowned = true;
 			%obj.setHealth(%this.maxDamage);
 			%obj.setDatablock("EventidePlayerDowned");
-
-			//New Sky Captain functionality. Execute a function on the killer after they down somebody.
+		
 			if(%sourceDatablock.isKiller)
 			{
 				%sourceDatablock.onIncapacitateVictim(%killerSourceObject, %obj, false);
 			}
-
-			//Check if the killer is the only one remaining.
-			%minigame = getMinigamefromObject(%obj);
+			
+			// Minigame functionality
 			if(isObject(%minigame))
 			{
 				// Notify everyone that the player is downed
@@ -766,12 +774,11 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 				%minigame.checkDownedSurvivors();
 			}
 
-			// Return here, or else the player will die after this condition is met
 			return;
 		}
 		else
 		{
-			//Execute the same function, but with the %killed parameter set to true. Not used as of 1/2/2015, but I wanted to future-proof.
+			//Execute the same function, but with the %killed parameter set to true
 			if(%sourceDatablock.isKiller)
 			{
 				%sourceDatablock.onIncapacitateVictim(%killerSourceObject, %obj, true);
@@ -781,14 +788,11 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		}
     }
 
-	// Continue the damage
     Parent::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType);
-
-	//Check if the killer is the only one remaining.
-	%minigame = getMinigamefromObject(%obj);
+	
+	// Check for downed survivors
 	if(isObject(%minigame))
 	{
-		// Notify everyone that the player is downed
 		%minigame.checkDownedSurvivors();
 	}
 
@@ -808,8 +812,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 	}
 
 	// Pseudo health for the fighter class, gives the player a temporary health boost until they are hurt again
-	// Not sure why just not using %obj.pseudohealth as a condition wouldnt work, so check if it is greater than 0
-	if (%obj.pseudoHealth > 0)
+	if (%obj.pseudoHealth)
 	{
 		%obj.pseudoHealth -= %damage;
 		%obj.addhealth(%this.maxDamage);
