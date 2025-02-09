@@ -258,17 +258,17 @@ function PlayerSkullWolf::EventideAppearance(%this,%obj,%client)
 function PlayerSkullWolf::onKillerHit(%this,%obj,%hit)
 {
 	if(%hit.getDamagePercent() > 0.25 && %hit.getdataBlock().isDowned)
-	{
-		%victim.mountimage("sm_stunimage",2);
-		%obj.mountobject(%victim,9);
+	{		
+		%obj.mountobject(%hit,9);
 		%obj.playthread(1,"eat");
 		%obj.setEnergyLevel(%obj.getEnergyLevel()+%this.maxEnergy/6);		
-
 		%obj.schedule(700,spawnExplosion,"goryExplosionProjectile",%obj.getScale());
 		%obj.schedule(700,playthread,3,"skullwolf_hit" @ getRandom(1,3) @ "_sound");
 		%obj.playaudio(0,"skullwolf_chase" @ getRandom(1,%this.killerchasesoundamount) @ "_sound");
-		%victim.schedule(695,kill);
-		%victim.schedule(705,delete);
+		
+		%hit.mountimage("sm_stunimage",2);
+		%hit.schedule(695,kill);
+		%hit.schedule(705,delete);
 		return false;
 	}
 	return true;
