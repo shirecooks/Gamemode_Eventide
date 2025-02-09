@@ -749,9 +749,9 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		if (getRandom(1,10) == 1) 	
 		{
 			%sound = "skinwalker_pain_sound";	
-			if (!isObject(%obj.victim) && !isEventPending(%obj.monsterTransformschedule)) 
+			if (!isObject(%obj.victim) && !isEventPending(%obj.Transformschedule)) 
 			{ 
-				PlayerSkinwalker.monsterTransform(%obj,true);
+				PlayerSkinwalker.Transform(%obj,true);
 			}
 		}
 
