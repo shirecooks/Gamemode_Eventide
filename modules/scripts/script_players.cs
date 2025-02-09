@@ -26,6 +26,16 @@ function GameConnection::getRemainingTeamMembers(%client)
 
 package Eventide_Player
 {
+	function ServerCmdDropTool (%client, %position)
+	{
+		Parent::ServerCmdDropTool (%client, %position);
+		
+		if(isObject (%player = %client.player) && isObject(%item = %player.tool[%position]) && %item.canDrop)
+		{
+			%player.playthread(3,"activate");
+		}		
+	}
+	
 	function Player::Unmount(%obj)
 	{
 		if(!%obj.stunned) 
