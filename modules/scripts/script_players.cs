@@ -54,7 +54,7 @@ package Eventide_Player
 			commandToClient(%client,'PlayGui_CreateToolHud',%obj.getDatablock().maxTools);
 		}
 
-		if(isObject(%client.getControlObject()) && %client.getControlObject().getDataBlock().getName() $= "ShireZombieBot")
+		if(isObject(%client.getControlObject()) && %client.getControlObject().getState() !$= "Dead" && %client.getControlObject().getDataBlock().getName() $= "ShireZombieBot")
         {
             %client.player = %client.getControlObject();
         }
