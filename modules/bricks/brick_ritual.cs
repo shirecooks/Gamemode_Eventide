@@ -76,7 +76,6 @@ function brickEventideRitual::DisplayText(%this, %obj, %name, %color, %distance,
 function brickEventideRitual::ritualCheck(%this,%obj)
 {
 	if(!isObject(%obj)) return;	
-
 	
 	if(%obj.ritualsPlaced < 10)
 	{
