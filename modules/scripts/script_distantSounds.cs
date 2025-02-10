@@ -109,6 +109,7 @@ function Player::_distantSoundTick(%player, %dsdo)
 
 function killerPlayDistantSound(%player, %category, %audioProfile, %cooldownAmount)
 {
+    return;
     %killers = getCurrentKillers();
     for(%i = 0; %i < %killers.getCount(); %i++)
     {
@@ -296,4 +297,8 @@ package Eventide_distantSounds
         }
     }
 };
+if(isPackage(Eventide_distantSounds))
+{
+    deactivatePackage(Eventide_distantSounds);
+}
 activatePackage(Eventide_distantSounds);

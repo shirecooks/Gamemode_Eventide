@@ -13,6 +13,7 @@ datablock PlayerData(ShireZombieBot : EventidePlayer)
 function ShireZombieBot::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType)
 {
     Parent::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType);
+    %obj.kill();
 }
 
 function ShireZombieBot::onAdd(%this,%obj)
@@ -256,11 +257,6 @@ function ShireZombieBot::onBotLoop(%this, %obj)
                 %obj.clearMoveX();
         }
     }
-}
-
-function ShireZombieBot::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType,%damageLoc)
-{	
-	Parent::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType,%damageLoc);
 }
 
 function ShireZombieBot::onDisabled(%this,%obj)
