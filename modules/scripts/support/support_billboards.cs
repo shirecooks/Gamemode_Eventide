@@ -35,7 +35,7 @@ function DefaultBillboardMount::doDismount(%this, %obj, %forced)
 
 datablock PlayerData(OverheadBillboardMount : DefaultBillboardMount)
 {
-    shapeFile = "Add-ons/Gamemode_Eventide/modules/misc/models/billboardmount.dts";
+    shapeFile = "base/data/shapes/empty.dts";
 	rideAble = false;
 };
 

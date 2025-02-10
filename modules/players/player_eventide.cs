@@ -885,12 +885,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		if(%obj.faceConfig.subCategory $= "" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
 		{
 			%obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
-		}
-		
-		if(%obj.faceConfig.isFace("Scared"))
-		{
-			%obj.faceConfig.dupeFaceSlot("Neutral", "Scared");                    	
-		}					
+		}	
 	}
 
 	// If the player is not being saved, then continue the down loop

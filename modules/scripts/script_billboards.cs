@@ -98,7 +98,7 @@ function MountGroup::AVBillboard(%o,%player,%light,%tag)
 	for(%i = 0; %i < %count; %i++)
 	{
 		%player = %group.getObject(%i).player;
-		if(isObject(%player) && %player.getDataBlock().Hunter) //skip if hunter
+		if(isObject(%player) && %player.getDataBlock().isKiller) //skip if killer
 		{
 			continue;
 		}
@@ -165,4 +165,4 @@ package MountGroup_Billboards
 };
 activatePackage(MountGroup_Billboards);
 
-$Eventide::BillboardMounts = MountGroup_Create(OverheadBillboardMount, 12, 6);
+$Eventide::BillboardMounts = MountGroup_Create(OverheadBillboardMount,16,5);
