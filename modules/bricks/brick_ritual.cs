@@ -184,10 +184,14 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 
 			if(%obj.ritualsPlaced >= 10)
 			{
-				serverPlay3D("generator_explode_sound",%obj.getPosition());
+				serverPlay3D("ritual_explosion_sound",%obj.getPosition());
 				%eventideminigame.playSound("round_start_sound");
-				%obj.setEmitter("LaserEmitterA");				
-				%obj.spawnExplosion("horseRayProjectile","2 2 2");		
+				%obj.setEmitter("LaserEmitterA");	
+
+				for (%p = 0; %p < 4; %p++) 
+				{
+					%obj.spawnExplosion("horseRayProjectile","2 2 2");					
+				}
 
 				for(%i = 0; %i < ClientGroup.getCount(); %i++)
 				{
