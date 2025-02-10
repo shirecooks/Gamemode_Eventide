@@ -87,7 +87,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 	{
 		for(%i = 0; %i < MiniGameGroup.getCount(); %i++)
 		{
-			if(isObject(%minigame = MiniGameGroup.getObject(%i)) && strstr(strlwr(%minigame.title), "eventide") != -1)
+			if(isObject(%minigame = MiniGameGroup.getObject(%i)))
 			{
 				%eventideminigame = %minigame;
 				break;
