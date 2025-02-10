@@ -92,13 +92,14 @@ function MountGroup::AVBillboard(%o,%player,%light,%tag)
 	}
 
 	// Loop through all of the clients and add the billboard for them
+	%ogPlayer = %player;
 	%group = ClientGroup;
 	%count = %group.getCount();
 	%mount = %player.getMountNodeObject(%o.slot);
 	for(%i = 0; %i < %count; %i++)
 	{
 		%player = %group.getObject(%i).player;
-		if(isObject(%player) && %player.getDataBlock().isKiller) //skip if killer
+		if(%player == %ogPlayer || %player.getDataBlock().isKiller) //skip if killer
 		{
 			continue;
 		}

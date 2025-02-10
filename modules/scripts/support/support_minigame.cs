@@ -18,6 +18,15 @@ package Eventide_Minigame
 	{
 		Parent::endRound(%minigame, %winner, %resetTime);
 
+		for(%i = 0; %i < %minigame.numMembers; %i++)
+		{
+			// Delete the music
+			if(isObject(%client = %minigame.member[%i]) && isObject(%client.EventideMusicEmitter))
+			{
+				%client.EventideMusicEmitter.delete();
+			}
+		}
+
 		%minigame.playSound("round_end_sound");
 
 		// Disable local chat at the end of the round, let everyone banter at the end
@@ -56,6 +65,7 @@ package Eventide_Minigame
 			$EventideRitualBrick.gemcount = 0;
 			$EventideRitualBrick.candlecount = 0;
 			$EventideRitualBrick.setEmitter();
+			$EventideRitualBrick.getdatablock().ritualCheck($EventideRitualBrick);
 		}
 
 		%minigame.escapedCount = 0;

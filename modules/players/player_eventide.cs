@@ -832,7 +832,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 	}
 
 	// Pseudo health for the fighter class, gives the player a temporary health boost until they are hurt again
-	if (%obj.pseudoHealth)
+	if (%obj.pseudoHealth > 0)
 	{
 		%obj.pseudoHealth -= %damage;
 		%obj.addhealth(%this.maxDamage);

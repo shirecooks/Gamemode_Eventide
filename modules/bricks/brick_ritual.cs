@@ -77,26 +77,19 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 {
 	if(!isObject(%obj)) return;
 	
+	%minigame = getMiniGameFromObject(%obj);
+	if(!isObject(%minigame))
+	{
+		return;
+	}
+	
 	if(%obj.ritualsPlaced < 10)
 	{
 		%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced, "0.8 0.1 0.75", "20");
 	}
 	else %this.DisplayText(%obj,"", "0 0 0", "0");
 
-	if(MiniGameGroup.getCount())
-	{
-		for(%i = 0; %i < MiniGameGroup.getCount(); %i++)
-		{
-			if(isObject(%minigame = MiniGameGroup.getObject(%i)))
-			{
-				%eventideminigame = %minigame;
-				break;
-			}
-		}						
-	}
-	else %eventideminigame = 0;
-
-	if(%obj.ritualsPlaced < 10 && isObject(%eventideminigame))
+	if(%obj.ritualsPlaced < 10 && isObject(%minigame))
 	{
 		initContainerRadiusSearch(%obj.getPosition(), 2.5, $TypeMasks::ItemObjectType | $TypeMasks::PlayerObjectType);		
 		while(%scan = containerSearchNext())
@@ -185,7 +178,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 			if(%obj.ritualsPlaced >= 10)
 			{
 				serverPlay3D("ritual_explosion_sound",%obj.getPosition());
-				%eventideminigame.playSound("round_start_sound");
+				%minigame.playSound("round_start_sound");
 				%obj.setEmitter("LaserEmitterA");	
 
 				for (%p = 0; %p < 4; %p++) 
@@ -200,7 +193,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 					// Set the music to hurry					
 					if(isObject(%client.EventideMusicEmitter))
 					{
-						%client.SetChaseMusic("musicData_eventide_hurry",false);
+						%client.SetChaseMusic("musicData_eventide_hurry",true);
 					}
 					
 					// Call the killer's onAllRitualsPlaced function
