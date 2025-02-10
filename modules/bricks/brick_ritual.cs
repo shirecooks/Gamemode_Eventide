@@ -75,23 +75,16 @@ function brickEventideRitual::DisplayText(%this, %obj, %name, %color, %distance,
 
 function brickEventideRitual::ritualCheck(%this,%obj)
 {
-	if(!isObject(%obj)) return;
-	
-	%minigame = getMiniGameFromObject(%obj);
-	if(!isObject(%minigame))
+	if(!isObject(%obj) || !isObject(%minigame = getMiniGameFromObject(%obj)))
 	{
 		return;
 	}
 	
-	if(%obj.ritualsPlaced < 10)
-	{
-		%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced, "0.8 0.1 0.75", "20");
-	}
-	else %this.DisplayText(%obj,"", "0 0 0", "0");
+	%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced,"0.8 0.1 0.75", "20");
 
 	if(%obj.ritualsPlaced < 10 && isObject(%minigame))
 	{
-		initContainerRadiusSearch(%obj.getPosition(), 2.5, $TypeMasks::ItemObjectType | $TypeMasks::PlayerObjectType);		
+		initContainerRadiusSearch(%obj.getPosition(),3,$TypeMasks::ItemObjectType);		
 		while(%scan = containerSearchNext())
 		{
 			%itemimage = %scan.getdatablock().image;		
@@ -108,6 +101,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 				Eventide_MinigameGroup.add(new SimGroup(Eventide_MinigameRitualGroup));
 			}
 
+			// Check if the item is a gem to create the gem shape			
 			if(%itemimage.isGemRitual)
 			{
 				if(%obj.gemcount < 4 && !isObject(%obj.gemshape[%obj.gemcount+1]))
@@ -128,6 +122,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 				}
 				else continue;			
 			}
+			// Or check if the item is a candle, book or dagger to create the shape
 			else switch$(%itemimage.staticShape)
 			{
 				case "brickCandleStaticShape":  if(%obj.candlecount < 4 && !isObject(%obj.candleshape[%obj.candlecount+1]))											
@@ -140,7 +135,10 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 												}
 												else continue;
 
-				case "brickBookStaticShape":	if(isObject(%obj.bookshape)) continue;
+				case "brickBookStaticShape":	if(isObject(%obj.bookshape))
+												{
+													continue;
+												}
 
 												%obj.bookshape = new Item() 
 												{ 
@@ -156,9 +154,16 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 												Eventide_MinigameRitualGroup.add(%interactiveshape);
 
 
-				case "brickdaggerStaticShape":	if(isObject(%obj.daggershape)) continue;
+				case "brickdaggerStaticShape":	if(isObject(%obj.daggershape))
+												{
+													continue;
+												}
 
-												%obj.daggershape = new StaticShape() { datablock = %itemimage.staticShape; };
+												%obj.daggershape = new StaticShape() 
+												{ 
+													datablock = %itemimage.staticShape; 
+												};
+
 												%transformdelta = %obj.ritualshape.getdatablock().daggerPos SPC "0 90 0";
 												%obj.daggershape.settransform(vectoradd(%obj.gettransform(),%transformdelta));
 												%interactiveshape = %obj.daggershape;
@@ -167,40 +172,47 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 			}
 
 			%obj.ritualsPlaced++;
-			%obj.spawnExplosion("horseRayProjectile","0.5 0.5 0.5");
 			%scan.delete();
 
+			// Spawn some particles
+			for (%m = 0; %m < getRandom(4,8); %m++) 
+			{
+				%obj.spawnExplosion("horseRayProjectile","0.25 0.25 0.25");					
+			}
+
+			// Play some sounds when the rituals are placed, with a hacky workaround to get the pitch to increase
 			$oldTimescale = getTimescale();
   			setTimescale(mClampF(0.25+(%obj.ritualsPlaced/10),0.25,2));
   			serverPlay3D("ritual_place_sound",%obj.getPosition());
+  			serverPlay3D("puzzlechime_sound",%obj.getPosition());
   			setTimescale($oldTimescale);
 
 			if(%obj.ritualsPlaced >= 10)
 			{
+				// Do some effects and play some sounds
 				serverPlay3D("ritual_explosion_sound",%obj.getPosition());
-				%minigame.playSound("round_start_sound");
-				%obj.setEmitter("LaserEmitterA");	
+				%obj.setEmitter("LaserEmitterA");								
 
-				for (%p = 0; %p < 4; %p++) 
+				for (%p = 0; %p < getRandom(2,4); %p++) 
 				{
 					%obj.spawnExplosion("horseRayProjectile","2 2 2");					
 				}
 
-				for(%i = 0; %i < ClientGroup.getCount(); %i++)
-				{
-					%client = ClientGroup.getObject(%i);
+				%minigame.playSound("round_start_sound");
 
+				for(%i = 0; %i < %minigame.numMembers; %i++)
+				{
 					// Set the music to hurry					
-					if(isObject(%client.EventideMusicEmitter))
+					if(isObject(%client = %minigame.member[%i]))
 					{
 						%client.SetChaseMusic("musicData_eventide_hurry",true);
-					}
-					
-					// Call the killer's onAllRitualsPlaced function
-					if(isObject(%client.player) && %client.player.getDatablock().isKiller)
-					{
-						%client.player.getDatablock().onAllRitualsPlaced(%client.player);
-					}
+
+						// Call the killer's onAllRitualsPlaced function
+						if(isObject(%client.player) && %client.player.getDatablock().isKiller)
+						{
+							%client.player.getDatablock().onAllRitualsPlaced(%client.player);
+						}						
+					}									
 				}
 			}
 
@@ -211,7 +223,13 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 				$EventideEventCaller.processInputEvent("onRitualPlaced", $EventideEventCaller.getGroup().client);
 
 				if(%obj.ritualsPlaced >= 10)
-				$EventideEventCaller.processInputEvent("onAllRitualsPlaced",$EventideEventCaller.getGroup().client);
+				{
+					$EventideEventCaller.processInputEvent("onAllRitualsPlaced",$EventideEventCaller.getGroup().client);
+					%this.DisplayText(%obj,"", "20");
+
+					// End the loop, we don't want to call this function again, the minigame will restart it anyway
+					return;
+				}				
 			}			
 		}
 	}
@@ -259,6 +277,11 @@ function brickEventideRitual::onloadPlant(%this, %obj)
 function brickEventideRitual::onRemove(%this, %obj)
 {	
 	Parent::onRemove(%this,%obj);
+
+	if(isObject(%obj.ritualshape))
+	{
+		%obj.ritualshape.delete();
+	}
 	
 	if(isObject(Eventide_MinigameRitualGroup))
 	{
