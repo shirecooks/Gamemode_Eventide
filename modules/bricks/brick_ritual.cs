@@ -75,7 +75,7 @@ function brickEventideRitual::DisplayText(%this, %obj, %name, %color, %distance,
 
 function brickEventideRitual::ritualCheck(%this,%obj)
 {
-	if(!isObject(%obj)) return;	
+	if(!isObject(%obj)) return;
 	
 	if(%obj.ritualsPlaced < 10)
 	{
@@ -106,8 +106,14 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 			// Make sure the item is above the ritual's position
 			if(!%itemimage.isRitual || getWord(%scan.getPosition(),2) < getWord(%obj.getPosition(),2)) continue;
 
-			if(!isObject(Eventide_MinigameGroup)) missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
-			if(!isObject(Eventide_MinigameRitualGroup)) Eventide_MinigameGroup.add(new SimGroup(Eventide_MinigameRitualGroup));
+			if(!isObject(Eventide_MinigameGroup)) 
+			{
+				missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
+			}
+			if(!isObject(Eventide_MinigameRitualGroup)) 
+			{
+				Eventide_MinigameGroup.add(new SimGroup(Eventide_MinigameRitualGroup));
+			}
 
 			if(%itemimage.isGemRitual)
 			{
@@ -209,7 +215,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 
 	// Cancel the ritual check to prevent duplicate calls
 	cancel(%obj.ritualCheck);
-	%obj.ritualCheck = %this.schedule(500,ritualCheck,%obj);
+	%obj.ritualCheck = %this.schedule(250,ritualCheck,%obj);
 }
 
 function brickEventideRitual::onPlant(%this, %obj)
@@ -251,12 +257,10 @@ function brickEventideRitual::onRemove(%this, %obj)
 {	
 	Parent::onRemove(%this,%obj);
 	
-	if(isObject(%brick.interactiveshape)) %brick.interactiveshape.delete();
-	if(isObject(%obj.ritualshape)) %obj.ritualshape.delete();
-	if(isObject(%obj.bookshape)) %obj.bookshape.delete();
-	if(isObject(%obj.daggershape)) %obj.daggershape.delete();
-	for(%candlecount = 1; %candlecount <= 4; %candlecount++) if(isObject(%obj.candleshape[%candlecount])) %obj.candleshape[%candlecount].delete();
-	for(%gemcount = 1; %gemcount <= 4; %gemcount++) if(isObject(%obj.gemshape[%gemcount])) %obj.gemshape[%gemcount].delete();
+	if(isObject(Eventide_MinigameRitualGroup))
+	{
+		Eventide_MinigameRitualGroup.delete();
+	}	
 }
 
 function brickEventideRitual::onDeath(%this, %obj)
