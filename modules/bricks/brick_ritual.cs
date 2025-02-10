@@ -96,6 +96,8 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 	}
 	else %eventideminigame = 0;
 
+	talk(%eventideminigame);
+
 	if(%obj.ritualsPlaced < 10 && isObject(%eventideminigame))
 	{
 		initContainerRadiusSearch(%obj.getPosition(), 2.5, $TypeMasks::ItemObjectType | $TypeMasks::PlayerObjectType);		
