@@ -117,7 +117,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 
 			if(%itemimage.isGemRitual)
 			{
-				if(%obj.gemcount <= 4 && !isObject(%obj.gemshape[%obj.gemcount+1]))
+				if(%obj.gemcount < 4 && !isObject(%obj.gemshape[%obj.gemcount+1]))
 				{	
 					%obj.gemcount++;
 					%obj.gemshape[%obj.gemcount] = new Item() 
@@ -137,7 +137,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 			}
 			else switch$(%itemimage.staticShape)
 			{
-				case "brickCandleStaticShape":  if(%obj.candlecount <= 4 && !isObject(%obj.candleshape[%obj.candlecount+1]))											
+				case "brickCandleStaticShape":  if(%obj.candlecount < 4 && !isObject(%obj.candleshape[%obj.candlecount+1]))											
 												{
 													%obj.candlecount++;										
 													%obj.candleshape[%obj.candlecount] = new StaticShape() { datablock = %itemimage.staticShape; };
@@ -174,14 +174,20 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 			}
 
 			%obj.ritualsPlaced++;
+			%obj.spawnExplosion("horseRayProjectile","0.5 0.5 0.5");
 			%scan.delete();
+
+			$oldTimescale = getTimescale();
+  			setTimescale(mClampF(0.25+(%obj.ritualsPlaced/10),0.25,2));
+  			serverPlay3D("ritual_place_sound",%obj.getPosition());
+  			setTimescale($oldTimescale);
 
 			if(%obj.ritualsPlaced >= 10)
 			{
 				serverPlay3D("generator_explode_sound",%obj.getPosition());
 				%eventideminigame.playSound("round_start_sound");
 				%obj.setEmitter("LaserEmitterA");				
-				%obj.spawnExplosion("horseRayProjectile","2 2 2");				
+				%obj.spawnExplosion("horseRayProjectile","2 2 2");		
 
 				for(%i = 0; %i < ClientGroup.getCount(); %i++)
 				{
