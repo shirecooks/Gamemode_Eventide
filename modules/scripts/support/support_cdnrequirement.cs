@@ -1,4 +1,4 @@
-package Gamemode_Evenitde_CDN_Reject
+package Gamemode_Eventide_CDN_Reject
 {
 	function serverCmdMissionStartPhase1Ack(%client, %seq)
 	{
@@ -11,4 +11,4 @@ package Gamemode_Evenitde_CDN_Reject
 		}
 	}
 };
-activatePackage(Gamemode_Evenitde_CDN_Reject);
+activatePackage(Gamemode_Eventide_CDN_Reject);
