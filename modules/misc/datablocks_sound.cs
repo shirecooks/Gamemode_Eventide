@@ -28,26 +28,29 @@ while (%file !$= "")
     if (strstr(%file, "normal") != -1) 
 	{
         %description = "AudioClose3d";
+
+        if (strstr(%file, "loop") != -1) 
+	    {
+            %description = "AudioCloseLooping3d";
+        }        
     } 
 	else if (strstr(%file, "quiet") != -1) 
 	{
         %description = "AudioClosest3d";
+
+        if (strstr(%file, "loop") != -1) 
+	    {
+            %description = "AudioClosestLooping3d";
+        }
     } 
 	else if (strstr(%file, "loud") != -1) 
 	{
         %description = "AudioDefault3d";
-    }
-    else if (strstr(%file, "normal_loop") != -1) 
-	{
-        %description = "AudioCloseLooping3d";
-    }
-    else if (strstr(%file, "quiet_loop") != -1) 
-	{
-        %description = "AudioClosestLooping3d";
-    } 
-    else if (strstr(%file, "loud_loop") != -1) 
-	{
-        %description = "AudioDefaultLooping3d";
+
+        if (strstr(%file, "loop") != -1) 
+	    {
+            %description = "AudioDefaultLooping3d";
+        }
     }
     else if (strstr(%file, "music") != -1) 
 	{
