@@ -32,7 +32,7 @@ function RadioImage::onMount(%this, %obj, %slot)
 {	
 	if(!%obj.radioInformed && isObject(%obj.client))
 	{
-		%obj.client.centerPrint("<font:Impact:25>\c3Keep the radio in your inventory to <br>\c3Chat with other survivors",3);
+		%obj.client.centerPrint("<font:Impact:25>\c3Keep the radio to<br>\c3team chat with other survivors",3);
 		%obj.radioInformed = true;
 	}
 }

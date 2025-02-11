@@ -93,54 +93,53 @@ function ShireZombieBot::onBotLoop(%this, %obj)
             
         }
     }
-    
-    // Target validation
-    if(%target)
+
+    if(!isObject(%target) || %target.getState() $= "Dead" || %target.getDataBlock().isKiller || %target.getDataBlock().getName() $= "EventidePlayerDowned")
     {
-        if(!isObject(%target) || %target.getState() $= "Dead" || %target.getDataBlock().isKiller || %target.getDataBlock().getName() $= "EventidePlayerDowned")
-        {
-            // Clear invalid target
-            %obj.target = 0;
-            %obj.cannotSeeTarget = 0;
-            %obj.setMoveY(0);
-            %obj.setMoveX(0);
-        }
-        else
-        {
-            // Line of sight check
-            %targetpos = %target.getPosition();
-            %playerpos = %obj.getPosition();
-            %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;
-
-            // Calculate the dot product to determine if the target is within the visible range
-            %targetDirection = vectorNormalize(vectorSub(%targetPos, %playerPos));
-            %dotProduct = vectorDot(%obj.getEyeVector(), %targetDirection);
-
-            // Perform a raycast to check if there are objects blocking the line of sight
-            %adjustedTargetPos = vectorAdd(%targetPos, "0 0 1.9"); // Adjust target height if necessary
-            %obstruction = containerRayCast(%obj.getEyePoint(), %adjustedTargetPos, %typeMasks, %obj);
-
-            // Check visibility conditions: no obstruction, within field of view, and within distance
-            %distanceToTarget = vectorDist(%playerPos, %targetPos);
-
-            if (!isObject(%obstruction) && %dotProduct > 0.5 && %distanceToTarget < 50) %obj.cannotSeeTarget = 0; // Target visible            
-            else %obj.cannotSeeTarget++;// Target not visible
-            
-            if(%obj.cannotSeeTarget >= 15)
-            {
-                %obj.target = 0;
-                %obj.cannotSeeTarget = 0;
-                %obj.clearMoveX();
-                %obj.clearMoveY();
-            }
-        }
+        // Clear invalid target
+        %obj.target = 0;
+        %obj.cannotSeeTarget = 0;
+        %obj.setMoveY(0);
+        %obj.setMoveX(0);
     }
-    
-    // Combat behavior
-    if(isObject(%target))
+    else
     {
         %distance = VectorDist(%obj.getPosition(), %target.getPosition());
+
+        // Line of sight check
+        %targetpos = %target.getPosition();
+        %playerpos = %obj.getPosition();
+        %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;
+
+        // Calculate the dot product to determine if the target is within the visible range
+        %targetDirection = vectorNormalize(vectorSub(%targetPos, %playerPos));
+        %dotProduct = vectorDot(%obj.getEyeVector(), %targetDirection);
+
+        // Perform a raycast to check if there are objects blocking the line of sight
+        %adjustedTargetPos = vectorAdd(%targetPos, "0 0 1.9"); // Adjust target height if necessary
+        %obstruction = containerRayCast(%obj.getEyePoint(), %adjustedTargetPos, %typeMasks, %obj);
+
+        if (!isObject(%obstruction) && %dotProduct > 0.5 && %distance < 50)
+        {
+            %obj.cannotSeeTarget = 0; // Target visible
+        }
+        else 
+        {
+            %obj.cannotSeeTarget++;// Target not visible
+        }
         
+        if(%obj.cannotSeeTarget >= 10)
+        {
+            %obj.target = 0;
+            %obj.cannotSeeTarget = 0;
+            %obj.clearMoveX();
+            %obj.clearMoveY();
+        }
+    }
+
+    // Combat behavior
+    if(isObject(%target))
+    {        
         // Close combat handling
         if(%distance < 10)
         {

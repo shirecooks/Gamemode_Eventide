@@ -276,6 +276,10 @@ function GameConnection::PlaySkullFrames(%client,%frame)
 
 function GameConnection::playAmbiance(%client)
 {
+	if(!isObject(getMinigamefromObject(%client)))
+	{
+		return;
+	}
 	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 4);
 	%client.SetChaseMusic(%ambientMusicDatablock, false);
 }
@@ -292,13 +296,12 @@ function GameConnection::StopChase(%client)
 		%client.EventideMusicEmitter.delete();
 	}
 
-	//Play ambiant music track.
 	%client.playAmbiance();
 
 	// Handle survivor conditions
 	if(isObject(%client.player) && %client.player.getdataBlock().getName() $= "EventidePlayer")
 	{
-		//Face system functionality. Make the victim return to calm facial expressions when they are no longer being chased.
+		//Return to calm facial expressions
 		if(isObject(%client.player.faceConfig) && %client.player.faceConfig.subCategory $= "Scared")
 		{
 			if(%client.player.getDamagePercent() > 0.33 && $Eventide_FacePacks[%client.player.faceConfig.category, "Hurt"] !$= "")

@@ -1,8 +1,3 @@
-if(LoadRequiredAddOn("Script_Blood") != $Error::None) 
-{
-	return;
-}
-
 package Eventide_DSBloodPackage 
 {
 	function Armor::onEnterLiquid(%data, %obj, %coverage, %type)

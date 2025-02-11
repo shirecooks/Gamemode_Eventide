@@ -80,10 +80,11 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 		return;
 	}
 
-	if(!%obj.resetAmbienceSound)
+	if(!%obj.resetEffects)
 	{
 		%obj.ritualshape.playaudio(3,"eventide_ritual_ambience_loop_sound");
-		%obj.resetAmbienceSound = true;
+		%obj.setEmitter("pongTrailEmitter");
+		%obj.resetEffects = true;
 	}
 	
 	%this.DisplayText(%obj,"Rituals needed (drop here): " @ 10-%obj.ritualsPlaced,"0.8 0.1 0.75", "20");
@@ -191,15 +192,14 @@ function brickEventideRitual::ritualCheck(%this,%obj)
   			setTimescale(mClampF(0.25+(%obj.ritualsPlaced/10),0.25,2));
   			serverPlay3D("ritual_place_sound",%obj.getPosition());
   			serverPlay3D("puzzlechime_sound",%obj.getPosition());
-  			setTimescale($oldTimescale);
-
-			%obj.ritualshape.playaudio(3,"eventide_complete_ritual_ambience_loop_sound");
+  			setTimescale($oldTimescale);			
 
 			if(%obj.ritualsPlaced >= 10)
 			{
 				// Do some effects and play some sounds
+				%obj.ritualshape.playaudio(3,"eventide_complete_ritual_ambience_loop_sound");
 				serverPlay3D("ritual_explosion_sound",%obj.getPosition());
-				%obj.setEmitter("LaserEmitterA");								
+				%obj.setEmitter("LaserEmitterA");			
 
 				for (%p = 0; %p < getRandom(2,4); %p++) 
 				{
