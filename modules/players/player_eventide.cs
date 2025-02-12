@@ -691,14 +691,7 @@ function EventidePlayer::dropAllTools(%this,%obj)
 	%inventoryToolCount = (%obj.hoarderToolCount) ? %obj.hoarderToolCount : %obj.getDataBlock().maxTools;
 
 	for (%i = 0; %i < %inventoryToolCount; %i++) if (isObject(%obj.tool[%i]))
-	{
-		// Clear the player's tool
-		if(isObject(%obj.client))
-		{					
-			%obj.tool[%i] = 0;
-			messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
-		}
-		
+	{		
 		// Spawn the item
 		%item = new Item()
 		{
@@ -717,6 +710,13 @@ function EventidePlayer::dropAllTools(%this,%obj)
 		}
 
 		Eventide_MinigameGroup.add(%item); // Add the item to the minigame group for cleanup when the minigame ends or restarts		
+
+		// Clear the player's tool
+		if(isObject(%obj.client))
+		{					
+			%obj.tool[%i] = 0;
+			messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
+		}
 	}
 }
 
