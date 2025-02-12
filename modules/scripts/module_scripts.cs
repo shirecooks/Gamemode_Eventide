@@ -11,12 +11,15 @@ exec("./support/support_statuseffect.cs");
 exec("./support/support_stringutilities.cs");
 exec("./support/support_vectorutilities.cs");
 exec("./support/support_texttransfer.cs");
-exec("./support/support_billboards.cs");
+
+// Causes lag, disabled for now
+//exec("./support/support_billboards.cs");
+//exec("./script_billboards.cs");
+
 exec("./support/support_cdnrequirement.cs");
 exec("./support/support_slayer.cs");
 exec("./script_itemparticle.cs");
 exec("./script_itemspawning.cs");
-exec("./script_billboards.cs");
 exec("./script_chatsystem.cs");
 exec("./killer/script_killers.cs");
 exec("./killer/script_killerloop.cs");
