@@ -96,7 +96,7 @@ datablock PlayerData(PlayerDisfigured : PlayerRenowned)
 	
 	killerlight = "NoFlarePLight";
 
-	rightclickicon = "color_grab";
+	rightclickicon = "color_dash";
 	leftclickicon = "color_melee";	
 
 	rechargeRate = 0.3;
