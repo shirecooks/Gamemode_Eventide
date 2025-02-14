@@ -173,10 +173,18 @@ function MiniGameSO::checkDownedSurvivors(%minigame)
 
 function MiniGameSO::playSound(%minigame,%datablock)
 {
-	if (!isObject(%minigame) || !isObject(%datablock)) return;
+	if (!isObject(%minigame) || !isObject(%datablock))
+	{
+		return;
+	}
 	
 	for (%i = 0; %i < %minigame.numMembers; %i++)
-	if (isObject(%member = %minigame.member[%i])) %member.play2D(%datablock);	
+	{
+		if (isObject(%member = %minigame.member[%i])) 
+		{
+			%member.play2D(%datablock);	
+		}
+	}
 }
 
 $Eventide_SurvivorClasses = "mender runner hoarder fighter tinkerer";
@@ -211,47 +219,20 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	for (%i = 0; %i < getWordCount(%newClassList); %i++)
 	{
 		%randomMember = %memberSet.getObject(getRandom(0,%memberSet.getCount()-1));
-		if (%minigame.survivorClass[getWord(%newClassList,%i)] || %randommember.player.survivorClass !$= "") continue;
+		if (%minigame.survivorClass[getWord(%newClassList,%i)] || %randommember.player.survivorClass !$= "") 
+		{
+			continue;
+		}
 
 		%randomMember.player.survivorClass = getWord(%newClassList,%i);
 		%minigame.survivorClass[getWord(%newClassList,%i)] = %randomMember;
 
-		if (%randomMember.player.getdataBlock().getName() $= "EventidePlayer") 
-		%randomMember.player.getDatablock().assignClass(%randomMember.player,getWord(%newClassList,%i));
+		if (%randomMember.player.getdataBlock().getName() $= "EventidePlayer")
+		{
+			%randomMember.player.getDatablock().assignClass(%randomMember.player,getWord(%newClassList,%i));
+		}		
 	}
 
 	// Delete the temporary simset
 	%memberSet.delete();
 }
-
-//
-// `onLastSurvivor` event.
-//
-
-//Call the `onLastSurvivor` event on any brick that has it.
-function MinigameSO::onLastSurvivor(%minigame)
-{
-	for(%i = 0; %i < mainBrickGroup.getCount(); %i++)
-	{
-		%brickGroup = mainBrickGroup.getObject(%i);
-		%brickCount = %brickGroup.getCount();
-		for(%j = 0; %j < %brickCount; %j++)
-		{
-			%checkObj = %brickGroup.getObject(%j);
-			if(%checkObj.numEvents > 0)
-			{
-				%checkObj.onLastSurvivor();
-			}
-		}
-	}
-}
-
-function fxDTSBrick::onLastSurvivor(%obj)
-{
-	$InputTarget_["Self"] = %obj;
-	$InputTarget_["Player"] = 0;
-	$InputTarget_["Client"] = 0;
-	$InputTarget_["MiniGame"] = getMiniGameFromObject(%obj);
-	%obj.processInputEvent("onLastSurvivor");
-}
-registerInputEvent("fxDTSBrick", "onLastSurvivor", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1);
