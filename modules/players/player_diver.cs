@@ -115,7 +115,6 @@ function PlayerDiver::onExitStun(%this, %obj)
 	%obj.playAudio(1, "angler_enraged_sound");
 	%obj.setTempSpeed(1.2);
 	%obj.schedule(5000, settempspeed,1);
-	%obj.mountImage(HateImage, 2);
 }
 
 function PlayerDiver::onKillerHit(%this,%obj,%hit)
