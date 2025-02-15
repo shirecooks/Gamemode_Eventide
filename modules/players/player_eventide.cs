@@ -499,7 +499,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			}
 
 			// Clear the billboard
-			$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
+			//$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
 			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
 			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : 0;
 			%victim.setDatablock("EventidePlayer");
@@ -786,7 +786,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		if(!%obj.wasDowned)
 		{
 			// Add the downed billboard to the player
-			$Eventide::BillboardMounts.AVBillboard(%obj,"downedAVBillboard","Downed");
+			//$Eventide::BillboardMounts.AVBillboard(%obj,"downedAVBillboard","Downed");
 
 			// Reset the player's health, and set the player to be downed
 			%obj.wasDowned = true;
@@ -816,7 +816,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 				%sourceDatablock.onIncapacitateVictim(%killerSourceObject, %obj, true);
 			}
 
-			$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+			//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 		}
     }
 
@@ -952,7 +952,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	%obj.playThread(1, "Death1");
 
 	// Remove the downed billboard
-	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 
 	%genderSound = (!%obj.client.chest) ? "male" : "female";
 	%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
@@ -1032,7 +1032,7 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 	Parent::onRemove(%this, %obj);
 	
 	// Remove the downed billboard if it still exists
-	$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 
 	// If there is one remaining survivor, then call the minigame's onLastSurvivor function
 	if(isObject(%minigame = getMinigameFromObject(%obj)) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
