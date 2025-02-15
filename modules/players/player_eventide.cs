@@ -709,23 +709,26 @@ function EventidePlayer::dropAllTools(%this,%obj)
 			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
 		}
 
+		%obj.tool[%i] = 0;
 		Eventide_MinigameGroup.add(%item); // Add the item to the minigame group for cleanup when the minigame ends or restarts		
 
 		// Clear the player's tool
 		if(isObject(%obj.client))
-		{					
-			%obj.tool[%i] = 0;
+		{			
 			messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
 		}
 	}
 }
 
-function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType)
+function EventidePlayer::skinwalkerDamageCheck(%this,%obj,%damage)
 {
-	%minigame = getMinigamefromObject(%obj);
-
-	// Condition for the skinwalker
-	if (%damage && %obj.isSkinwalker)
+	// Return false if the player is not a skinwalker
+	if(!%obj.isSkinwalker)
+	{
+		return false;
+	}
+	
+	if (%damage > 5)
 	{
 		// More blood splatter the more damage the player has taken
 		for (%i = 0; %i < getRandom(2,4); %i++) 
@@ -747,17 +750,26 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 			}
 		}
 
-		%obj.playaudio(0,%sound);
-		
+		%obj.playaudio(0,%sound);			
+	}
+
+	return true;
+}
+
+function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType)
+{
+	%minigame = getMinigamefromObject(%obj);
+	
+	// Do not continue if the player is a skinwalker killer, just go to the conditon below
+	if(%this.skinwalkerDamageCheck(%obj,%damage))
+	{
 		return;
 	}
 
 	//Some killers have projectile weapons, and this allows you to call the onIncapacitateVictim
 	if(isObject(%sourceObject))
 	{	
-		%sourceDatablock = %sourceObject.getDataBlock();
-
-		if(%sourceDatablock.getClassName() $= "ProjectileData")
+		if(%sourceObject.getDataBlock().getClassName() $= "ProjectileData")
 		{
 			%sourceDatablock = %sourceObject.sourceObject.getDatablock();
 			%killerSourceObject = %sourceObject.sourceObject;
@@ -769,7 +781,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 	}	
 
 	// Dont let the player die if they havent been downed yet
-	if(%obj.getState() !$= "Dead" && %damage+%obj.getdamageLevel() >= %this.maxDamage)
+	if(%obj.getState() !$= "Dead" && %damage+%obj.getDamageLevel() >= %this.maxDamage)
     {   
 		if(!%obj.wasDowned)
 		{
@@ -845,7 +857,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		}
 	}
 		
-	if (%damage) 
+	if (%damage > 5) 
 	{
 		%genderSound = (!%obj.client.chest) ? "male" : "female";
 		%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
@@ -873,7 +885,9 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		return;
 	}
 
-	// Force the player to sit if they are not already, and and they are not crouched
+	%currentTime = getSimTime();
+
+	// Force the player to sit if they are not already, and they are not crouching
 	if (!%obj.isCrouched())
 	{
 		%obj.setActionThread("sit",1);
@@ -889,10 +903,10 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 	}
 
 	// If the player is not being saved, then continue the down loop
-	if (!%obj.isBeingSaved && %obj.lastDownLoop < getSimTime())
+	if (!%obj.isBeingSaved && %obj.lastDownLoop < %currentTime)
 	{
 		// As the player loses health, the loop gets faster
-		%obj.lastDownLoop = getSimTime() + mClampF((100-%obj.getDamageLevel()) * 15,200,1100);
+		%obj.lastDownLoop = %currentTime + mClampF((100-%obj.getDamageLevel()) * 15,200,1100);
 
 		if (isObject(%obj.client)) 
 		{
@@ -910,7 +924,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 
 	// Keep the loop going unless the first condition is met
 	cancel(%obj.downloop);
-	%obj.downloop = %this.schedule(100,DownLoop,%obj);
+	%obj.downloop = %this.schedule(125,DownLoop,%obj);
 }
 
 function EventidePlayer::onDisabled(%this,%obj)
@@ -942,8 +956,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 
 	%genderSound = (!%obj.client.chest) ? "male" : "female";
 	%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
-	%sound = %genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound";	
-	%obj.playaudio(0,%sound);	
+	%obj.playaudio(0,%genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound");	
 
 	// Let the killer know that a survivor has been killed
 	%killers = getCurrentKillers();
@@ -963,7 +976,14 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 		// If there is one remaining survivor, then call the minigame's onLastSurvivor function
 		if(isObject(%minigame = getMinigameFromObject(%obj)) && %obj.client.getRemainingTeamMembers() == 1)
 		{
-			%minigame.onLastSurvivor();
+			if (isObject(%ritualbrick = $EventideRitualBrick))
+			{
+				$InputTarget_["Self"] = %ritualbrick;
+				$InputTarget_["Player"] = 0;
+				$InputTarget_["Client"] = 0;
+				$InputTarget_["MiniGame"] = getMiniGameFromObject(%ritualbrick);
+				%ritualbrick.processInputEvent("onLastSurvivor");
+			}
 		}	
 
 		%nClient = (isObject(%obj.ghostclient)) ? %obj.ghostclient : %obj.client;
@@ -1016,7 +1036,16 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 
 	// If there is one remaining survivor, then call the minigame's onLastSurvivor function
 	if(isObject(%minigame = getMinigameFromObject(%obj)) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
-	{
-		%minigame.onLastSurvivor();
+	{		
+		if (isObject(%ritualbrick = $EventideRitualBrick))
+		{
+			$InputTarget_["Self"] = %ritualbrick;
+			$InputTarget_["Player"] = 0;
+			$InputTarget_["Client"] = 0;
+			$InputTarget_["MiniGame"] = getMiniGameFromObject(%ritualbrick);
+			%ritualbrick.processInputEvent("onLastSurvivor");
+		}
 	}	
 }
+
+registerInputEvent("fxDTSBrick", "onLastSurvivor", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1);
