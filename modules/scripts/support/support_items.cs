@@ -82,10 +82,15 @@ package Eventide_Items
 	function Player::Pickup(%obj,%item)
 	{		
 		if (!%obj.getDataBlock().isEventideModel && !isObject(getMinigameFromObject(%obj))) 
-		return Parent::Pickup(%obj,%item);
+		{
+			return Parent::Pickup(%obj,%item);
+		}
 
 		// Skinwalker players and killers can't pick up items, or if the item can't be picked up anyway
-		if (%obj.isSkinwalker || %obj.getDataBlock().isKiller || !%item.canPickup) return;
+		if (%obj.isSkinwalker || %obj.getDataBlock().isKiller || !%item.canPickup)
+		{
+			return;
+		}
 
 		// Hoarder class support
 		%inventoryToolCount = (%obj.hoarderToolCount) ? %obj.hoarderToolCount : %obj.getDataBlock().maxTools;
@@ -113,14 +118,23 @@ package Eventide_Items
 	{
 		Parent::onAdd(%this,%obj);
 
-		if(!isObject(Eventide_MinigameGroup)) missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
-		Eventide_MinigameGroup.scheduleNoQuota(33,add,%obj);
+		if(isObject(%obj))
+		{
+			if(!isObject(Eventide_MinigameGroup)) 
+			{
+				missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
+			}
+			Eventide_MinigameGroup.add(%obj);
+		}
 	}
 
 	function Item::schedulePop(%obj)
 	{		
 		// Do not continue if there is a minigame going on, the item should not disappear
-		if(MiniGameGroup.getCount() || (isObject(Slayer_MiniGameHandlerSG) && Slayer_MiniGameHandlerSG.getCount())) return;
+		if(MiniGameGroup.getCount() || (isObject(Slayer_MiniGameHandlerSG) && Slayer_MiniGameHandlerSG.getCount()))
+		{
+			return;
+		}
 		Parent::schedulePop(%obj);				
 	}
 };

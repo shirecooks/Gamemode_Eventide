@@ -1,6 +1,6 @@
 datablock ItemData(RadioItem)
 {
-	category = "Tools";
+	category = "Weapon";
 	className = "Weapon";
 	shapeFile = "./models/radio.dts";
 	iconName = "./icons/RadioIcon.png";
@@ -39,5 +39,6 @@ function RadioImage::onMount(%this, %obj, %slot)
 
 function RadioItem::onAdd(%this, %obj)
 {
-	%item.playaudio(3,"radio_unmount_sound");
+	Parent::onAdd(%this,%obj);
+	%obj.playaudio(3,"radio_unmount_sound");
 }	
