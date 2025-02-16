@@ -58,125 +58,6 @@ datablock PlayerData(EventidePlayerDowned : EventidePlayer)
 };
 
 //
-// Miscellaneous functions.
-//
-
-// function cloneScriptGroup(%targetObject)
-// {
-//     %targetObjectName = %targetObject.getName();
-//     %targetObject.setName("targetScriptObject");
-
-//     %cloneObject = new ScriptGroup(cloneScriptObject : targetScriptObject);
-
-//     %targetObject.setName(%targetObjectName);
-//     %cloneObject.setName("");
-
-//     return %cloneObject;
-// }
-
-// //
-// // Player classes.
-// //
-
-// // Templates, containers for pre-made groups of classes.
-// ///
-
-// function EventideClassGroupTemplates::onAdd(%this)
-// {
-// 	index["Classic"] = new ScriptGroup()
-// 	{
-// 		class = "EventideClassGroup";
-// 		template = "Classic";
-
-// 		new ScriptObject()
-// 		{
-// 			class = "EventidePlayerClass";
-// 			title = "Mender";
-// 			canStack = false;
-// 			spawnMessage = "You acquired a soda and can run slightly faster!";
-// 			items = new SimSet()
-// 			{
-// 				class = "EventideClassItem";
-
-// 				//Can't store datablocks directly in a SimSet. How inconvenient.
-// 				new ScriptObject()
-// 				{
-// 					itemData = (getRandom(0, 1) ? GauzeItem.getID() : ZombieMedpackItem.getID());
-// 				};
-// 			};
-// 		};
-// 	};
-// }
-
-// //Using an internal array to fetch templates is faster than iteration via a for or while loop.
-// function EventideClassGroupTemplates::addTemplate(%this, %classGroup)
-// {
-// 	%this.index[%classGroup.name] = %classGroup;
-// }
-
-// function EventideClassGroupTemplates::getTemplate(%this, %classGroupName)
-// {
-// 	return %this.index[%classGroupName];
-// }
-
-// $Eventide_ClassGroupTemplates = new EventideClassGroupTemplate(Eventide_ClassGroupTemplates);
-
-// // Container for classes.
-// ///
-
-// function EventideClassGroup::onAdd(%this)
-// {
-// 	//Nothing but a template was given, auto-fill the data from an existing template if possible.
-// 	if(%this.template && %this.getCount() == 0)
-// 	{
-// 		%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
-// 		if(%existingTemplate)
-// 		{
-// 			%this = cloneScriptGroup(%existingTemplate);
-// 		}
-// 	}
-// }
-
-// // Containers for class information.
-// ///
-
-// function EventidePlayerClass::onAdd(%this)
-// {
-// 	if(!%this.items)
-// 	{
-// 		%this.items = new ScriptGroup();
-// 	}
-// 	else
-// 	{
-// 		//Cycle through the item set to make sure they're all valid. Delete any items that are invalid.
-// 		for(%i = 0; %i < %this.items.getCount(); %i++)
-// 		{
-// 			%itemContainer = %this.getObject(%i);
-// 			if(!%itemContainer.itemData || %itemContainer.itemData.getClassName() !$= "ItemData")
-// 			{
-// 				%itemContainer.delete();
-// 			}
-// 		}
-// 	}
-	
-// 	if(%this.canStack $= "")
-// 	{
-// 		%this.canStack = false;
-// 	}
-	
-// 	if(!%this.title)
-// 	{
-// 		%this.title = "Specialist";
-// 	}
-// }
-
-// $Eventide_PlayerClasses = new ScriptGroup(Eventide_PlayerClasses)
-// {
-// 	class = "EventideClassGroup";
-// 	template = "default";
-// };
-
-//
 // Everything else.
 //
 
@@ -193,45 +74,45 @@ function EventidePlayer::pulsingScreen(%this,%obj)
 	%obj.pulsingScreenSched = %this.schedule(850,pulsingScreen,%obj);
 }
 
-function EventidePlayer::assignClass(%this,%obj,%class)
-{
-	if (!isObject(%obj) || !isObject(%obj.client) || %class $= "") return;
+// function EventidePlayer::assignClass(%this,%obj,%class)
+// {
+// 	if (!isObject(%obj) || !isObject(%obj.client) || %class $= "") return;
 
-	commandToClient(%obj.client,'PlayGui_CreateToolHud',(%class $= "hoarder") ? 5 : %this.maxTools);
+// 	commandToClient(%obj.client,'PlayGui_CreateToolHud',(%class $= "hoarder") ? 5 : %this.maxTools);
 
-	%formatString = "<font:impact:40><color:FFFF00>";
-	%firstString = "You acquired a";
+// 	%formatString = "<font:impact:40><color:FFFF00>";
+// 	%firstString = "You acquired a";
 
-	switch$(%class)
-	{
-		case "mender":  %healitem = (getRandom(1)) ? GauzeItem.getID() : ZombieMedpackItem.getID();
-						%obj.tool[0] = %healitem;
-         				messageClient(%obj.client,'MsgItemPickup','',0,%healitem);
-						%obj.client.centerprint(%formatString @ "Class: Mender <br>" @ %firstString SPC "medical item and can revive survivors faster!",4);
+// 	switch$(%class)
+// 	{
+// 		case "mender":  %healitem = (getRandom(1)) ? GauzeItem.getID() : ZombieMedpackItem.getID();
+// 						%obj.tool[0] = %healitem;
+//          				messageClient(%obj.client,'MsgItemPickup','',0,%healitem);
+// 						%obj.client.centerprint(%formatString @ "Class: Mender <br>" @ %firstString SPC "medical item and can revive survivors faster!",4);
 
-		case "runner": 	%obj.setTempSpeed(); // Reset the player's speed to the new class default
-						%obj.tool[0] = SodaItem.getID();
-         				messageClient(%obj.client,'MsgItemPickup','',0,SodaItem.getID());
-						%obj.client.centerprint(%formatString @ "Class: Runner <br>" @ %firstString SPC "soda and can run slightly faster!",4);
+// 		case "runner": 	%obj.setTempSpeed(); // Reset the player's speed to the new class default
+// 						%obj.tool[0] = SodaItem.getID();
+//          				messageClient(%obj.client,'MsgItemPickup','',0,SodaItem.getID());
+// 						%obj.client.centerprint(%formatString @ "Class: Runner <br>" @ %firstString SPC "soda and can run slightly faster!",4);
 
-		case "hoarder": %obj.hoarderToolCount = 5;
-						%obj.tool[0] = DCamera.getID();
-         				messageClient(%obj.client,'MsgItemPickup','',0,DCamera.getID());
-						%obj.client.centerprint(%formatString @ "Class: Hoarder <br>" @ %firstString SPC "camera and have 5 slots!",4);
+// 		case "hoarder": %obj.hoarderToolCount = 5;
+// 						%obj.tool[0] = DCamera.getID();
+//          				messageClient(%obj.client,'MsgItemPickup','',0,DCamera.getID());
+// 						%obj.client.centerprint(%formatString @ "Class: Hoarder <br>" @ %firstString SPC "camera and have 5 slots!",4);
 
-		case "fighter":	%obj.pseudoHealth = 75;
-						%obj.tool[0] = sm_poolCueItem.getID();
-         				messageClient(%obj.client,'MsgItemPickup','',0,sm_poolCueItem.getID());
-						%obj.client.centerprint(%formatString @ "Class: Fighter <br>" @ %firstString SPC "pool cue, can shove further and can take 1 hit before getting damaged!",4);
+// 		case "fighter":	%obj.pseudoHealth = 75;
+// 						%obj.tool[0] = sm_poolCueItem.getID();
+//          				messageClient(%obj.client,'MsgItemPickup','',0,sm_poolCueItem.getID());
+// 						%obj.client.centerprint(%formatString @ "Class: Fighter <br>" @ %firstString SPC "pool cue, can shove further and can take 1 hit before getting damaged!",4);
 
-		case "tinkerer": %obj.tool[0] = MonkeyWrench.getID();
-         				 messageClient(%obj.client,'MsgItemPickup','',0,MonkeyWrench.getID());
-						 %obj.tool[1] = StunGun.getID();
-         				 messageClient(%obj.client,'MsgItemPickup','',1,StunGun.getID());
-						 %obj.client.centerprint(%formatString @ "Class: Tinkerer <br>" @ %firstString SPC "monkey wrench, stungun, use the wrench to repair generators faster!",4);
-	}
+// 		case "tinkerer": %obj.tool[0] = MonkeyWrench.getID();
+//          				 messageClient(%obj.client,'MsgItemPickup','',0,MonkeyWrench.getID());
+// 						 %obj.tool[1] = StunGun.getID();
+//          				 messageClient(%obj.client,'MsgItemPickup','',1,StunGun.getID());
+// 						 %obj.client.centerprint(%formatString @ "Class: Tinkerer <br>" @ %firstString SPC "monkey wrench, stungun, use the wrench to repair generators faster!",4);
+// 	}
 	
-}
+// }
 
 function EventidePlayer::onNewDatablock(%this,%obj)
 {
