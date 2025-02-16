@@ -127,6 +127,7 @@ function brickCandleStaticShape::onRemove(%this,%obj)
 
 function brickCandleStaticShape::onAdd(%this,%obj)
 {
-    %obj.schedule(33,playaudio,3,%this.placementSound);
+    Parent::onAdd(%this,%obj);
+	%obj.playaudio(3,%this.placementSound);
     %this.schedule(500,Light,%obj);
 }
