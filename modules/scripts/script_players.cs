@@ -28,12 +28,12 @@ package Eventide_Player
 {
 	function ServerCmdDropTool (%client, %position)
 	{
-		Parent::ServerCmdDropTool (%client, %position);
+		if(isObject(%client.player) && %client.player.tool[%position].canDrop)
+		{		
+			%client.player.playthread(3,"activate");
+		}
 		
-		if(isObject (%player = %client.player) && isObject(%item = %player.tool[%position]) && %item.canDrop)
-		{
-			%player.playthread(3,"activate");
-		}		
+		Parent::ServerCmdDropTool (%client, %position);
 	}
 	
 	function Player::Unmount(%obj)
