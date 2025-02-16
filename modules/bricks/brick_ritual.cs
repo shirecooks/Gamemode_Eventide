@@ -258,7 +258,7 @@ function brickEventideRitual::onPlant(%this, %obj)
 	%obj.setRendering(0);
 	%obj.setColliding(0);
 	%obj.setRaycasting(1);
-	%obj.setColor(17);
+	%obj.setColor(15);
 
 	%obj.ritualshape = new StaticShape()
 	{

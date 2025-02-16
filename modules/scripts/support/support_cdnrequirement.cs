@@ -8,5 +8,15 @@ package Gamemode_Eventide_CDN_Reject
 			%client.delete("<a:https://blocklandglass.com/addons/addon/1580>Support_CustomCDN</a> is required to play this server");
 		}
 	}
+
+	function GameConnection::onDrop(%client, %reason)
+	{			
+		Parent::onDrop(%client,%reason);
+
+		if (%client.connected && !%client.customCDN)
+		{
+			messageAllExcept(%client, -1, 'MsgClientDrop', '\c1%1 does not have CustomCDN, disconnecting...', %client.name, %client);
+		}		
+	}
 };
 activatePackage(Gamemode_Eventide_CDN_Reject);

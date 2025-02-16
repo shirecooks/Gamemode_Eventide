@@ -98,7 +98,6 @@ package Eventide_Items
 		for (%i = 0; %i < %inventoryToolCount; %i++)
 		if (!isObject(%obj.tool[%i])) 
 		{
-			%item.canPickup = false;
 			%obj.tool[%i] = %item.getDataBlock();
 			messageClient(%obj.client, 'MsgItemPickup', '', %i, %item.getDataBlock());
 			if(isObject(%item.spawnBrick)) %item.spawnBrick.setEmitter();

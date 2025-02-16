@@ -153,9 +153,13 @@ function EventideClassGroupTemplates::getTemplate(%this, %classGroupName)
 
 function EventideClassGroupTemplates::cloneTemplate(%this, %classGroupName)
 {
-    return cloneScriptGroup(%this.getTemplate(%classGroupName));
+    //return cloneScriptGroup(%this.getTemplate(%classGroupName));
 }
 
+if(isObject($Eventide_ClassGroupTemplates))
+{
+	$Eventide_ClassGroupTemplates.delete();
+}
 $Eventide_ClassGroupTemplates = new EventideClassGroupTemplates(Eventide_ClassGroupTemplates);
 
 // Container for classes.
@@ -164,14 +168,14 @@ $Eventide_ClassGroupTemplates = new EventideClassGroupTemplates(Eventide_ClassGr
 function EventideClassGroup::onAdd(%this)
 {
 	//Nothing but a template was given, auto-fill the data from an existing template if possible.
-	if(%this.template && %this.getCount() == 0)
-	{
-		%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
-		if(%existingTemplate)
-		{
-			%this = $Eventide_ClassGroupTemplates.cloneTemplate(%this.template);
-		}
-	}
+	// if(%this.template && %this.getCount() == 0)
+	// {
+	// 	%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
+	// 	if(%existingTemplate)
+	// 	{
+	// 		%this = $Eventide_ClassGroupTemplates.cloneTemplate(%this.template);
+	// 	}
+	// }
 }
 
 // Containers for class information.
@@ -225,6 +229,10 @@ function EventidePlayerClass::onAdd(%this)
     }
 }
 
+if(isObject($Eventide_PlayerClasses))
+{
+	$Eventide_PlayerClasses.delete();
+}
 $Eventide_PlayerClasses = new ScriptGroup(Eventide_PlayerClasses)
 {
 	class = "EventideClassGroup";
@@ -307,6 +315,8 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	for(%i = 0; %i < %this.numMembers; %i ++)
 	{
 		%player = %this.member[%i].player;
+		talk("Considering player:" SPC %player);
+
 		if(!isObject(%player))
 		{
 			return;
