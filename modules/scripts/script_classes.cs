@@ -5,9 +5,9 @@
 function cloneScriptGroup(%targetObject)
 {
     %targetObjectName = %targetObject.getName();
-    %targetObject.setName("targetScriptObject");
+    %targetObject.setName("targetScriptGroup");
 
-    %cloneObject = new ScriptGroup(cloneScriptObject : targetScriptObject);
+    %cloneObject = new ScriptGroup(cloneScriptObject : targetScriptGroup);
 
     %targetObject.setName(%targetObjectName);
     %cloneObject.setName("");
@@ -153,14 +153,8 @@ function EventideClassGroupTemplates::getTemplate(%this, %classGroupName)
 
 function EventideClassGroupTemplates::cloneTemplate(%this, %classGroupName)
 {
-    //return cloneScriptGroup(%this.getTemplate(%classGroupName));
+    return cloneScriptGroup(%this.getTemplate(%classGroupName));
 }
-
-if(isObject($Eventide_ClassGroupTemplates))
-{
-	$Eventide_ClassGroupTemplates.delete();
-}
-$Eventide_ClassGroupTemplates = new EventideClassGroupTemplates(Eventide_ClassGroupTemplates);
 
 // Container for classes.
 ///
@@ -168,14 +162,14 @@ $Eventide_ClassGroupTemplates = new EventideClassGroupTemplates(Eventide_ClassGr
 function EventideClassGroup::onAdd(%this)
 {
 	//Nothing but a template was given, auto-fill the data from an existing template if possible.
-	// if(%this.template && %this.getCount() == 0)
-	// {
-	// 	%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
-	// 	if(%existingTemplate)
-	// 	{
-	// 		%this = $Eventide_ClassGroupTemplates.cloneTemplate(%this.template);
-	// 	}
-	// }
+	if(%this.template && %this.getCount() == 0)
+	{
+		%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
+		if(%existingTemplate)
+		{
+			%this = $Eventide_ClassGroupTemplates.cloneTemplate(%this.template);
+		}
+	}
 }
 
 // Containers for class information.
@@ -229,16 +223,6 @@ function EventidePlayerClass::onAdd(%this)
     }
 }
 
-if(isObject($Eventide_PlayerClasses))
-{
-	$Eventide_PlayerClasses.delete();
-}
-$Eventide_PlayerClasses = new ScriptGroup(Eventide_PlayerClasses)
-{
-	class = "EventideClassGroup";
-	template = "default";
-};
-
 //
 // Assigning a class to player.
 //
@@ -279,7 +263,7 @@ function Player::assignClass(%obj, %eventidePlayerClass)
     }
 
     //Make the player's face match the class they were assigned.
-    %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
+    %player.createFaceConfig((%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]));
 
     //Inform the player what class they got selected for.
     %client.centerprint(%formatString @ "Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
@@ -338,3 +322,13 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	//Clean up the temporary class group, we don't need it anymore.
 	%temporaryClassGroup.delete();
 }
+
+//
+// Instantiate everything here, we get class errors otherwise.
+//
+
+if(isObject($Eventide_ClassGroupTemplates))
+{
+	$Eventide_ClassGroupTemplates.delete();
+}
+$Eventide_ClassGroupTemplates = new ScriptObject(Eventide_ClassGroupTemplates) {class="EventideClassGroupTemplates";};
