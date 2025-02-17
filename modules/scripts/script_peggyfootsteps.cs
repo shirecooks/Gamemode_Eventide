@@ -603,6 +603,12 @@ function PeggFootsteps(%obj, %lastVert)
 					%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
 					%sound = %genderSound @ "_shock" @ getRandom(1, %genderSoundAmount) @ "_sound";
 
+					// %5 chance for a funny sound
+					if(%genderSound $= "male" && getRandom(1, 100) <= 5)
+					{
+						%sound = "male_shockgw_sound";
+					}
+
 					%obj.playaudio(0,%sound);
 		        }
 		    }
