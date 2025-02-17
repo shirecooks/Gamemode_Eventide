@@ -120,9 +120,9 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 						isRitual = true;
 					};
 
-					%obj.gemshape[%obj.gemcount].schedule(33,playaudio,3,"gem_place_sound");
-					%obj.gemshape[%obj.gemcount].canPickup = false;
+					%obj.gemshape[%obj.gemcount].schedule(33,playaudio,3,"gem_place_sound");					
 					%obj.gemshape[%obj.gemcount].settransform(vectoradd(%obj.gettransform(),%obj.ritualshape.getdatablock().gempos[%obj.gemcount] SPC getWords(%obj.gettransform,3,6)));
+					%obj.gemshape[%obj.gemcount].canPickup = false;
 					%interactiveshape = %obj.gemshape[%obj.gemcount];
 					%interactiveshape.setnodecolor("ALL",%itemimage.colorShiftColor);
 					Eventide_MinigameRitualGroup.add(%obj.gemshape[%obj.gemcount]);

@@ -77,15 +77,14 @@ function EventidePlayer::pulsingScreen(%this,%obj)
 function EventidePlayer::onNewDatablock(%this,%obj)
 {
 	Parent::onNewDatablock(%this,%obj);
-
-	//Play ambiant music.
-	%client = %obj.client;
-	if(isObject(%client))
+	
+	if(isObject(%obj.client))
 	{
-		%client.playAmbiance();
+		%obj.client.playAmbiance();
 	}
 
 	%obj.schedule(33,setEnergyLevel,0);
+	%obj.schedule(33,setActionThread,"root");
 	%obj.setScale("1 1 1");
 }
 
@@ -100,8 +99,15 @@ function EventidePlayer::onImpact(%this, %obj, %col, %vec, %force)
 	
 	Parent::onImpact(%this, %obj, %col, %vec, mCeil(%force));
 
-	if (%obj.getState() $= "Dead") return;
-	if (%zvector > %this.minImpactSpeed) %obj.playthread(3,"plant");
+	if (%obj.getState() $= "Dead") 
+	{
+		return;
+	}
+	
+	if (%zvector > %this.minImpactSpeed) 
+	{
+		%obj.playthread(3,"plant");
+	}
 }
 
 function EventidePlayer::onActivate(%this,%obj)
@@ -262,6 +268,8 @@ function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 					{
 						%obj.setTempSpeed();
 					}
+
+			case 2:	
 
 			case 4: if (%obj.isSkinwalker)
 					{

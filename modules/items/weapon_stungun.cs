@@ -69,30 +69,33 @@ function StunGunImage::onInitiate(%this, %obj, %slot)
 
 function StunGunImage::onDetonate(%this, %obj, %slot)
 {
-	serverPlay3D("stungun_fire_sound",%obj.getPosition());
+	%obj.unmountImage(%slot);
+    serverPlay3D("stungun_fire_sound",%obj.getPosition());
 
     for(%i = 0; %i <= %obj.getDataBlock().maxTools; %i++)
-	if(%obj.tool[%i] $= %this.item.getID()) %itemslot = %i;
-
-    if(isObject(%obj.client))
     {
-        %obj.tool[%itemslot] = 0;
-        messageClient(%obj.client,'MsgItemPickup','',%itemslot,0);
-    }
-    if(isObject(%obj.getMountedImage(%this.mountPoint))) %obj.unmountImage(%this.mountPoint);     
+        if(%obj.tool[%i] $= %this.item.getID())
+        {
+            %obj.tool[%i] = 0;
 
-    for(%i = 0; %i < clientgroup.getCount(); %i++)//Can't use container radius search anymore :(
-    {        
-        if(isObject(%nearbyplayer = clientgroup.getObject(%i).player))
-        {    
-            if(%nearbyplayer.getClassName() !$= "Player" || VectorDist(%nearbyplayer.getPosition(), %obj.getPosition()) > 15) 
-            continue;         
-                           
-            %obj.setwhiteout(1);
+            if(isObject(%obj.client))
+            {        
+                messageClient(%obj.client,'MsgItemPickup','',%i,0);
+            }
 
-            if(%nearbyplayer == %obj) continue;
-
-            if(%nearbyplayer.getDataBlock().isKiller) %nearbyplayer.mountimage("sm_stunImage",3);                        
+            break;
         }
-    }      
+    }
+
+    %light = new fxLight() { datablock = "brightLight"; };
+    %light.setTransform(%obj.getMuzzlePoint(0));
+    %light.schedule(100,delete);
+
+    // Flash nearby players
+    initContainerRadiusSearch(%obj.getPosition(), 15, $TypeMasks::PlayerObjectType);
+    while (%nearbyplayer = containerSearchNext()) 
+    {                
+        if(%nearbyplayer.getDataBlock().isKiller) %nearbyplayer.mountimage("sm_stunImage",3);
+        %nearbyplayer.setwhiteout(%nearbyplayer.getDataBlock().isKiller ? 4 : 1); // Flash nearby players
+    }
 }

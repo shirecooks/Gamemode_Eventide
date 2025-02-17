@@ -8,16 +8,6 @@ package Eventide_Items
 			Parent::onCollision(%this, %obj, %col, %vec, %speed);
 			return;
 		}
-
-		// Return if the player already has the item in their inventory
-		%inventorytoolcount = (%obj.hoarderToolCount) ? %obj.hoarderToolCount : %this.maxTools;
-		for (%i = 0; %i < %inventorytoolcount; %i++)
-		{
-			if (%obj.tool[%i] == %col.getDataBlock())
-			{
-				return;
-			}
-		}
 					
 		%obj.pickup(%col);
 	}
@@ -81,7 +71,7 @@ package Eventide_Items
 	
 	function Player::Pickup(%obj,%item)
 	{		
-		if (!%obj.getDataBlock().isEventideModel && !isObject(getMinigameFromObject(%obj))) 
+		if (!%obj.getDataBlock().isEventideModel) 
 		{
 			return Parent::Pickup(%obj,%item);
 		}
@@ -97,7 +87,13 @@ package Eventide_Items
 
 		// Check if the player already has the item
 		for (%i = 0; %i < %inventoryToolCount; %i++)
-		if (%item.getDataBlock() == %obj.tool[%i]) return;
+		if (%item.getDataBlock() == %obj.tool[%i])
+		{
+			if(!%item.getDataBlock().image.isRitual)
+			{
+				return;
+			}			
+		}
 
 		// Check for an available slot in the inventory
 		for (%i = 0; %i < %inventoryToolCount; %i++)

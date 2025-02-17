@@ -195,14 +195,22 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
         // To prevent the audio from playing multiple times
 		if(%count == 1)
         {
-            %obj.playaudio(3,"skinwalker_change_sound");            
+            %obj.playaudio(3,"skinwalker_change_sound");
+
+			if(isObject(%obj.client) && %obj.getdataBlock().getName() $= "EventidePlayer")
+			{
+				%genderSound = (!%obj.client.chest) ? "male" : "female";
+				%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
+				%obj.playaudio(0,%genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound");
+			}
         }
 
 		if(%obj.getdataBlock().getName() $= "EventidePlayer" && getRandom(1,25) == 1)
 		{
-			%obj.faceConfigShowFace("Smirk");
+			%obj.faceConfigShowFace("Smirk");			
 		}
 
+		%obj.startDrippingBlood(100);
         %obj.playthread(0,"plant");
         %obj.Transformschedule = %this.schedule(100,Transform,%obj,%bool,%count+1);
     }
@@ -229,10 +237,6 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
     }
 }
 
-//
-// Melee.
-//
-
 function PlayerSkinWalker::onKillerHit(%this,%obj,%hit)
 {
 	if(isObject(%obj.victim) || !%hit.getdataBlock().isDowned || %hit.getDamagePercent() < 0.05)
@@ -255,7 +259,7 @@ function PlayerSkinWalker::onKillerHit(%this,%obj,%hit)
 	%obj.mountobject(%hit,6);
 	%hit.schedule(2250,kill);
 	%hit.setarmthread("activate2");
-	%hit.schedule(2250,spawnExplosion,"goryExplosionProjectile",%hit.getScale()); 
+	%hit.schedule(2250,spawnExplosion,"goryExplosionProjectile",%hit.getScale());
 	%hit.schedule(2295,kill);        
 	%hit.schedule(2300,delete);        
 	%obj.schedule(2250,playthread,1,"root");
@@ -264,10 +268,6 @@ function PlayerSkinWalker::onKillerHit(%this,%obj,%hit)
 	%this.schedule(2250,EventideAppearance,%obj,%obj.client);
 	return false;
 }
-
-//
-// Packages.
-//
 
 package Eventide_Skinwalker
 {

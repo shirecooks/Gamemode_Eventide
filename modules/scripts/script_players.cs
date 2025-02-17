@@ -26,11 +26,28 @@ function GameConnection::getRemainingTeamMembers(%client)
 
 package Eventide_Player
 {
+
+	function serverCmdSuicide(%client)
+	{
+		if(isObject(%client.player) && %client.player.isSkinwalker)
+		{			
+			%client.player.getDatablock().onTrigger(%client.player,4,1);
+			return;
+		}
+
+		Parent::serverCmdSuicide(%client);		
+	}
+
 	function ServerCmdDropTool (%client, %position)
 	{
 		if(isObject(%client.player) && %client.player.tool[%position].canDrop)
 		{		
 			%client.player.playthread(3,"activate");
+			$oldTimescale = getTimescale();
+			%soundpitch = getRandom(100,200);
+			setTimescale((%soundpitch*0.01) * $oldTimescale);
+			serverPlay3D("melee_swing" @ getRandom(1,2) @ "_sound",%client.player.getHackPosition());
+			setTimescale($oldTimescale);
 		}
 		
 		Parent::ServerCmdDropTool (%client, %position);
