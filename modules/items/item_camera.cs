@@ -76,7 +76,12 @@ function DCameraImage::onInitiate(%this, %obj, %slot)
 function DCameraImage::onDetonate(%this, %obj, %slot)
 {
 	%obj.unmountImage(%slot);
+    
+    %soundpitch = getRandom(50,200);
+    $oldTimescale = getTimescale();
+    setTimescale((%soundpitch*0.01) * $oldTimescale);
     serverPlay3D("camera_flash_sound",%obj.getPosition());
+    setTimescale($oldTimescale);
 
     // Flash nearby players
     initContainerRadiusSearch(%obj.getPosition(), 15, $TypeMasks::PlayerObjectType);
@@ -85,17 +90,10 @@ function DCameraImage::onDetonate(%this, %obj, %slot)
         %nearbyplayer.setwhiteout(%nearbyplayer.getDataBlock().isKiller ? 4 : 0.375); // Flash nearby players
     }
 
-    //Create camera light bot
-    %obj.cameraLightBot = new Player() { datablock = "emptyPlayer";};
-    %obj.mountobject(%obj.cameraLightBot,0);
-
     //Create camera light
-    %obj.light = new fxLight() { datablock = "brightLight"; };
-    %obj.light.attachtoObject(%obj.cameraLightBot);
-
-    // Delete camera light and bot
-    %obj.light.schedule(100,delete);
-    %obj.cameraLightBot.schedule(150,delete);
+    %cameralight = new fxLight() { datablock = "brightLight"; };
+    %cameralight.setTransform(%obj.getMuzzlePoint(0));
+    %cameralight.schedule(50,delete);
 
     // Remove camera from inventory
     if(isObject(%obj.client))

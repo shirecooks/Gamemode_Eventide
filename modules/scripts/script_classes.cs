@@ -236,9 +236,13 @@ function Player::assignClass(%obj, %eventidePlayerClass)
         return;
     }
 
+	talk("Transferring class data...");
+
     //If the class doesn't exist, or isn't a class, we can stop right here.
+	talk(%eventidePlayerClass.getID());
     if(!isObject(%eventidePlayerClass) || %eventidePlayerClass.getClassName() !$= "EventidePlayerClass")
     {
+		talk("Invalid class given.");
         return;
     }
 
@@ -263,10 +267,10 @@ function Player::assignClass(%obj, %eventidePlayerClass)
     }
 
     //Make the player's face match the class they were assigned.
-    %player.createFaceConfig((%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]));
+    %obj.createFaceConfig((%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]));
 
     //Inform the player what class they got selected for.
-    %client.centerprint(%formatString @ "Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
+    %client.centerprint("<font:impact:40><color:FFFF00>Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
 }
 
 //
@@ -289,24 +293,26 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	}
 
 	//Creates a clone of the default class list.
-	%temporaryClassGroup = new ScriptGroup()
+	%classGroup = $Eventide_ClassGroupTemplates.getTemplate("Classic");
+
+	%unpickedClasses = new SimSet();
+	for(%i = 0; %i < %classGroup.getCount(); %i++)
 	{
-		class = "EventideClassGroup";
-		template = "Classic";
-	};
+		%unpickedClasses.add(%classGroup.getObject(%i));
+	}
 
 	//Assign a class to each player.
-	for(%i = 0; %i < %this.numMembers; %i ++)
+	for(%i = 0; %i < %minigame.numMembers; %i ++)
 	{
-		%player = %this.member[%i].player;
-		talk("Considering player:" SPC %player);
+		%player = %minigame.member[%i].player;
 
 		if(!isObject(%player))
 		{
-			return;
+			continue;
 		}
 
-		%class = %temporaryClassGroup.getObject(getRandom(0, (%temporaryClassGroup.getCount() - 1))); //Choose a class.
+		%classSelectionIndex = getRandom(0, mClamp(%unpickedClasses.getCount()-1, 0, %unpickedClasses.getCount()));
+		%class = %unpickedClasses.getObject(%classSelectionIndex); //Choose a class.
 
 		%player.assignClass(%class); //Give the player the class.
 		//TODO: Legacy class system support. Need to clean all that up eventually.
@@ -315,12 +321,12 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 		//Delete the class if it cannot be stacked.
 		if(!%class.canStack)
 		{
-			%class.delete();
+			%unpickedClasses.remove(%class);
 		}
 	}
 
-	//Clean up the temporary class group, we don't need it anymore.
-	%temporaryClassGroup.delete();
+	//Clean up the SimSet we no longer need.
+	%unpickedClasses.delete();
 }
 
 //
