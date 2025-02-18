@@ -22,7 +22,7 @@ activatePackage(Eventide_ItemParticle);
 /// This function was contributed by Conan
 /// @param %obj The item to create the emitter for
 /// @param %emitterNode The emitter node to use, if any. If not provided, it will be created using the emitter node setting or the default GenericEmitterNode
-$ItemEmitterDatablock = "playerTeleportEmitterB";
+$ItemEmitterDatablock = "SparkleGroundEmitter";
 function itemEmitterLoop(%obj, %emitterNode)
 {	
 	// check if the object is still valid, delete the emitter node if not

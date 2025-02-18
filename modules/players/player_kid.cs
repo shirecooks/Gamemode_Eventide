@@ -35,7 +35,7 @@ datablock PlayerData(PlayerKid : PlayerRenowned)
 	killerlostvictimsoundamount = 5;
 
     killerattackedsound = "kid_attacked";
-	killerattackedsoundamount = 4;
+	killerattackedsoundamount = 2;
 
 	killerpainsound = "kid_pain";
 	killerpainsoundamount = 6;
