@@ -273,7 +273,6 @@ function Player::assignClass(%obj, %eventidePlayerClass)
 
 function MiniGameSO::assignSurvivorClasses(%minigame)
 {	
-	return;
 	// Return if there are no teams
 	if(!%minigame.isSlayerMinigame || !%minigame.teams.getCount())
 	{

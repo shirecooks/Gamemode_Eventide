@@ -13,8 +13,8 @@ exec("./support/support_vectorutilities.cs");
 exec("./support/support_texttransfer.cs");
 
 // Causes lag, disabled for now
-//exec("./support/support_billboards.cs");
-//exec("./script_billboards.cs");
+exec("./support/support_billboards.cs");
+exec("./script_billboards.cs");
 
 exec("./support/support_cdnrequirement.cs");
 exec("./support/support_slayer.cs");

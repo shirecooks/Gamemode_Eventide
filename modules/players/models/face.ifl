@@ -149,12 +149,12 @@ Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/menderMPain.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/menderMOh.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/menderMNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/menderMBlink.png
-Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtTooth.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtSmirk.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtSmiley.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtScared.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtOh.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/menderM/hurt/menderMHurtNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/scared/menderFScaredTooth.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/scared/menderFScaredSmirk.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/scared/menderFScaredSmiley.png
@@ -171,12 +171,12 @@ Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/menderFPain.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/menderFOh.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/menderFNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/menderFBlink.png
-Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtTooth.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtSmirk.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtSmiley.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtScared.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtOh.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/menderF/hurt/menderFHurtNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/male/scared/maleScaredTooth.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/male/scared/maleScaredSmirk.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/male/scared/maleScaredSmiley.png

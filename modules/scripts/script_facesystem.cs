@@ -250,6 +250,7 @@ function FaceConfig::getFace(%obj, %name)
 {
     if(%obj.face[%name] $= "")
     {
+        echo("Cached face name" SPC %name SPC "|" SPC $obj.getID());
         %result = %obj.cacheFace(%name);
         if(%result $= "smiley")
         {
@@ -445,6 +446,7 @@ function Player::faceConfigBlink(%player)
     {
         cancel(%player.faceConfigBlinkSchedule);
     }
+    
     %player.faceConfigBlinkSchedule = %player.schedule(%player.faceConfig.getFaceAttribute("Blink", "closedLength"), "faceConfigUnblink");
     return %player.faceConfigBlinkSchedule;
 }
