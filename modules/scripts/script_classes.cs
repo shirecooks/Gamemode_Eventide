@@ -7,7 +7,7 @@ function cloneScriptGroup(%targetObject)
     %targetObjectName = %targetObject.getName();
     %targetObject.setName("targetScriptGroup");
 
-    %cloneObject = new ScriptGroup(cloneScriptObject : targetScriptGroup);
+    %cloneObject = new ScriptGroup(cloneScriptGroup : targetScriptGroup);
 
     %targetObject.setName(%targetObjectName);
     %cloneObject.setName("");
@@ -24,6 +24,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassGroup";
 		template = "Classic";
+		doNotAutofill = true;
 
 		new ScriptObject()
 		{
@@ -31,113 +32,93 @@ function EventideClassGroupTemplates::onAdd(%this)
 			title = "Mender";
 			canStack = false;
 			spawnMessage = "You acquired a medical item and can revive survivors faster!";
-            appearance = new ScriptObject()
-            {
-                class = "EventideClassAppearance";
-                facePack["female"] = "menderF";
-                facePack["male"] = "menderM";
-            };
-			items = new ScriptGroup()
-			{
-				//Can't store datablocks directly in a ScriptGroup. How inconvenient.
-				new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = (getRandom(0, 1) ? GauzeItem.getID() : ZombieMedpackItem.getID());
-				};
-			};
 		};
 
-        new ScriptObject()
+		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
 			title = "Runner";
 			canStack = false;
 			spawnMessage = "You acquired a soda and can run slightly faster!";
-            appearance = new ScriptObject()
-            {
-                class = "EventideClassAppearance";
-                facePack["female"] = "RunnerF";
-                facePack["male"] = "RunnerM";
-            };
-			items = new ScriptGroup()
-			{
-				new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = SodaItem.getID();
-				};
-			};
 		};
 
-        new ScriptObject()
+		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
 			title = "Hoarder";
 			maxItems = 5;
 			canStack = false;
 			spawnMessage = "You acquired a camera and have five item slots!";
-			items = new ScriptGroup()
-			{
-				new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = DCamera.getID();
-				};
-			};
 		};
 
-        new ScriptObject()
+		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
 			title = "Fighter";
-            pseudoHealth = 75;
+			pseudoHealth = 75;
 			canStack = false;
 			spawnMessage = "You acquired a pool cue, can shove further and can take 1 hit before getting damaged!";
-			appearance = new ScriptObject()
-            {
-                class = "EventideClassAppearance";
-                facePack["female"] = "fighterF";
-                facePack["male"] = "fighterM";
-            };
-            items = new ScriptGroup()
-			{
-				new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = sm_poolCueItem.getID();
-				};
-			};
 		};
 
-        new ScriptObject()
+		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
 			title = "Tinkerer";
 			canStack = false;
 			spawnMessage = "You acquired a monkey wrench and stungun. Use the wrench to repair generators faster!";
-			appearance = new ScriptObject()
-            {
-                class = "EventideClassAppearance";
-                facePack["female"] = "tinkererF";
-                facePack["male"] = "tinkererM";
-            };
-            items = new ScriptGroup()
-			{
-				new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = MonkeyWrench.getID();
-				};
-
-                new ScriptObject()
-				{
-                    class = "EventideClassItem";
-					itemData = StunGun.getID();
-				};
-			};
 		};
 	};
+
+	//Can't store datablocks directly in a ScriptGroup. How inconvenient.
+	%menderClass = %this.index["Classic"].getClass("Mender");
+	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["menderF"];
+	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["menderM"];
+	%menderClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = (getRandom(0, 1) ? GauzeItem.getID() : ZombieMedpackItem.getID());
+	});
+
+	%runnerClass = %this.index["Classic"].getClass("Runner");
+	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
+	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["RunnerM"];
+	%runnerClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = SodaItem.getID();
+	});
+
+	%hoarderClass = %this.index["Classic"].getClass("Hoarder");
+	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["male"];
+	%hoarderClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = DCamera.getID();
+	});
+
+	%fighterClass = %this.index["Classic"].getClass("Fighter");
+	%fighterClass.appearance.facePack["female"] = $Eventide_FacePacks["fighterF"];
+	%fighterClass.appearance.facePack["male"] = $Eventide_FacePacks["fighterM"];
+	%fighterClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = sm_poolCueItem.getID();
+	});
+
+	%tinkererClass = %this.index["Classic"].getClass("Tinkerer");
+	%tinkererClass.appearance.facePack["female"] = $Eventide_FacePacks["tinkererF"];
+	%tinkererClass.appearance.facePack["male"] = $Eventide_FacePacks["tinkererM"];
+	%tinkererClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = StunGun.getID();
+	});
+	%tinkererClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = MonkeyWrench.getID();
+	});
 }
 
 //Using an internal array to fetch templates is faster than iteration via a for or while loop.
@@ -162,7 +143,7 @@ function EventideClassGroupTemplates::cloneTemplate(%this, %classGroupName)
 function EventideClassGroup::onAdd(%this)
 {
 	//Nothing but a template was given, auto-fill the data from an existing template if possible.
-	if(%this.template && %this.getCount() == 0)
+	if(%this.template && !%this.doNotAutofill)
 	{
 		%existingTemplate = $Eventide_ClassGroupTemplates.getTemplate(%this.template);
 		if(%existingTemplate)
@@ -170,6 +151,20 @@ function EventideClassGroup::onAdd(%this)
 			%this = $Eventide_ClassGroupTemplates.cloneTemplate(%this.template);
 		}
 	}
+}
+
+function EventideClassGroup::getClass(%this, %className)
+{
+	for(%i = 0; %i < %this.getCount(); %i++)
+	{
+		%classObject = %this.getObject(%i);
+		if(strlwr(%className) $= strlwr(%classObject.title))
+		{
+			return %classObject;
+		}
+	}
+
+	return 0;
 }
 
 // Containers for class information.
@@ -236,15 +231,14 @@ function Player::assignClass(%obj, %eventidePlayerClass)
         return;
     }
 
-	talk("Transferring class data...");
-
     //If the class doesn't exist, or isn't a class, we can stop right here.
-	talk(%eventidePlayerClass.getID());
-    if(!isObject(%eventidePlayerClass) || %eventidePlayerClass.getClassName() !$= "EventidePlayerClass")
+    if(!isObject(%eventidePlayerClass) || %eventidePlayerClass.class !$= "EventidePlayerClass")
     {
-		talk("Invalid class given.");
         return;
     }
+
+	%obj.playerClass = %eventidePlayerClass;
+	%obj.customFacePack = (%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]);
 
     //Set the player's psuedohealth, if applicable.
     %obj.psuedohealth = %eventidePlayerClass.psuedoHealth;
@@ -279,6 +273,7 @@ function Player::assignClass(%obj, %eventidePlayerClass)
 
 function MiniGameSO::assignSurvivorClasses(%minigame)
 {	
+	return;
 	// Return if there are no teams
 	if(!%minigame.isSlayerMinigame || !%minigame.teams.getCount())
 	{
@@ -293,18 +288,23 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	}
 
 	//Creates a clone of the default class list.
-	%classGroup = $Eventide_ClassGroupTemplates.getTemplate("Classic");
+	if(isObject($Eventide_CurrentClassGroup))
+	{
+		$Eventide_CurrentClassGroup.delete();
+	}
+
+	%currentMode = $Eventide_ClassGroupTemplates.index["Classic"];
 
 	%unpickedClasses = new SimSet();
-	for(%i = 0; %i < %classGroup.getCount(); %i++)
+	for(%i = 0; %i < %currentMode.getCount(); %i++)
 	{
-		%unpickedClasses.add(%classGroup.getObject(%i));
+		%unpickedClasses.add(%currentMode.getObject(%i));
 	}
 
 	//Assign a class to each player.
-	for(%i = 0; %i < %minigame.numMembers; %i ++)
+	for(%i = 0; %i < %survivorTeam.numMembers; %i ++)
 	{
-		%player = %minigame.member[%i].player;
+		%player = %survivorTeam.member[%i].player;
 
 		if(!isObject(%player))
 		{
@@ -338,3 +338,59 @@ if(isObject($Eventide_ClassGroupTemplates))
 	$Eventide_ClassGroupTemplates.delete();
 }
 $Eventide_ClassGroupTemplates = new ScriptObject(Eventide_ClassGroupTemplates) {class="EventideClassGroupTemplates";};
+
+function destroySaturn()
+{
+	%foundObjects = 0;
+	for(%i = 0; %i < MissionCleanup.getCount(); %i++)
+	{
+		%object = MissionCleanup.getObject(%i);
+		if(%object.class $= "EventideClassGroupTemplates")
+		{
+			%object.delete();
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventidePlayerClass")
+		{
+			%object.delete();
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventideClassAppearance")
+		{
+			%object.delete();
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventideClassItem")
+		{
+			%object.delete();
+			%foundObjects += 1;
+		}
+	}
+	talk("Deleted" SPC %foundObjects SPC "unneeded objects.");
+}
+
+function communicateLaunchCodes()
+{
+	%foundObjects = 0;
+	for(%i = 0; %i < MissionCleanup.getCount(); %i++)
+	{
+		%object = MissionCleanup.getObject(%i);
+		if(%object.class $= "EventideClassGroupTemplates")
+		{
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventidePlayerClass")
+		{
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventideClassAppearance")
+		{
+			%foundObjects += 1;
+		}
+		else if(%object.class $= "EventideClassItem")
+		{
+			%foundObjects += 1;
+		}
+	}
+	talk(%foundObjects SPC "found objects.");
+}
