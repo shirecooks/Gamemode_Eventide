@@ -258,6 +258,7 @@ function Player::assignClass(%obj, %eventidePlayerClass)
     if(%maxItems > 3)
     {
         commandToClient(%client, 'PlayGui_CreateToolHud', %maxItems);
+		%obj.hoarderToolCount = %maxItems;
     }
 
     //Make the player's face match the class they were assigned.
