@@ -86,7 +86,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
 	maxSideCrouchSpeed = 5.88;
 
     nonStealthDamage = 25;
-    gazeTickRate = 50;
+    gazeTickRate = 10;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
 };
@@ -816,11 +816,11 @@ function Player::SkyCaptainGaze(%obj)
                 
                 if(%foundPlayer.timeGazedUpon $= "")
                 {
-                    %foundPlayer.timeGazedUpon = 50;
+                    %foundPlayer.timeGazedUpon = %obj.gazeTickRate;
                 }
                 else
                 {
-                    %foundPlayer.timeGazedUpon += 50;
+                    %foundPlayer.timeGazedUpon += %obj.gazeTickRate;
                 }
 
                 //Play a little beep to Sky Captain every 10 ticks (1 second), to let him know the tracking is working.
