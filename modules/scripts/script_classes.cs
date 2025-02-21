@@ -80,8 +80,8 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 
 	%runnerClass = %this.index["Classic"].getClass("Runner");
-	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
-	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["RunnerM"];
+	%runnerClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
+	%runnerClass.appearance.facePack["male"] = $Eventide_FacePacks["RunnerM"];
 	%runnerClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
@@ -89,8 +89,8 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 
 	%hoarderClass = %this.index["Classic"].getClass("Hoarder");
-	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
-	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["male"];
+	%hoarderClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%hoarderClass.appearance.facePack["male"] = $Eventide_FacePacks["male"];
 	%hoarderClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
