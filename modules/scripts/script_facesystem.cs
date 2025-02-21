@@ -250,7 +250,6 @@ function FaceConfig::getFace(%obj, %name)
 {
     if(%obj.face[%name] $= "")
     {
-        echo("Cached face name" SPC %name SPC "|" SPC $obj.getID());
         %result = %obj.cacheFace(%name);
         if(%result $= "smiley")
         {
@@ -354,6 +353,11 @@ function parseFacePacks(%startingDirectory)
 // Player functions/displaying faces.
 //
 
+function Player::faceConfigSanityCheck(%player)
+{
+    return isObject(%player) && !isObject(%player.faceConfig) && %player.getDamagePercent() < 1;
+}
+
 function Player::createFaceConfig(%player, %facePack)
 {
     //This is basically the initilization function for the face system on a player.
@@ -389,7 +393,7 @@ function Player::createEmptyFaceConfig(%player, %facePack)
 
 function Player::faceConfigUnblink(%player)
 {
-    if(!isObject(%player) || %player.getDamagePercent() == 1)
+    if(!%player.faceConfigSanityCheck())
     {
         return;
     }
@@ -422,7 +426,7 @@ function Player::faceConfigUnblink(%player)
 
 function Player::faceConfigBlink(%player)
 {
-    if(!isObject(%player) || %player.getDamagePercent() == 1)
+    if(!%player.faceConfigSanityCheck())
     {
         return;
     }
@@ -454,12 +458,16 @@ function Player::faceConfigBlink(%player)
 function Player::beginFaceConfigBlinkSchedule(%player)
 {
     //Doesn't work if you try to set the face immediately after spawn, so we just have to settle for this small delay.
+    if(!%player.faceConfigSanityCheck())
+    {
+        return;
+    }
     %player.schedule(1, "faceConfigUnblink");
 }
 
 function Player::faceConfigShowFace(%player, %name)
 {
-    if(!isObject(%player) || %player.getDamagePercent() == 1)
+    if(!%player.faceConfigSanityCheck())
     {
         return;
     }
@@ -502,7 +510,7 @@ function Player::faceConfigShowFace(%player, %name)
 
 function Player::faceConfigShowFaceTimed(%player, %name, %time)
 {
-    if(!isObject(%player) || %player.getDamagePercent() == 1)
+    if(!%player.faceConfigSanityCheck())
     {
         return;
     }
@@ -547,7 +555,7 @@ function Player::faceConfigShowDeathFace(%player)
 
 function Player::faceConfigTalkAnimation(%player, %message)
 {
-    if(!isObject(%player) || !isObject(%player.faceConfig))
+    if(!%player.faceConfigSanityCheck())
     {
         return;
     }
@@ -635,7 +643,14 @@ package Gamemode_Eventide_FaceSystem
             }
 
             //Curvy chest = female, blocky chest = male.
-            %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
+            if(%client.customFacePack)
+            {
+                %player.createFaceConfig(%client.customFacePack);
+            }
+            else
+            {
+                %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
+            }
         }
     }
     function EventidePlayer::onDisabled(%this, %player, %state)
@@ -648,11 +663,7 @@ package Gamemode_Eventide_FaceSystem
                 cancel(%player.faceConfigBlinkSchedule);
             }
 
-            if(%player.faceConfig.isFace("Blink"))
-            {
-                //Again, playing the face immediately just doesn't work, so we add a little delay. Consider it an aesthetic transition period.
-                %player.faceConfigShowDeathFace();
-            }
+            %player.faceConfigShowDeathFace();
 
             if(isObject(%player.faceConfig))
             {
@@ -665,7 +676,7 @@ package Gamemode_Eventide_FaceSystem
     {
         //In case the minigame resets, in which case onDisabled is not called.
         parent::onRemove(%this, %player);
-        //This shouldn't be needed, but just in case...
+
         if(isObject(%player.faceConfig))
         {
             %player.faceConfig.delete();

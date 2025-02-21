@@ -222,7 +222,7 @@ function EventidePlayerClass::onAdd(%this)
 // Assigning a class to player.
 //
 
-function Player::assignClass(%obj, %eventidePlayerClass)
+function Player::assignClass(%player, %eventidePlayerClass)
 {
     //We can't give the player the class items otherwise.
     %client = %obj.client;
@@ -237,11 +237,12 @@ function Player::assignClass(%obj, %eventidePlayerClass)
         return;
     }
 
-	%obj.playerClass = %eventidePlayerClass;
-	%obj.customFacePack = (%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]);
+	%player.playerClass = %eventidePlayerClass;
+	%client.customFacePack = (%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]);
+	%player.customFacePack = %client.customFacePack;
 
     //Set the player's psuedohealth, if applicable.
-    %obj.psuedohealth = %eventidePlayerClass.psuedoHealth;
+    %player.psuedohealth = %eventidePlayerClass.psuedoHealth;
 
     //Give the player the class items.
     %items = %eventidePlayerClass.items;
@@ -249,7 +250,7 @@ function Player::assignClass(%obj, %eventidePlayerClass)
     {
         %itemDatablock = %items.getObject(%i).itemData;
 
-        %obj.tool[%i] = %itemDatablock;
+        %player.tool[%i] = %itemDatablock;
         messageClient(%client, 'MsgItemPickup', '', %i, %itemDatablock);
     }
 
@@ -258,11 +259,11 @@ function Player::assignClass(%obj, %eventidePlayerClass)
     if(%maxItems > 3)
     {
         commandToClient(%client, 'PlayGui_CreateToolHud', %maxItems);
-		%obj.hoarderToolCount = %maxItems;
+		%player.hoarderToolCount = %maxItems;
     }
 
     //Make the player's face match the class they were assigned.
-    %obj.createFaceConfig((%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]));
+    %player.createFaceConfig(%player.customFacePack);
 
     //Inform the player what class they got selected for.
     %client.centerprint("<font:impact:40><color:FFFF00>Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
@@ -304,10 +305,19 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 	//Assign a class to each player.
 	for(%i = 0; %i < %survivorTeam.numMembers; %i ++)
 	{
-		%player = %survivorTeam.member[%i].player;
+		%client = %survivorTeam.member[%i];
+		%player = %client.player;
 
 		if(!isObject(%player))
 		{
+			continue;
+		}
+
+		//No more classes are left to be picked, so just make sure the player has an unassuming face pack.
+		if(%unpickedClasses.getCount() == 0)
+		{
+			%client.customFacePack = "";
+			%player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
 			continue;
 		}
 
