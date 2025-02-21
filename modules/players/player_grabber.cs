@@ -260,7 +260,7 @@ function PlayerGrabberNoJump::onCollision(%this,%obj,%col,%vec,%speed)
 	Parent::onCollision(%this,%obj,%col,%vec,%speed);
 
 	// Do not continue if any of these conditions are met.
-	if(isObject(%obj.victim) || !(%col.getType() & $TypeMasks::PlayerObjectType) || !minigameCanDamage(%obj,%col) || !%col.getdataBlock().isDowned)
+	if(isObject(%obj.victim) || !(%col.getType() & $TypeMasks::PlayerObjectType) || !minigameCanDamage(%obj,%col) || %col.getdataBlock().isDowned)
 	{
 		return;
 	}
