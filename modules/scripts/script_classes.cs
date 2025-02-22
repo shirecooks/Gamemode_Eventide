@@ -15,12 +15,25 @@ function cloneScriptGroup(%targetObject)
     return %cloneObject;
 }
 
+function cloneSimGroup(%targetObject)
+{
+    %targetObjectName = %targetObject.getName();
+    %targetObject.setName("targetSimGroup");
+
+    %cloneObject = new ScriptGroup(cloneSimGroup : targetSimGroup);
+
+    %targetObject.setName(%targetObjectName);
+    %cloneObject.setName("");
+
+    return %cloneObject;
+}
+
 // Templates, containers for pre-made groups of classes.
 ///
 
 function EventideClassGroupTemplates::onAdd(%this)
 {
-	%this.index["Classic"] = new ScriptGroup()
+	%this.index["Classic"] = new SimGroup()
 	{
 		class = "EventideClassGroup";
 		template = "Classic";
@@ -134,7 +147,7 @@ function EventideClassGroupTemplates::getTemplate(%this, %classGroupName)
 
 function EventideClassGroupTemplates::cloneTemplate(%this, %classGroupName)
 {
-    return cloneScriptGroup(%this.getTemplate(%classGroupName));
+    return cloneSimGroup(%this.getTemplate(%classGroupName));
 }
 
 // Container for classes.
@@ -174,7 +187,7 @@ function EventidePlayerClass::onAdd(%this)
 {
 	if(!%this.items)
 	{
-		%this.items = new ScriptGroup();
+		%this.items = new SimGroup();
 	}
 	else
 	{
