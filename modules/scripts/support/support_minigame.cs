@@ -71,9 +71,6 @@ package Eventide_Minigame
 
 		%minigame.escapedCount = 0;
     	%minigame.livingCount = 0; 
-
-		for (%i = 0; %i < getWordCount($Eventide_SurvivorClasses); %i++)
-		%minigame.survivorClass[getWord($Eventide_SurvivorClasses,%i)] = 0;
 		
 		// Loop through all minigame members to perform some actions
 		for (%i=0;%i<%minigame.numMembers;%i++) if (isObject(%client = %minigame.member[%i])) 
