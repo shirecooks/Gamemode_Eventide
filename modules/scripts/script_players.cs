@@ -40,14 +40,16 @@ package Eventide_Player
 
 	function ServerCmdDropTool (%client, %position)
 	{
-		if(isObject(%client.player) && %client.player.tool[%position].canDrop)
+		%player = %client.player;
+		%item = %player.tool[%position];
+		if(isObject(%player) && %item.canDrop)
 		{		
-			%client.player.playthread(3,"activate");
-			$oldTimescale = getTimescale();
+			%player.playthread(3,"activate");
+			%oldTimescale = getTimescale();
 			%soundpitch = getRandom(100,200);
-			setTimescale((%soundpitch*0.01) * $oldTimescale);
+			setTimescale((%soundpitch*0.01) * %oldTimescale);
 			serverPlay3D("melee_swing" @ getRandom(1,2) @ "_sound",%client.player.getHackPosition());
-			setTimescale($oldTimescale);
+			setTimescale(%oldTimescale);
 		}
 		
 		Parent::ServerCmdDropTool (%client, %position);
