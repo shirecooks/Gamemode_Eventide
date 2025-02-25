@@ -1,13 +1,42 @@
-$Eventide_FlashlightBeamSteps = 8;
+$Eventide_FlashlightLength = 2;
+$Eventide_FlashlightStepSize = 5;
 $Eventide_FlashlightRate = 50;
+
+//
+// Support functions.
+//
+
+//https://blockdoc.block.land/VectorRotate
+//Angle in radians.
+function VectorRotate(%vec, %axis, %angle)
+{
+    if (vectorLen(%axis) != 1)
+    {
+        %axis = vectorNormalize(%axis);
+    }
+
+    %proj = vectorScale(%axis, vectorDot(%vec, %axis));
+    %ortho = vectorSub(%vec, %proj);
+    %w = vectorCross(%axis, %ortho);
+    %cos = mCos(%angle);
+    %sin = mSin(%angle);
+    %x1 = %cos / vectorLen(%ortho);
+    %x2 = %sin / vectorLen(%w);
+    %rotOrtho = vectorScale(vectorAdd(vectorScale(%ortho, %x1), vectorScale(%w, %x2)), vectorLen(%ortho));
+    return vectorAdd(%rotOrtho, %proj);
+}
+
+//
+// Datablocks.
+//
 
 datablock FxLightData(PlayerFlashlight : PlayerLight) 
 {
 	uiName = "";
 	flareOn = 0;
 
-	radius = 16;
-	brightness = 3;
+	radius = 12;
+	brightness = 2;
 };
 
 datablock FxLightData(PlayerGreenFlashlight : PlayerFlashlight) 
@@ -15,23 +44,41 @@ datablock FxLightData(PlayerGreenFlashlight : PlayerFlashlight)
 	color = "0 1 0 1";
 };
 
+datablock fxLightData(PlayerBlockedFlashlight)
+{
+	LightOn = false;
+
+	flareOn = true;
+	flarebitmap = "base/data/shapes/blank.png";
+	ConstantSize = 1;
+    ConstantSizeOn = true;
+    FadeTime = 0;
+
+	LinkFlare = false;
+	blendMode = 1;
+	flareColor = "1 0 0 1";
+
+	AnimOffsets = true;
+	startOffset = "0 0 0";
+	endOffset = "0 0 0";
+};
+
 datablock ShapeBaseImageData(FlashlightImage) 
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/misc/models/flashlight.dts";
-	hasLight = true;
+	hasLight = false;
 
 	emap = true;
 	offset = "0 0 0";
-	mountPoint = 1;
+	mountPoint = $LeftHandSlot;
 
 	doColorShift = true;
 	colorShiftColor = "0.3 0.3 0.35 1";
-
-	lightType = "ConstantLight";
-	lightColor = "1 1 1 1";
-	lightTime = "1000";
-	lightRadius = "10";
 };
+
+//
+// Functions and logic.
+//
 
 function Player::flashlightTick(%obj) 
 {
@@ -43,67 +90,140 @@ function Player::flashlightTick(%obj)
 	//Don't update the flashlight if the player is dead.
 	if(%obj.getState() $= "Dead" || !isObject(%obj.light))
 	{
+		%obj.deleteFlashlightBeam();
 		return;
 	}
 
 	//Fire a raycast, limited to half the visible distance. If it hits something, stop there. If not, stop at the end of the raycast.
 	%range = 32; //64 studs.
 	%start = %obj.getMuzzlePoint($LeftHandSlot);
-	%vector = %obj.getEyeVector();
-	%end = VectorAdd(%start, VectorScale(%obj.getEyeVector(), %range));
+	%eyeVector = VectorNormalize(%obj.getEyeVector());
+	%end = VectorAdd(%start, VectorScale(%eyeVector, %range));
 
-	%mask = ($TypeMasks::StaticShapeObjectType | $TypeMasks::FxBrickObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::TerrainObjectType);
-	%ray = containerRayCast(%start, %end, %mask, %obj);
+	%mask = ($TypeMasks::StaticShapeObjectType | $TypeMasks::FxBrickObjectType | $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::TerrainObjectType);
+	%raycast = containerRayCast(%start, %end, %mask, %obj);
 
-	if(%ray $= "0") 
+	if(%raycast $= "0") 
 	{
-		%pos = %end;
+		%endPosition = %end;
 	}
 	else 
 	{
-		//Elevate the light off the ground just a little bit. Otherwise, it clips into the ground and does not shine.
-		%normal = VectorNormalize(normalFromRaycast(%ray));
-		%pos = VectorAdd(posFromRaycast(%ray), %normal);
+		//Elevate the light off the surface it hit just a little bit. Otherwise, it clips into the ground and does not shine.
+		%endPosition = VectorAdd(posFromRaycast(%raycast), normalFromRaycast(%raycast));
 	}
 
-	//Set the position of the player light based on the end position of the raycast.
-	%obj.light.setTransform(%pos);
+	%flashlightVector = VectorNormalize(VectorSub(%endPosition, %start));
+
+	//The "official" player light will be the first step in the flashlight beam, so set it to the first position.
+	%lightDatablock = %obj.light.getDataBlock();
+
+	//To ensure the beam is visually smooth, make sure the beam nodes are always 3 units above the ground or higher. Any lower, and the light begins to clip into the ground.
+	%initialLightPosition = VectorAdd(%start, VectorScale(%flashlightVector, $Eventide_FlashlightStepSize));
+	%initialLightZValue = getWord(%initialLightPosition, 2);
+	%initialLightPosition = setWord(%initialLightPosition, 2, mClampF(%initialLightZValue, 3.0, %initialLightZValue));
+
+	%obj.light.setTransform(%initialLightPosition);
 	%obj.light.reset();
 
-	//Create a trail of light, to make the beam of the flashlight smooth.
-	%flashlightPath = VectorSub(%pos, %start);
-	for(%i = 0; %i < %obj.flashlightBeam["steps"]; %i++)
+	//Recycle previously used flashlight beam nodes indiscriminately.
+	%unusedLightObjects = new SimSet();
+	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
 	{
-		if(!isObject(%obj.flashlightBeam[%i]))
-		{
-			%obj.flashlightBeam[%i] = new FxLight() 
-			{
-				datablock = %obj.light.getDataBlock();
-
-				iconSize = 1;	
-				enable = 1;
-			};
-		}
-
-		%beamStepLocation = VectorAdd(%start, VectorScale(%flashlightPath, (%i + 1) / $Eventide_FlashlightBeamSteps));
-		%obj.flashlightBeam[%i].setTransform(%beamStepLocation);
-		%obj.flashlightBeam[%i].reset();
+		%unusedLightObjects.add(%obj.flashlightBeamGroup.getObject(%i));
 	}
+
+	//Create a trail of lights, to make the beam of the flashlight smooth.
+	for(%i = 1; %i <= %obj.flashlightBeamGroup.numIterations; %i++)
+	{
+		%lightsThisStep = mPow(2, %i);
+
+		//Have it cone out based on the number of beam nodes this step.
+		for(%j = 1; %j <= %lightsThisStep; %j++)
+		{
+			%lightObject = %unusedLightObjects.getObject(0);
+
+			%initialLightVector = VectorSub(%initialLightPosition, %start);
+			%beamStepCenter = VectorAdd(%start, VectorScale(%initialLightVector, (%i + 1)));
+
+			//Rotate the point left if on an even iteration, or right if on an odd iteration.
+			%rotationFactor = %j % 2 == 0 ? mDegToRad($Eventide_FlashlightStepSize) : -mDegToRad($Eventide_FlashlightStepSize);
+			%translatedPoint = VectorSub(%beamStepCenter, %initialLightPosition);
+			%rotatedPoint = VectorRotate(%translatedPoint, "0 0 1", %rotationFactor);
+			%finalPoint = VectorAdd(%rotatedPoint, %initialLightPosition);
+
+			%raycast = containerRayCast(%finalPoint, %start, %mask, %obj);
+			if(%raycast $= "0")
+			{
+				if(%lightObject.getDataBlock() !$= %lightDatablock)
+				{
+					%lightObject.setDataBlock(%lightDatablock);
+				}
+				%lightObject.setTransform(%finalPoint);
+				%lightObject.reset();
+			}
+			else
+			{
+				if(%lightObject.getDataBlock() !$= PlayerBlockedFlashlight)
+				{
+					%lightObject.setDataBlock(PlayerBlockedFlashlight);
+				}
+			}
+
+			%unusedLightObjects.remove(%lightObject);
+		}
+	}
+	%unusedLightObjects.delete();
 
 	//Schedule another flashlight update, soon.
 	%obj.flashlightTick = %obj.schedule($Eventide_FlashlightRate, "flashlightTick");
 }
 
-function Player::deleteFlashlightBeam(%obj)
+function Player::createFlashlightBeam(%obj)
 {
-	for(%i = 0; %i < %obj.flashlightBeam["steps"]; %i++)
+	if(isObject(%obj.flashlightBeamGroup))
 	{
-		if(isObject(%obj.flashlightBeam[%i]))
+		%obj.flashlightBeamGroup.delete();
+	}
+
+	%obj.flashlightBeamGroup = new SimGroup();
+	%obj.flashlightBeamGroup.numIterations = 0;
+	
+	%totalLights = 0;
+	for(%i = 1; %i < $Eventide_FlashlightLength; %i++)
+	{
+		%totalLights += mPow(2, %i);
+		%obj.flashlightBeamGroup.numIterations += 1;
+	}
+
+	//We figured out how much, now lets create all the needed light and add them to the flashlight group.
+	%lightDatablock = %obj.light.getDataBlock();
+	for(%i = 0; %i < %totalLights; %i++)
+	{
+		%flashlightNode = new FxLight() 
 		{
-			%obj.flashlightBeam[%i].delete();
-		}
+			datablock = %lightDatablock;
+
+			iconSize = 1;	
+			enable = 1;
+		};
+		%flashlightNode.setTransform(%obj.getTransform());
+		%flashlightNode.reset();
+		%obj.flashlightBeamGroup.add(%flashlightNode);
 	}
 }
+
+function Player::deleteFlashlightBeam(%obj)
+{
+	if(isObject(%obj.flashlightBeamGroup))
+	{
+		%obj.flashlightBeamGroup.delete();
+	}
+}
+
+//
+// Package, default flashlight functionality override.
+//
 
 function pushServerPackageToBack(%package) 
 {
@@ -164,7 +284,6 @@ package Eventide_Flashlight
 		{
 			//Turn the flashlight on.
 
-			%player.flashlightBeam["steps"] = $Eventide_FlashlightBeamSteps;
 			%flashlightDatablock = %player.greenLight ? PlayerGreenFlashlight : PlayerFlashlight;
 			%player.light = new FxLight() 
 			{
@@ -175,6 +294,7 @@ package Eventide_Flashlight
 				enable = 1;
 			};
 			%player.light.setTransform(%player.getTransform());
+			%player.createFlashlightBeam();
 
 			serverPlay3D("flashlight_on_sound", %player.getHackPosition());
 

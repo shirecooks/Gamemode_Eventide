@@ -2,27 +2,6 @@
 // Support functions.
 //
 
-//https://blockdoc.block.land/VectorRotate
-//Angle in radians.
-//Might need this later.
-function VectorRotate(%vec, %axis, %angle)
-{
-    if (vectorLen(%axis) != 1)
-    {
-        %axis = vectorNormalize(%axis);
-    }
-
-    %proj = vectorScale(%axis, vectorDot(%vec, %axis));
-    %ortho = vectorSub(%vec, %proj);
-    %w = vectorCross(%axis, %ortho);
-    %cos = mCos(%angle);
-    %sin = mSin(%angle);
-    %x1 = %cos / vectorLen(%ortho);
-    %x2 = %sin / vectorLen(%w);
-    %rotOrtho = vectorScale(vectorAdd(vectorScale(%ortho, %x1), vectorScale(%w, %x2)), vectorLen(%ortho));
-    return vectorAdd(%rotOrtho, %proj);
-}
-
 function getClosestIntersectionPoint(%viewingPoint, %lineStartPoint, %lineEndPoint)
 {
 	%line = VectorSub(%lineEndPoint, %lineStartPoint);
