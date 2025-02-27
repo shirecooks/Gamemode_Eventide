@@ -2,7 +2,7 @@ $Eventide_loadErrors = new ScriptGroup(Eventide_loadErrors);
 %fatalError = false;
 
 //List of required add-ons
-%requiredAddOns = "Support_CustomCDN Script_Blood Gamemode_Slayer Event_BrickText Item_Medical Brick_Halloween Server_EnvironmentZones Weapon_Rocket_Launcher Projectile_GravityRocket Weapon_Gun";
+%requiredAddOns = "Support_CustomCDN Script_Blood Gamemode_Slayer Event_BrickText Item_Medical Brick_Halloween Server_EnvironmentZones Weapon_Rocket_Launcher Projectile_GravityRocket Weapon_Gun Light_Basic";
 
 function Eventide_storeError(%message)
 {

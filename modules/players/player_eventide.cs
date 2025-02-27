@@ -16,18 +16,19 @@ datablock PlayerData(EventidePlayer : PlayerStandardArmor)
 
 	uniformCompatible = true;
 	isEventideModel = true;
-	showEnergyBar = false;
 	firstpersononly = false;
 	isKiller = false;
 	canJet = false;
 	tunnelFOVIncrease = 20;
+
+	showEnergyBar = true;
+	rechargeRate = 0.375;
 
 	useCustomPainEffects = true;
 	jumpSound = "jumpSound";
 	PainSound		= "";
 	DeathSound		= "";
 
-	rechargeRate = 0.375;
 	maxTools = 3;
 	maxWeapons = 3;
 	jumpForce = 0;

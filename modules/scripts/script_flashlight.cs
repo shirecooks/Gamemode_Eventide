@@ -1,6 +1,7 @@
 $Eventide_FlashlightLength = 2;
 $Eventide_FlashlightStepSize = 5;
 $Eventide_FlashlightRate = 50;
+$Eventide_FlashlightBlindIntensity = 1.25;
 
 //
 // Support functions.
@@ -42,6 +43,11 @@ datablock FxLightData(PlayerFlashlight : PlayerLight)
 datablock FxLightData(PlayerGreenFlashlight : PlayerFlashlight) 
 {
 	color = "0 1 0 1";
+};
+
+datablock fxLightData(PlayerSurgeFlashlight : BrightLight)
+{
+	FlareOn = false;
 };
 
 datablock fxLightData(PlayerBlockedFlashlight)
@@ -221,6 +227,95 @@ function Player::deleteFlashlightBeam(%obj)
 	}
 }
 
+function Player::flashlightSurge(%obj)
+{
+	if(!isObject(%obj.flashlightBeamGroup) || !isObject(%obj.light) || %obj.getEnergyLevel() != 100)
+	{
+		return;
+	}
+
+	%obj.setEnergyLevel(0);
+
+	//
+	// Light effect.
+	//
+
+	%surgeLightDatablock = PlayerSurgeFlashlight;
+	%originalLightDatablock = %obj.light.getDataBlock();
+
+	%obj.light.setDataBlock(%surgeLightDatablock);
+	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
+	{
+		%obj.flashlightBeamGroup.getObject(%i).setDatablock(%surgeLightDatablock);
+	}
+	%obj.schedule(75, "resetFlashlightSurge", %originalLightDatablock);
+
+	//
+	// Sound effect.
+	serverPlay3D("flashlight_surge_sound", %obj.getPosition());
+
+	//
+	// Partial flash effect for the flashlight owner.
+	%obj.setWhiteOut(0.50);
+
+	//
+	// Small animation.
+	%obj.playThread(3, plant);
+
+	//
+	// Blind the killer(s).
+	//
+
+	for(%i = %obj.flashlightBeamGroup.getCount(); %i > 0; %i--) //Start at the end of the list and work our way down, since the killer is more likely to be at the end of the beam.
+	{
+		//A semi-hacky way to include the default player light into the check. Have the for loop start out of range, and when it is, check the player light.
+		if(%i == %obj.flashlightBeamGroup.getCount())
+		{
+			%beamNode = %obj.light;
+		}
+		else
+		{
+			%beamNode = %obj.flashlightBeamGroup.getObject(%i);
+		}
+
+		%radius = %surgeLightDatablock.radius;
+		%mask = $Typemasks::PlayerObjectType;
+
+		initContainerRadiusSearch(%beamNode.getPosition(), %radius, %mask);
+		while(%player = containerSearchNext())
+		{
+			if(%player == %obj)
+			{
+				return; //Don't blind the flashlight owner.
+			}
+
+			if(%player.getDatablock().isKiller)
+			{
+				%whiteOut = $Eventide_FlashlightBlindIntensity;
+			}
+			else
+			{
+				%whiteOut = 0.5;
+			}
+
+			//Blind them temporarily.
+			%player.setWhiteOut(%whiteOut);
+
+			//Make them play a little animation.
+			%player.playThread(3, activate2);
+		}
+	}
+}
+
+function Player::resetFlashlightSurge(%obj, %previousLightDatablock)
+{
+	%obj.light.setDataBlock(%previousLightDatablock);
+	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
+	{
+		%obj.flashlightBeamGroup.getObject(%i).setDatablock(%previousLightDatablock);
+	}
+}
+
 //
 // Package, default flashlight functionality override.
 //
@@ -249,13 +344,17 @@ function pushServerPackageToBack(%package)
 
 package Eventide_Flashlight 
 {
+	//Main override of the original flashlight logic.
 	function serverCmdLight(%client) 
 	{
 		%player = %client.player;
 
 		if(!isObject(%player) || %player.getState() $= "Dead" || %player.getDatablock().isKiller) 
 		{
-			parent::serverCmdLight(%client);
+			if(!%player.getDatablock().isKiller)
+			{
+				parent::serverCmdLight(%client);
+			}
 			return;
 		}
 
@@ -311,6 +410,7 @@ package Eventide_Flashlight
 		}
 	}
 
+	//Easter egg for the /greenLight function, to make the flashlight beam green.
 	function serverCmdGreenLight(%client, %checkValue)
 	{
 		%player = %client.player;
@@ -322,6 +422,27 @@ package Eventide_Flashlight
 		%player.greenLight = false;
 	}
 
+	//Flashlight surge mechanic.
+	function serverCmdPlantBrick(%client)
+	{
+		%player = %client.player;
+
+		if(!isObject(%player) || %player.getState() $= "Dead" || %player.getDatablock().isKiller) 
+		{
+			if(!%player.getDatablock().isKiller)
+			{
+				parent::serverCmdPlantBrick(%client);
+			}
+			return;
+		}
+
+		if(isObject(%player.light))
+		{
+			%player.flashlightSurge();
+		}
+	}
+
+	//The the left hand is being used for something else but is freed up, equip the flashlight.
 	function Player::unmountImage(%this, %slot) 
 	{
 		parent::unmountImage(%this, %slot);
@@ -332,12 +453,13 @@ package Eventide_Flashlight
 		}
 	}
 
+	//Delete the flashlight beam when the player dies or is deleted.
 	function Armor::onRemove(%this, %obj)
 	{
 		//Delete the flashlight beam when the player dies, respawns, or disconnects.
 		if(isEventPending(%obj.flashlightTick))
 		{
-			cancel(%obj.flashlightTIck);
+			cancel(%obj.flashlightTick);
 		}
 		%obj.deleteFlashlightBeam();
 		parent::onRemove(%this, %obj);
