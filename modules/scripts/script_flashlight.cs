@@ -430,19 +430,13 @@ package Eventide_Flashlight
 	{
 		%player = %client.player;
 
-		if(!isObject(%player) || %player.getState() $= "Dead" || %player.getDatablock().isKiller) 
+		if(!isObject(%player.light) || !isObject(%player) || %player.getState() $= "Dead" || %player.getDatablock().isKiller) 
 		{
-			if(!%player.getDatablock().isKiller)
-			{
-				parent::serverCmdPlantBrick(%client);
-			}
+			parent::serverCmdPlantBrick(%client);
 			return;
 		}
 
-		if(isObject(%player.light))
-		{
-			%player.flashlightSurge();
-		}
+		%player.flashlightSurge();
 	}
 
 	//The the left hand is being used for something else but is freed up, equip the flashlight.
