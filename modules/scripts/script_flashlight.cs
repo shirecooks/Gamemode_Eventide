@@ -280,13 +280,16 @@ function Player::flashlightSurge(%obj)
 
 		%radius = %surgeLightDatablock.radius;
 		%mask = $Typemasks::PlayerObjectType;
+		%position = %beamNode.getPosition();
 
-		initContainerRadiusSearch(%beamNode.getPosition(), %radius, %mask);
+		initContainerRadiusSearch(%position, %radius, %mask);
 		while(%player = containerSearchNext())
 		{
-			if(%player == %obj)
+			%dot = VectorDot(%player.getEyePoint(), VectorNormalize(VectorSub(%beamNode.getPosition(), %player.getPosition())));
+			if(%player == %obj || %dot < 0.7)
 			{
-				return; //Don't blind the flashlight owner.
+				//Don't blind the flashlight owner, or someone who isn't looking at the flashlight.
+				return; 
 			}
 
 			if(%player.getDatablock().isKiller)
