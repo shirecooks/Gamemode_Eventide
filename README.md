@@ -13,7 +13,8 @@
 - Server_EnvironmentZones  
 - Weapon_Rocket_Launcher  
 - Projectile_GravityRocket  
-- Weapon_Gun  
+- Weapon_Gun
+- Light_Basic
 
 ## Required modules (DLL)
 - **Selective Ghosting**: https://gitlab.com/Eagle517/selective-ghosting
