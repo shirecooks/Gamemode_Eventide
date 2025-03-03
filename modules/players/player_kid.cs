@@ -549,6 +549,12 @@ function PlayerKid::onIncapacitateVictim(%this, %obj, %victim, %killed)
 	//Generate fake ban messages for flavor.
 	%killerClient = %obj.client;
 	%victimClient = %victim.client;
+
+	//Debug messages.
+	talk("Killed?" SPC %killed);
+	talk("Killer client:" SPC %killerClient);
+	talk("Victim client:" SPC %victimClient);
+
 	if(%killed && isObject(%killerClient) && isObject(%victimClient))
 	{
 		%victimName = %victimClient.getPlayerName();
@@ -567,6 +573,7 @@ function PlayerKid::onIncapacitateVictim(%this, %obj, %victim, %killed)
 		
 		//Fake ban sound.
 		serverPlay2D("AdminSound");
+		serverPlay2D("ClientDropSound");
 		
 		%victim.delete();
 	}
