@@ -56,17 +56,11 @@ package Eventide_StartupErrorMessages
     {
         parent::startLoad(%client);
 
-        %dummyClient = new ScriptObject(dummyClient) //Needed to prevent `chatMessageAll` from throwing an error.
-        {
-            isSpamming = false;
-            spamMessageCount = 0;
-        };
         for(%i = 0; %i < $Eventide_loadErrors.getCount(); %i++)
         {
             %error = $Eventide_loadErrors.getObject(%i);
-            chatMessageAll(%dummyClient, "ERROR:" SPC %error.message);
+            MessageAll('MsgAdminForce', '\c1ERROR: %1', %error.message);
         }
-        %dummyClient.delete();
         $Eventide_loadErrors.delete();
 
         deactivatePackage(Eventide_StartupErrorMessages);
@@ -88,5 +82,6 @@ exec("./modules/misc/module_misc.cs");
 exec("./modules/bricks/module_bricks.cs");
 exec("./modules/items/module_items.cs");
 exec("./modules/players/module_players.cs");
+
 //Needs to be executed after the playertypes have been loaded, so it goes here instead of inn `module_scripts`.
 exec("./modules/scripts/script_slayer.cs"); 
