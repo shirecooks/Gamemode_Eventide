@@ -59,7 +59,7 @@ package Eventide_StartupErrorMessages
         for(%i = 0; %i < $Eventide_loadErrors.getCount(); %i++)
         {
             %error = $Eventide_loadErrors.getObject(%i);
-            MessageAll('MsgAdminForce', '\c1ERROR: %1', %error.message);
+            MessageAll('', "\c1ERROR:" SPC %error.message);
         }
         $Eventide_loadErrors.delete();
 
