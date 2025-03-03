@@ -114,14 +114,11 @@ package Eventide_Items
 	{
 		Parent::onAdd(%this,%obj);
 
-		if(isObject(%obj))
+		if(!isObject(Eventide_MinigameGroup)) 
 		{
-			if(!isObject(Eventide_MinigameGroup)) 
-			{
-				missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
-			}
-			Eventide_MinigameGroup.add(%obj);
+			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
 		}
+		Eventide_MinigameGroup.add(%obj);
 	}
 
 	function Item::schedulePop(%obj)
