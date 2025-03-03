@@ -213,7 +213,7 @@ function Armor::killerContainerRadiusSearch(%this, %obj)
         (
             containerRayCast(%killerEye, %victim.getHackPosition(), %typemasks, %obj) && //Can we see the victim's body?
             containerRayCast(%killerEye, %victim.getEyePoint(), %typemasks, %obj) && //Can we see the victim's head?
-            containerRayCast(%killerEye, %victim.getMuzzlePoint($LeftFootSlot), %typemasks, %obj) //Can we see the victim's feet?
+            containerRayCast(%killerEye, VectorAdd(%victim.getPosition(),"0 0 0.3"), %typemasks, %obj) //Can we see the victim's feet?
         );
 
         %isActiveChase = %dot > 0.45 && %canSeeVictim;
