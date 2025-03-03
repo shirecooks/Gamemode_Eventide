@@ -110,7 +110,7 @@ package Eventide_Items
 		return;
 	}
 	
-	function ItemData::onAdd(%this, %obj)	
+	function ItemData::onAdd(%this, %obj)
 	{
 		Parent::onAdd(%this,%obj);
 
