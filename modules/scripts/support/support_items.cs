@@ -110,22 +110,19 @@ package Eventide_Items
 		return;
 	}
 	
-	function ItemData::onAdd(%this, %obj)	
+	function ItemData::onAdd(%this, %obj)
 	{
 		Parent::onAdd(%this,%obj);
-
-		if(isObject(%obj))
-		{
-			if(!isObject(Eventide_MinigameGroup)) 
-			{
-				missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
-			}
-			Eventide_MinigameGroup.add(%obj);
-		}
 	}
 
 	function Item::schedulePop(%obj)
 	{		
+		if(!isObject(Eventide_MinigameGroup)) 
+		{
+			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
+		}
+		Eventide_MinigameGroup.add(%obj);
+		
 		// Do not continue if there is a minigame going on, the item should not disappear
 		if(MiniGameGroup.getCount() || (isObject(Slayer_MiniGameHandlerSG) && Slayer_MiniGameHandlerSG.getCount()))
 		{

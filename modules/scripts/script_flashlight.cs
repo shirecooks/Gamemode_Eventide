@@ -1,6 +1,6 @@
 $Eventide_FlashlightLength = 2;
 $Eventide_FlashlightStepSize = 5;
-$Eventide_FlashlightRate = 50;
+$Eventide_FlashlightRate = 10;
 $Eventide_FlashlightBlindIntensity = 1.25;
 
 //
@@ -11,7 +11,7 @@ $Eventide_FlashlightBlindIntensity = 1.25;
 //Angle in radians.
 function VectorRotate(%vec, %axis, %angle)
 {
-    if (vectorLen(%axis) != 1)
+    if(vectorLen(%axis) != 1)
     {
         %axis = vectorNormalize(%axis);
     }
@@ -116,16 +116,17 @@ function Player::flashlightTick(%obj)
 	else 
 	{
 		//Elevate the light off the surface it hit just a little bit. Otherwise, it clips into the ground and does not shine.
-		%endPosition = VectorAdd(posFromRaycast(%raycast), normalFromRaycast(%raycast));
+		//Also have the initial beam inherit the player's velocity.
+		%endPosition = VectorAdd(VectorAdd(posFromRaycast(%raycast), normalFromRaycast(%raycast)), %obj.getVelocity());
 	}
 
-	%flashlightVector = VectorNormalize(VectorSub(%endPosition, %start));
+	%flashlightVector = VectorSub(%endPosition, %start);
 
 	//The "official" player light will be the first step in the flashlight beam, so set it to the first position.
 	%lightDatablock = %obj.light.getDataBlock();
 
 	//To ensure the beam is visually smooth, make sure the beam nodes are always 3 units above the ground or higher. Any lower, and the light begins to clip into the ground.
-	%initialLightPosition = VectorAdd(%start, VectorScale(%flashlightVector, $Eventide_FlashlightStepSize));
+	%initialLightPosition = VectorAdd(%start, VectorScale(%flashlightVector, (1 / $Eventide_FlashlightStepSize)));
 	%initialLightZValue = getWord(%initialLightPosition, 2);
 	%initialLightPosition = setWord(%initialLightPosition, 2, mClampF(%initialLightZValue, 3.0, %initialLightZValue));
 
@@ -153,7 +154,7 @@ function Player::flashlightTick(%obj)
 			%beamStepCenter = VectorAdd(%start, VectorScale(%initialLightVector, (%i + 1)));
 
 			//Rotate the point left if on an even iteration, or right if on an odd iteration.
-			%rotationFactor = %j % 2 == 0 ? mDegToRad($Eventide_FlashlightStepSize) : -mDegToRad($Eventide_FlashlightStepSize);
+			%rotationFactor = %j % 2 == 0 ? mDegToRad($Eventide_FlashlightStepSize * 4) : -mDegToRad($Eventide_FlashlightStepSize * 4);
 			%translatedPoint = VectorSub(%beamStepCenter, %initialLightPosition);
 			%rotatedPoint = VectorRotate(%translatedPoint, "0 0 1", %rotationFactor);
 			%finalPoint = VectorAdd(%rotatedPoint, %initialLightPosition);
@@ -266,6 +267,7 @@ function Player::flashlightSurge(%obj)
 	// Blind the killer(s).
 	//
 
+	%playersToBlind = new SimSet();
 	for(%i = %obj.flashlightBeamGroup.getCount(); %i > 0; %i--) //Start at the end of the list and work our way down, since the killer is more likely to be at the end of the beam.
 	{
 		//A semi-hacky way to include the default player light into the check. Have the for loop start out of range, and when it is, check the player light.
@@ -282,32 +284,56 @@ function Player::flashlightSurge(%obj)
 		%mask = $Typemasks::PlayerObjectType;
 		%position = %beamNode.getPosition();
 
+		//Figure out who needs to be blinded.
 		initContainerRadiusSearch(%position, %radius, %mask);
 		while(%player = containerSearchNext())
 		{
-			%dot = VectorDot(%player.getEyePoint(), VectorNormalize(VectorSub(%beamNode.getPosition(), %player.getPosition())));
+			//Check if the player's flashlight muzzle is in view of the killer.
+			%killerEye = %player.getEyeVector();
+			%killerPosition = %player.getPosition();
+			%flashlightMuzzle = %obj.getMuzzlePoint($LeftHandSlot);
+
+			//Draw a line between us and the player
+			%line = VectorNormalize(VectorSub(%flashlightMuzzle, %killerPosition));
+
+			//Compare our eye to the line.
+			%dot = VectorDot(%killerEye, %line);
+
 			if(%player == %obj || %dot < 0.7)
 			{
 				//Don't blind the flashlight owner, or someone who isn't looking at the flashlight.
-				return; 
+				continue; 
 			}
 
 			if(%player.getDatablock().isKiller)
 			{
-				%whiteOut = $Eventide_FlashlightBlindIntensity;
+				%player.whiteOut = $Eventide_FlashlightBlindIntensity;
 			}
 			else
 			{
-				%whiteOut = 0.5;
+				%player.whiteOut = 0.5;
 			}
 
-			//Blind them temporarily.
-			%player.setWhiteOut(%whiteOut);
-
-			//Make them play a little animation.
-			%player.playThread(3, activate2);
+			%playersToBlind.add(%player);
 		}
 	}
+
+	//Blind those who need to be.
+	for(%i = 0; %i < %playersToBlind.getCount(); %i++)
+	{
+		%player = %playersToBlind.getObject(%i);
+
+		//Blind them temporarily.
+		%player.setWhiteOut(%player.whiteOut);
+		%player.whiteOut = 0;
+
+		//Reset their energy to avoid spam-clicking.
+		%player.setEnergyLevel(0);
+
+		//Make them play a little animation.
+		%player.playThread(3, activate2);
+	}
+	%playersToBlind.delete();
 }
 
 function Player::resetFlashlightSurge(%obj, %previousLightDatablock)
@@ -316,6 +342,27 @@ function Player::resetFlashlightSurge(%obj, %previousLightDatablock)
 	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
 	{
 		%obj.flashlightBeamGroup.getObject(%i).setDatablock(%previousLightDatablock);
+	}
+}
+
+function Player::spawnProjectilesAtBeam(%obj)
+{
+	%projectile = new Projectile()
+	{
+		datablock = radioWaveProjectile;
+		initialVelocity = "0 0 0";
+		initialPosition = %obj.light.getPosition();
+	};
+
+	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
+	{
+		%beamNode = %obj.flashlightBeamGroup.getObject(%i);
+		%projectile = new Projectile()
+		{
+			datablock = radioWaveProjectile;
+			initialVelocity = "0 0 0";
+			initialPosition = %beamNode.getPosition();
+		};
 	}
 }
 
