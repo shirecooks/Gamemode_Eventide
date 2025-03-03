@@ -113,18 +113,16 @@ package Eventide_Items
 	function ItemData::onAdd(%this, %obj)
 	{
 		Parent::onAdd(%this,%obj);
+	}
 
+	function Item::schedulePop(%obj)
+	{		
 		if(!isObject(Eventide_MinigameGroup)) 
 		{
 			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
 		}
 		Eventide_MinigameGroup.add(%obj);
-
-		talk("Test");
-	}
-
-	function Item::schedulePop(%obj)
-	{		
+		
 		// Do not continue if there is a minigame going on, the item should not disappear
 		if(MiniGameGroup.getCount() || (isObject(Slayer_MiniGameHandlerSG) && Slayer_MiniGameHandlerSG.getCount()))
 		{
