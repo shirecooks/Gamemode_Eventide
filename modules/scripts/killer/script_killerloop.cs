@@ -200,8 +200,21 @@ function Armor::killerContainerRadiusSearch(%this, %obj)
         
         %typemasks = $TypeMasks::FxBrickObjectType | $TypeMasks::VehicleObjectType;
         %dot = vectorDot(%obj.getEyeVector(), vectorNormalize(vectorSub(%victim.getMuzzlePoint(2), %obj.getEyePoint())));
-        %canSeeVictim = !isObject(containerRayCast(%obj.getEyePoint(), %victim.getMuzzlePoint(2), %typemasks, %obj));
         %victimDistance = containerSearchCurrDist();
+
+        //Check a few different points on the victim's body, then 
+        %killerEye = %obj.getEyePoint();
+
+        //Check the visibility of multiple body parts so chase actions only run if the victim is fully visible. 
+        //Makes hiding under desks and whatnot more feasible (chase music often gives you away with only one check.)
+
+        //No `isObject` checks, we don't need them and they slow raycasting code down.
+        %canSeeVictim = 
+        (
+            containerRayCast(%killerEye, %victim.getHackPosition(), %typemasks, %obj) && //Can we see the victim's body?
+            containerRayCast(%killerEye, %victim.getEyePoint(), %typemasks, %obj) && //Can we see the victim's head?
+            containerRayCast(%killerEye, %victim.getMuzzlePoint($LeftFootSlot), %typemasks, %obj) //Can we see the victim's feet?
+        );
 
         %isActiveChase = %dot > 0.45 && %canSeeVictim;
         if(%isActiveChase)
