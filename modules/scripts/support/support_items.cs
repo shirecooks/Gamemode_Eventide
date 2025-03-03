@@ -119,6 +119,8 @@ package Eventide_Items
 			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
 		}
 		Eventide_MinigameGroup.add(%obj);
+
+		talk("Test");
 	}
 
 	function Item::schedulePop(%obj)
