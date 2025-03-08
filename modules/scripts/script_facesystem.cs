@@ -649,6 +649,7 @@ package Gamemode_Eventide_FaceSystem
             }
             else
             {
+                talk("Creating face config.");
                 %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
             }
         }

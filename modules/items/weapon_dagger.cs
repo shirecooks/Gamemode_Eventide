@@ -208,4 +208,5 @@ function daggerImage::onFire(%this, %obj, %slot)
 function daggerImage::onPreFire(%this, %obj, %slot)
 {	
 	%obj.playthread(1, "shiftAway");
+	%obj.schedule(75,spawnKillerTrail,PlayerRenowned.meleetrailskin,"0.4 1.2 0.375","0 -90 0","3 2.5 1");
 }

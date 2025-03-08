@@ -67,10 +67,11 @@ package Eventide_Items
 			
 			return 1;
 		}
-	}	
+	}
 	
 	function Player::Pickup(%obj,%item)
 	{		
+		// Only return if isn't an eventide model specific player
 		if (!%obj.getDataBlock().isEventideModel) 
 		{
 			return Parent::Pickup(%obj,%item);
@@ -109,14 +110,12 @@ package Eventide_Items
 		// Return if no slots are available (inventory is full)
 		return;
 	}
-	
-	function ItemData::onAdd(%this, %obj)
-	{
-		Parent::onAdd(%this,%obj);
-	}
 
 	function Item::schedulePop(%obj)
 	{		
+		// onAdd does not add the object to the minigroup, use the schedulepop to force it to the
+		// minigame group for deletion later
+
 		if(!isObject(Eventide_MinigameGroup)) 
 		{
 			missionCleanUp.add(new SimGroup(Eventide_MinigameGroup));
@@ -128,6 +127,7 @@ package Eventide_Items
 		{
 			return;
 		}
+		
 		Parent::schedulePop(%obj);				
 	}
 };

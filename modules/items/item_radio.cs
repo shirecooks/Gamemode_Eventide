@@ -41,4 +41,4 @@ function RadioItem::onAdd(%this, %obj)
 {
 	Parent::onAdd(%this,%obj);
 	%obj.playaudio(3,"radio_unmount_sound");
-}	
+}

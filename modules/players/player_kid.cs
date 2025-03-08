@@ -396,7 +396,7 @@ package Eventide_Kid
     {
 		%player = %client.player;
 		%playerDatablock = %player.getDataBlock();
-        if(isObject(%player) && %playerDatablock.getName() $= "PlayerKid")
+        if(isObject(%player) && (%playerDatablock.getName() $= "PlayerKid" || %playerDatablock.getName() $= "PlayerYourself"))
 		{
 			%player.isTeleportReady = !%player.isTeleportReady; //Toggle the variable.
 			%playerDatablock.killerGUI(%player, %client); //Update the GUI immediately.
@@ -549,11 +549,6 @@ function PlayerKid::onIncapacitateVictim(%this, %obj, %victim, %killed)
 	//Generate fake ban messages for flavor.
 	%killerClient = %obj.client;
 	%victimClient = %victim.client;
-
-	//Debug messages.
-	talk("Killed?" SPC %killed);
-	talk("Killer client:" SPC %killerClient);
-	talk("Victim client:" SPC %victimClient);
 
 	if(%killed && isObject(%killerClient) && isObject(%victimClient))
 	{

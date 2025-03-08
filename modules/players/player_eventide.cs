@@ -319,10 +319,16 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 	{	
 		// The victim will be saved after 4 ticks if the player is still holding left click
 		if (%obj.reviveDownedCounter <= 5)
-		{			
+		{
 			%obj.reviveDownedCounter++;
 			%this.CounterPrint(%obj,%obj.client,%obj.reviveDownedCounter,"Get up!");
-			%this.CounterPrint(%obj,%victim.client,%obj.reviveDownedCounter,"Get up!");			
+			%this.CounterPrint(%obj,%victim.client,%obj.reviveDownedCounter,"Get up!");
+		
+			$oldTimescale = getTimescale();
+			setTimescale((%obj.reviveDownedCounter/6) + $oldTimescale);
+			%obj.client.play2D("item_get_sound");
+			%victim.client.play2D("item_get_sound");
+			setTimescale($oldTimescale);
 
 			// The mender class will save the victim faster
 			cancel(%obj.reviveDownedSched);
@@ -331,6 +337,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 		}
 		else
 		{
+			%obj.playthread(2,"activate2");
 			%obj.setTempSpeed(); // Reset the player's speed
 			%obj.reviveDownedCounter = 0;			
 			%stringformat = "<font:impact:30>\c3";
@@ -440,11 +447,11 @@ function EventidePlayer::EventideAppearance(%this,%obj,%client)
 
 	//Face system functionality
 	if (isObject(%obj.faceConfig))
-	{
-		%neededFacePack = (%obj.client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]);
+	{			
+		%neededFacePack = (%obj.client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]);	
 		if (%obj.faceConfig.getFacePack() !$= %neededFacePack) 
 		{		
-			%obj.createFaceConfig(%neededFacePack);
+			%obj.createFaceConfig(%neededFacePack);			
 		}
 		%obj.faceConfigShowFace((%obj.faceConfig.currentFace !$= "") ? %obj.faceConfig.currentFace : "");
 	}
@@ -570,6 +577,8 @@ function EventidePlayer::dropAllTools(%this,%obj)
 	}
 }
 
+// Function to check if the player is a skinwalker, if they are, do some stuff
+// related to the skinwalker killer
 function EventidePlayer::skinwalkerDamageCheck(%this,%obj,%damage)
 {
 	// Return false if the player is not a skinwalker
@@ -628,7 +637,8 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		{
 			%killerSourceObject = %sourceObject;
 		}
-	}	
+		%killerDatablock = %killerSourceObject.getDataBlock();
+	}
 
 	// Dont let the player die if they havent been downed yet
 	if(%obj.getState() !$= "Dead" && %damage+%obj.getDamageLevel() >= %this.maxDamage)
@@ -643,9 +653,9 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 			%obj.setHealth(%this.maxDamage);
 			%obj.setDatablock("EventidePlayerDowned");
 		
-			if(%sourceDatablock.isKiller)
+			if(%killerDatablock.isKiller)
 			{
-				%sourceDatablock.onIncapacitateVictim(%killerSourceObject, %obj, false);
+				%killerDatablock.onIncapacitateVictim(%killerSourceObject, %obj, false);
 			}
 			
 			// Minigame functionality
@@ -661,9 +671,9 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		else
 		{
 			//Execute the same function, but with the %killed parameter set to true
-			if(%sourceDatablock.isKiller)
+			if(%killerDatablock.isKiller)
 			{
-				%sourceDatablock.onIncapacitateVictim(%killerSourceObject, %obj, true);
+				%killerDatablock.onIncapacitateVictim(%killerSourceObject, %obj, true);
 			}
 
 			//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
