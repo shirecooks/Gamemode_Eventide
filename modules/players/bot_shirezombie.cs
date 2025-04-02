@@ -8,6 +8,7 @@ datablock PlayerData(ShireZombieBot : EventidePlayer)
 	maxForwardSpeed = 5.95;
 	maxBackwardSpeed = 3.4;
 	maxSideSpeed = 5.1;
+	thirdPersonOnly = true;
 };
 
 function ShireZombieBot::Damage(%this,%obj,%sourceObject,%position,%damage,%damageType)
