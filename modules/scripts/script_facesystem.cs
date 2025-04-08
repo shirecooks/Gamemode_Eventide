@@ -355,7 +355,7 @@ function parseFacePacks(%startingDirectory)
 
 function Player::faceConfigSanityCheck(%player)
 {
-    return isObject(%player) && !isObject(%player.faceConfig) && %player.getDamagePercent() < 1;
+    return isObject(%player) && isObject(%player.faceConfig) && %player.getDamagePercent() < 1;
 }
 
 function Player::createFaceConfig(%player, %facePack)
@@ -649,7 +649,6 @@ package Gamemode_Eventide_FaceSystem
             }
             else
             {
-                talk("Creating face config.");
                 %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
             }
         }
