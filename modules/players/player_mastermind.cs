@@ -24,34 +24,34 @@ datablock PlayerData(PlayerMastermind : PlayerRenowned)
 	killermeleehitsoundamount = 3;
 	
     killernearsound = "mastermind_looking";
-	killernearsoundamount = 4;
+	killernearsoundamount = 5;
 
     killertauntsound = "mastermind_kill";
-    killertauntsoundamount = 4;
+    killertauntsoundamount = 7;
 
 	killerfoundvictimsound = "mastermind_foundvictim";
-	killerfoundvictimsoundamount = 4;
+	killerfoundvictimsoundamount = 5;
 
     killerlostvictimsound = "mastermind_lostvictim";
-	killerlostvictimsoundamount = 2;
+	killerlostvictimsoundamount = 5;
 
     killerthreatenedsound = "mastermind_threatened";
-	killerthreatenedsoundamount = 3;
+	killerthreatenedsoundamount = 4;
 
     killerdesperatesound = "";
 	killerdesperatesoundamount = 1;
 
     killerattackedsound = "mastermind_attacked";
-	killerattackedsoundamount = 4;
+	killerattackedsoundamount = 5;
 
     killerspawnsound = "mastermind_spawn";
-    killerspawnsoundamount = 1;
+    killerspawnsoundamount = 3;
 
-    killerwinsound = "";
-    killerwinsoundamount = 1;
+    killerwinsound = "mastermind_win";
+    killerwinsoundamount = 2;
 
-    killerlosesound = "";
-    killerlosesoundamount = 1;
+    killerlosesound = "mastermind_lose";
+    killerlosesoundamount = 2;
 	
 	killerlight = "NoFlarePLight";
 	
