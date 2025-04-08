@@ -28,26 +28,28 @@ for(%i = 0; %i < getWordCount(%requiredAddOns); %i++)
 
 //Check for recommended DLLs.
 %hasSelectiveGhosting = isFunction(ShapeBase, scopeToClient);
-%hasBLPython = isFunction(py_reload_module);
-if(!%hasSelectiveGhosting && !%hasBLPython)
-{
-    %errorMessage = "Gamemode_Eventide requires Selective Ghosting and BLPython installed in your modules folder.";
-    $Eventide_loadErrors.add(Eventide_storeError(%errorMessage));
-    error(%errorMessage);
-}
-else if(!%hasSelectiveGhosting)
+
+//TODO: BLPython disabled for now until certain bugfixes are released. Can't run properly on Linux, and has no essential functionality as of yet.
+
+//%hasBLPython = isFunction(py_reload_module);
+// if(!%hasSelectiveGhosting && !%hasBLPython)
+// {
+//     %errorMessage = "Gamemode_Eventide requires Selective Ghosting and BLPython installed in your modules folder.";
+//     $Eventide_loadErrors.add(Eventide_storeError(%errorMessage));
+//     error(%errorMessage);
+// }
+if(!%hasSelectiveGhosting)
 {
     %errorMessage = "Gamemode_Eventide requires Selective Ghosting installed in your modules folder.";
     $Eventide_loadErrors.add(Eventide_storeError(%errorMessage));
     error(%errorMessage);
 }
-else if(!%hasBLPython)
-{
-    %errorMessage = "Gamemode_Eventide requires BLPython installed in your modules folder.";
-    $Eventide_loadErrors.add(Eventide_storeError(%errorMessage));
-    error(%errorMessage);
-}
-%dummyClient.delete();
+// else if(!%hasBLPython)
+// {
+//     %errorMessage = "Gamemode_Eventide requires BLPython installed in your modules folder.";
+//     $Eventide_loadErrors.add(Eventide_storeError(%errorMessage));
+//     error(%errorMessage);
+// }
 
 //Temporary, run-once package to print error messages in the chat as the host starts the server.
 package Eventide_StartupErrorMessages
@@ -59,7 +61,7 @@ package Eventide_StartupErrorMessages
         for(%i = 0; %i < $Eventide_loadErrors.getCount(); %i++)
         {
             %error = $Eventide_loadErrors.getObject(%i);
-            MessageAll('', "\c1ERROR:" SPC %error.message);
+            MessageAll('MsgAdminForce', "\c2ERROR:" SPC %error.message);
         }
         $Eventide_loadErrors.delete();
 
