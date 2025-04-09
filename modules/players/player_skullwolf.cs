@@ -100,7 +100,13 @@ function PlayerSkullWolf::disappear(%this,%obj,%alpha)
 	if(%alpha == 1)
 	{
 		%obj.playaudio(1,"skullwolf_cloak_sound");
-		if(isObject(%obj.light)) %obj.light.delete();
+		
+		if(isObject(%obj.light)) 
+		{
+			%obj.light.delete();
+		}
+
+		%obj.startFade(0, 0, true);
 	}
 	
 	%alpha = mClampF(%alpha-0.025,0,1);
@@ -185,6 +191,9 @@ function PlayerSkullWolf::reappear(%this,%obj,%alpha)
 			}
 		}
 
+		//Restore Skullwolf's shadow.
+		%obj.startFade(0, 0, false);
+
 		// Create light effect if it doesn't exist
 		if(!isObject(%obj.light))
 		{
@@ -198,6 +207,7 @@ function PlayerSkullWolf::reappear(%this,%obj,%alpha)
 			%obj.light.attachToObject(%obj);
 			%obj.light.Player = %obj;
 		}
+
 		return;
 	}
 
@@ -242,8 +252,16 @@ function PlayerSkullWolf::EventideAppearance(%this,%obj,%client)
 		return;
 	}
 	
+	if(%obj.isInvisible)
+	{
+		%obj.startFade(0, 0, true);
+	}
+	else 
+	{
+		%obj.startFade(0, 0, false);
+	}
+
 	%furcolor = "0.05 0.05 0.05 1";
-	%obj.startFade(0, 0, true);
 	%obj.setnodecolor("skullhead",%furcolor);		
 	%obj.setnodecolor("rarm",%furcolor);
 	%obj.setnodecolor("larm",%furcolor);
