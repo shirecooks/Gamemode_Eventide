@@ -147,3 +147,9 @@ function Slayer_Eventide::onMinigameReset(%this, %client)
 
 	%mini.teams_notifyMemberChanges = %oldNotify;
 }
+
+function Slayer_Eventide::onRoundStart(%this)
+{
+    %mini = %this.minigame;
+    %mini.assignSurvivorClasses();
+}

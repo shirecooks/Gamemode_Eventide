@@ -238,7 +238,7 @@ function EventidePlayerClass::onAdd(%this)
 function Player::assignClass(%player, %eventidePlayerClass)
 {
     //We can't give the player the class items otherwise.
-    %client = %obj.client;
+    %client = %player.client;
     if(!%client)
     {
         return;

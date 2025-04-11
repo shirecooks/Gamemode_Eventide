@@ -51,6 +51,12 @@ package Eventide_Minigame
 		}
 	}
 
+	function Slayer_MiniGameSO::onRoundStart(%this)
+	{
+		%minigame = %this.minigame;
+		%minigame.assignSurvivorClasses();
+	}
+
     function MiniGameSO::Reset(%minigame,%client)
 	{
 		//Need to clear this before everyone spawns when the parent is called.
