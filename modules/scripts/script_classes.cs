@@ -2,7 +2,7 @@
 // Resources that must go in this file.
 //
 
-datablock ShapeBaseImageData(SurgicalMaskImage) 
+datablock ShapeBaseImageData(menderMaskImage) 
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/SurgicalMask.dts";
 	mountPoint = $HeadSlot;
@@ -92,7 +92,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassCustomNode";
 		targetNode = $HeadSlot;
-		mountableObject = nameToID("SurgicalMaskImage");
+		mountableObject = menderMaskImage;
 	});
 	%menderClass.items.add(new ScriptObject()
 	{
@@ -299,8 +299,16 @@ function Player::assignClass(%player, %eventidePlayerClass)
 
     //Make the player's face match the class they were assigned.
 	%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
-	%client.customFacePack = %selectedFacePack;
-    %player.createFaceConfig(%selectedFacePack);
+	if(isObject(%selectedFacePack))
+	{
+		%client.customFacePack = %selectedFacePack;
+    	%player.createFaceConfig(%selectedFacePack);
+	}
+	else
+	{
+		//TODO: Find a fix for this issue.
+		talk("Class face pack bugged out, not applying...");
+	}
 
 	//If the class has any custom nodes, apply them.
 	%customAppearance = %eventidePlayerClass.appearance;
@@ -309,7 +317,7 @@ function Player::assignClass(%player, %eventidePlayerClass)
 		%customNode = %customAppearance.getObject(%i);
 		if(isObject(%customNode.mountableObject))
 		{
-			%player.mountImage(%customNode.mountableObject, %customNode.targetNode);
+			%player.mountImage(%customNode.mountableObject, $HeadSlot);
 		}
 	}
 
