@@ -345,26 +345,26 @@ function Player::resetFlashlightSurge(%obj, %previousLightDatablock)
 	}
 }
 
-function Player::spawnProjectilesAtBeam(%obj)
-{
-	%projectile = new Projectile()
-	{
-		datablock = radioWaveProjectile;
-		initialVelocity = "0 0 0";
-		initialPosition = %obj.light.getPosition();
-	};
+// function Player::spawnProjectilesAtBeam(%obj)
+// {
+// 	%projectile = new Projectile()
+// 	{
+// 		datablock = radioWaveProjectile;
+// 		initialVelocity = "0 0 0";
+// 		initialPosition = %obj.light.getPosition();
+// 	};
 
-	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
-	{
-		%beamNode = %obj.flashlightBeamGroup.getObject(%i);
-		%projectile = new Projectile()
-		{
-			datablock = radioWaveProjectile;
-			initialVelocity = "0 0 0";
-			initialPosition = %beamNode.getPosition();
-		};
-	}
-}
+// 	for(%i = 0; %i < %obj.flashlightBeamGroup.getCount(); %i++)
+// 	{
+// 		%beamNode = %obj.flashlightBeamGroup.getObject(%i);
+// 		%projectile = new Projectile()
+// 		{
+// 			datablock = radioWaveProjectile;
+// 			initialVelocity = "0 0 0";
+// 			initialPosition = %beamNode.getPosition();
+// 		};
+// 	}
+// }
 
 //
 // Package, default flashlight functionality override.
@@ -491,7 +491,7 @@ package Eventide_Flashlight
 	{
 		parent::unmountImage(%this, %slot);
 
-		if(%slot == $LeftHandSlot && isObject(%this.light)) 
+		if(%slot == $LeftHandSlot && isObject(%this.light) && !%this.getDatablock().isKiller) 
 		{
 			%this.mountImage(FlashlightImage, 1);
 		}
