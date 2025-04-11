@@ -444,22 +444,6 @@ function EventidePlayer::EventideAppearance(%this,%obj,%client)
 	if (%obj.bloody["rhand"]) %obj.unHideNode("rhand_blood");
 	if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
 	if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
-
-	//Face system functionality
-	if (isObject(%obj.faceConfig))
-	{			
-		%neededFacePack = (%obj.client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]);	
-		if (%obj.faceConfig.getFacePack() !$= %neededFacePack) 
-		{		
-			%obj.createFaceConfig(%neededFacePack);			
-		}
-		%obj.faceConfigShowFace((%obj.faceConfig.currentFace !$= "") ? %obj.faceConfig.currentFace : "");
-	}
-	else 
-	{
-		// Use default face
-		%obj.setFaceName(%tempclient.faceName);
-	}
 	
 	%obj.setDecalName(%tempclient.decalName);
 
@@ -734,6 +718,16 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 function EventidePlayerDowned::onNewDataBlock(%this,%obj)
 {
 	Parent::onNewDataBlock(%this,%obj);
+	
+	//Change the victim's face to be pained, if the subface pack is available.
+	if(isObject(%obj.faceConfig))
+	{
+		if(%obj.faceConfig.subCategory $= "" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
+		{
+			%obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+		}	
+	}
+
 	%this.DownLoop(%obj);
 }
 
@@ -751,15 +745,6 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 	if (!%obj.isCrouched())
 	{
 		%obj.setActionThread("sit",1);
-	}
-
-	// Update victim's face
-	if(isObject(%obj.faceConfig))
-	{
-		if(%obj.faceConfig.subCategory $= "" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
-		{
-			%obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
-		}	
 	}
 
 	// If the player is not being saved, then continue the down loop

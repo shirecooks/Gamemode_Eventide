@@ -690,6 +690,7 @@ package Gamemode_Eventide_FaceSystem
         }
         parent::onDisabled(%this, %player, %state);
     }
+    
     function EventidePlayer::onRemove(%this, %player)
     {
         //In case the minigame resets, in which case onDisabled is not called.
