@@ -1,19 +1,21 @@
 //
-// Miscellaneous functions.
+// Resources that must go in this file.
 //
 
-function cloneScriptGroup(%targetObject)
+datablock ShapeBaseImageData(SurgicalMaskImage) 
 {
-    %targetObjectName = %targetObject.getName();
-    %targetObject.setName("targetScriptGroup");
+	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/SurgicalMask.dts";
+	mountPoint = $HeadSlot;
+	offset = "0 0 0";
+	eyeOffset = "0 0 -1000";
+	rotation = eulerToMatrix("0 0 0");
+	scale = "0.1 0.1 0.1";
+	doColorShift = false;
+};
 
-    %cloneObject = new ScriptGroup(cloneScriptGroup : targetScriptGroup);
-
-    %targetObject.setName(%targetObjectName);
-    %cloneObject.setName("");
-
-    return %cloneObject;
-}
+//
+// Miscellaneous functions.
+//
 
 function cloneScriptGroup(%targetObject)
 {
@@ -86,6 +88,12 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%menderClass = %this.index["Classic"].getClass("Mender");
 	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["menderF"];
 	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["menderM"];
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomNode";
+		targetNode = $HeadSlot;
+		mountableObject = nameToID("SurgicalMaskImage");
+	});
 	%menderClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
@@ -224,11 +232,27 @@ function EventidePlayerClass::onAdd(%this)
 
     if(!%this.appearance)
     {
-        %this.appearance = new ScriptObject()
+        %this.appearance = new ScriptGroup()
         {
             class = "EventideClassAppearance";
         };
     }
+}
+
+//
+/// Containers for class node modifications.
+
+function EventideClassCustomNode::onAdd(%this)
+{
+	if(%this.targetNode $= "")
+	{
+		%this.targetNode = $BackSlot;
+	}
+
+	if(%this.mountableObject $= "") 
+	{
+		%this.mountableObject = 0;
+	}
 }
 
 //
@@ -237,6 +261,7 @@ function EventidePlayerClass::onAdd(%this)
 
 function Player::assignClass(%player, %eventidePlayerClass)
 {
+	talk(%eventidePlayerClass);
     //We can't give the player the class items otherwise.
     %client = %player.client;
     if(!%client)
@@ -251,8 +276,6 @@ function Player::assignClass(%player, %eventidePlayerClass)
     }
 
 	%player.playerClass = %eventidePlayerClass;
-	%client.customFacePack = (%client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"]);
-	%player.customFacePack = %client.customFacePack;
 
     //Set the player's psuedohealth, if applicable.
     %player.psuedohealth = %eventidePlayerClass.psuedoHealth;
@@ -276,7 +299,20 @@ function Player::assignClass(%player, %eventidePlayerClass)
     }
 
     //Make the player's face match the class they were assigned.
-    %player.createFaceConfig(%player.customFacePack);
+	%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
+	%client.customFacePack = %selectedFacePack;
+    %player.createFaceConfig(%selectedFacePack);
+
+	//If the class has any custom nodes, apply them.
+	%customAppearance = %eventidePlayerClass.appearance;
+	for(%i = 0; %i < %customAppearance.getCount(); %i++)
+	{
+		%customNode = %customAppearance.getObject(%i);
+		if(isObject(%customNode.mountableObject))
+		{
+			%player.mountImage(%customNode.mountableObject, %customNode.targetNode);
+		}
+	}
 
     //Inform the player what class they got selected for.
     %client.centerprint("<font:impact:40><color:FFFF00>Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
