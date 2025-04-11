@@ -261,7 +261,6 @@ function EventideClassCustomNode::onAdd(%this)
 
 function Player::assignClass(%player, %eventidePlayerClass)
 {
-	talk(%eventidePlayerClass);
     //We can't give the player the class items otherwise.
     %client = %player.client;
     if(!%client)
