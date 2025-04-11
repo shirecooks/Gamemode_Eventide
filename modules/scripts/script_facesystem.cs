@@ -53,6 +53,7 @@ function createFaceData(%faceFilePath, %faceName, %facePack)
         faceFile = %faceFilePath;
         facePack = %facePack;
         faceName = %faceName;
+        simpleName = %faceName;
         category = %facePack.category;
         subCategory = %facePack.subCategory;
     };
@@ -61,6 +62,16 @@ function createFaceData(%faceFilePath, %faceName, %facePack)
     $Eventide_FaceDatas[%facePack.category @ "_" @ %facePack.subCategory @ "_" @ %faceName] = %faceData;
 
     return %faceData;
+}
+
+function FaceData::setSimpleName(%obj, %name)
+{
+    %obj.simpleName = %name;
+}
+
+function FaceData::getSimpleName(%obj)
+{
+    return %obj.simpleName;
 }
 
 function FaceData::getFile(%obj)
@@ -229,15 +240,20 @@ function FaceConfig::cacheFace(%obj, %name)
     %face = %facePack.getFaceData(%name);
     if(%face !$= "")
     {
+        %face.setSimpleName(%name);
         %obj.face[%name] = %face;
     }
     else if(%facePack.getFaceData(%facePack.category @ %name) !$= "")
     {
-        %obj.face[%name] = %facePack.getFaceData(%facePack.category @ %name);
+        %faceData =  %facePack.getFaceData(%facePack.category @ %name);
+        %faceData.setSimpleName(%name);
+        %obj.face[%name] = %faceData;
     }
     else if(%facePack.getFaceData(compileFaceDataName(%facePack, %name)) !$= "")
     {
-        %obj.face[%name] = %facePack.getFaceData(compileFaceDataName(%facePack, %name));
+        %faceData = %facePack.getFaceData(compileFaceDataName(%facePack, %name));
+        %faceData.setSimpleName(%name);
+        %obj.face[%name] = %faceData;
     }
     else
     {
@@ -257,8 +273,8 @@ function FaceConfig::getFace(%obj, %name)
             return "smiley";
         }
     }
-    %obj.currentFace = fileBase(%obj.face[%name].getFile());
-    return %obj.currentFace;
+    %obj.currentFace = %obj.face[%name];
+    return fileBase(%obj.currentFace.getFile());
 }
 
 function FaceConfig::setFace(%obj, %name, %faceData)
@@ -431,7 +447,7 @@ function Player::faceConfigBlink(%player)
         return;
     }
 
-    %customBlink = %player.faceConfig.getFaceAttribute(%player.faceConfig.currentFace, "blinkFace");
+    %customBlink = %player.faceConfig.getFaceAttribute(%player.faceConfig.currentFace.getSimpleName(), "blinkFace");
     if(%customBlink !$= "")
     {
         %player.setFaceName(%player.faceConfig.getFace(%customBlink));
@@ -630,30 +646,32 @@ package Gamemode_Eventide_FaceSystem
     function EventidePlayer::onNewDataBlock(%this, %player)
     {
         parent::onNewDataBlock(%this, %player);
-        if(isObject(%player.client) && !%player.getDataBlock().isKiller)
+        if(!isObject(%player.client) || %player.getDataBlock().isKiller)
         {
-            if(isObject(%player.victimreplicatedclient))
-            {
-                //Skinwalker support: Need to pull the face appearance from the victim's client, not the skinwalker's.
-                %client = %player.victimreplicatedclient;
-            }
-            else
-            {
-                %client = %player.client;
-            }
+            return;
+        }
 
-            //Curvy chest = female, blocky chest = male.
-            if(%client.customFacePack)
-            {
-                %player.createFaceConfig(%client.customFacePack);
-            }
-            else
-            {
-                %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
-            }
+        if(isObject(%player.victimreplicatedclient))
+        {
+            //Skinwalker support: Need to pull the face appearance from the victim's client, not the skinwalker's.
+            %client = %player.victimreplicatedclient;
+        }
+        else
+        {
+            %client = %player.client;
+        }
+
+        //Curvy chest = female, blocky chest = male.
+        if(%client.customFacePack)
+        {
+            %player.createFaceConfig(%client.customFacePack);
+        }
+        else
+        {
+            %player.createFaceConfig((%client.chest ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"]));
         }
     }
-    function EventidePlayer::onDisabled(%this, %player, %state)
+    function EventidePlayerDowned::onDisabled(%this, %player, %state)
     {
         //When a player dies, end all facial expression and close their eyes.
         if(isObject(%player.client))
