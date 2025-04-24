@@ -88,7 +88,7 @@ function PuppetMasterPuppet::onAdd(%this,%obj)
 	Parent::onAdd(%this,%obj);
 	
     %obj.setMoveSlowdown(0);
-    %this.onBotLoop(%obj);    
+    //%this.onBotLoop(%obj);    
 }
 
 function PuppetMasterPuppet::runFromTarget(%this,%obj,%target)
@@ -113,6 +113,9 @@ function PuppetMasterPuppet::runFromTarget(%this,%obj,%target)
 
 function PuppetMasterPuppet::onBotLoop(%this, %obj)
 {
+	//depreciated
+	return;
+	
     // Early return if bot is invalid or dead
     if(!isObject(%obj) || %obj.getState() $= "Dead") return;
     
