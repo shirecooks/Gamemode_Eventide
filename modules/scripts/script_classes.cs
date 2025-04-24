@@ -11,6 +11,7 @@ datablock ShapeBaseImageData(menderMaskImage)
 	rotation = eulerToMatrix("0 0 0");
 	scale = "0.1 0.1 0.1";
 	doColorShift = false;
+	emap = 0;
 };
 
 //
@@ -304,11 +305,6 @@ function Player::assignClass(%player, %eventidePlayerClass)
 		%client.customFacePack = %selectedFacePack;
     	%player.createFaceConfig(%selectedFacePack);
 	}
-	else
-	{
-		//TODO: Find a fix for this issue.
-		talk("Class face pack bugged out, not applying...");
-	}
 
 	//If the class has any custom nodes, apply them.
 	%customAppearance = %eventidePlayerClass.appearance;
@@ -317,7 +313,7 @@ function Player::assignClass(%player, %eventidePlayerClass)
 		%customNode = %customAppearance.getObject(%i);
 		if(isObject(%customNode.mountableObject))
 		{
-			%player.mountImage(%customNode.mountableObject, $HeadSlot);
+			%player.mountImage(%customNode.mountableObject, 2);
 		}
 	}
 
