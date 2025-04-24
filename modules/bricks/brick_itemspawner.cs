@@ -14,8 +14,12 @@ function brickEventideItemSpawnData::onPlant(%data,%obj)
 	%obj.setcolliding(0);
 	%obj.setraycasting(0);
 
-    //Always check if the simset exists first, and to add it to the mission clean up for later if necessary
-    if(!isObject(Eventide_ItemSpawns)) missionCleanup.add(new SimSet(Eventide_ItemSpawns));
+    	//Always check if the simset exists first, and to add it to the mission clean up for later if necessary
+    	if(!isObject(Eventide_ItemSpawns))
+	{
+		missionCleanup.add(new SimSet(Eventide_ItemSpawns));
+	}
+	
 	Eventide_ItemSpawns.add(%obj);
 }
 
