@@ -358,7 +358,15 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			// Clear the billboard
 			//$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
 			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
-			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : 0;
+			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : (%obj.survivorClass $= "mender") ? 75 : 0;
+			%victim.mountimage("HealImage",3);
+			%victim.setwhiteout(0.1);
+		
+			if (isObject(%victim.client)) 
+			{
+				%victim.client.play2D("printfiresound");
+			}
+			
 			%victim.setDatablock("EventidePlayer");
 			%victim.playthread(0,"root");				
 			return;
