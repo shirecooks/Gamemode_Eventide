@@ -287,16 +287,13 @@ package Eventide_RenownedSpectate
 			if (%client.player.survivorSpecIndex <= %survivorCount)
 	        {
 	            %currentSurvivor = %survivorList[%client.player.survivorSpecIndex];
-				talk(%currentSurvivor.client.name);
-				//%client.getControlObject().schedule(1500, setActionThread, sit, 1);
-				//%client.setControlObject(%currentSurvivor);
+				%client.setControlObject(%currentSurvivor.client.camera);    
 				%client.player.survivorSpecIndex++;
 	        }
 			else
 			{				
-				%client.player.survivorSpecIndex = 1;				
-				//%client.getControlObject().schedule(1500, setActionThread, sit, 1);
-				//%client.setControlObject(%client.player);
+				%client.player.survivorSpecIndex = 1;								
+				%client.setControlObject(%client.player);
 			}
 
 			return;
