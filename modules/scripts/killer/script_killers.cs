@@ -280,7 +280,7 @@ function GameConnection::playAmbiance(%client)
 	{
 		return;
 	}
-	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 5);
+	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 6);
 	%client.SetChaseMusic(%ambientMusicDatablock, false);
 }
 

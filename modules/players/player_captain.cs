@@ -86,7 +86,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
 	maxSideCrouchSpeed = 5.88;
 
     nonStealthDamage = 25;
-    gazeTickRate = 10;
+    gazeTickRate = 50;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
 };
@@ -384,11 +384,20 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         //"isCrouched" would be ideal here, but it turns it is broken.
         %obj.isCrouching = true;
         %obj.isInvisible = true;
+
+        //Make Sky Captain partially invisible.
+        %obj.startFade(0, 0, true);
+        %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
     }
     else if(%trig == 3 && !%press)
     {
         %obj.isCrouching = false;
         %obj.isInvisible = false;
+
+        //Disables Sky Captain's invisibility.
+        %obj.startFade(0, 0, false);
+        %obj.setNodeColor("ALL", "0.05 0.05 0.05 1");
+        %obj.getDataBlock().EventideAppearance(%obj, %obj.client);
     }
 
     //Add jetting sounds for Sky Captain, if he has enough charge.

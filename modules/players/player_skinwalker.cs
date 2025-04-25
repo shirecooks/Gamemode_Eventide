@@ -153,7 +153,8 @@ function PlayerSkinwalker::EventideAppearance(%this,%obj,%client)
 function PlayerSkinwalker::onPeggFootstep(%this,%obj)
 {
 	serverplay3d("skinwalker_walking" @ getRandom(1,5) @ "_sound", %obj.getHackPosition());
-	%obj.spawnExplosion("Eventide_footstepShakeProjectile", 0.5 + (getRandom() / 2));
+	%obj.spawnExplosion("Eventide_footstepShakeProjectile", 0.5 + (getRandom() / 2));	
+	%obj.startDrippingBlood(500);
 }
 
 //

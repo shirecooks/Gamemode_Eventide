@@ -254,3 +254,57 @@ function Player::ClearRenownedEffect(%obj)
 		case "AIPlayer": %obj.setControlObject(%obj);
 	}
 }
+
+package Eventide_RenownedSpectate
+{
+	function serverCmdLight(%client)
+	{
+		if(!isObject(%client.player)) return;
+		
+		// Ensure the player is valid and is the Puppet Master
+	    if (%client.player.getDataBlock().getName() $= "PlayerRenowned" && isObject(Eventide_MinigameGroup))
+	    {			
+			if(isObject(%client.player.getMountedImage(3)) && %client.player.getMountedImage(3).getName() $= "sm_stunImage")
+			return;			
+
+	        // Populate the survivor list
+	        for (%i = 0; %i < ClientGroup.getCount(); %i++)
+			{			
+				if (isObject(%survivor = ClientGroup.getObject(%i)))
+				{
+					if(%survivor == %client)
+					{
+						continue;
+					}
+
+					if(isObject(getMiniGameFromObject(%survivor)) && isObject(%survivor.player) && !%survivor.getDataBlock().isKiller)
+					{
+						%survivorList[%survivorCount++] = %survivor.player;
+					}					
+				}
+			}
+	        	        
+			if (%client.player.survivorSpecIndex <= %survivorCount)
+	        {
+	            %currentSurvivor = %survivorList[%client.player.survivorSpecIndex];
+				talk(%currentSurvivor.client.name);
+				//%client.getControlObject().schedule(1500, setActionThread, sit, 1);
+				//%client.setControlObject(%currentSurvivor);
+				%client.player.survivorSpecIndex++;
+	        }
+			else
+			{				
+				%client.player.survivorSpecIndex = 1;				
+				//%client.getControlObject().schedule(1500, setActionThread, sit, 1);
+				//%client.setControlObject(%client.player);
+			}
+
+			return;
+	    }
+		else if(%client.player.getdataBlock().isKiller) return;
+
+		Parent::serverCmdLight(%client);		
+	}
+};
+if(isPackage("Eventide_RenownedSpectate")) deactivatePackage("Eventide_RenownedSpectate");
+activatePackage("Eventide_RenownedSpectate");

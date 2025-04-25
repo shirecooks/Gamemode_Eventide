@@ -79,6 +79,7 @@ function EventidePlayer::onNewDatablock(%this,%obj)
 {
 	Parent::onNewDatablock(%this,%obj);
 	
+	// Start the ambience tracks
 	if(isObject(%obj.client))
 	{
 		%obj.client.playAmbiance();
@@ -765,6 +766,19 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		{
 			%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/2) ? 2 : 1;
 			%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
+		}
+
+		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime())
+		{
+			%genderSound = (!%obj.client.chest) ? "male" : "female";
+			%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
+			%sound = %genderSound @ "_shock" @ getRandom(1, %genderSoundAmount) @ "_sound";			
+			%obj.lastDownedCall = getSimTime() + getRandom(3500, 6500);
+
+			$oldTimescale = getTimescale();
+			setTimescale((getRandom(110,160)*0.01) * $oldTimescale);
+			serverplay3d(%sound, %obj.getHackPosition());
+			setTimescale($oldTimescale);
 		}
 
 		// Start the blood drip effect
