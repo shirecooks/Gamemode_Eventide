@@ -259,46 +259,47 @@ package Eventide_RenownedSpectate
 {
 	function serverCmdLight(%client)
 	{
-		if(!isObject(%client.player)) return;
-		
-		// Ensure the player is valid and is the Puppet Master
-	    if (%client.player.getDataBlock().getName() $= "PlayerRenowned" && isObject(Eventide_MinigameGroup))
-	    {			
-			if(isObject(%client.player.getMountedImage(3)) && %client.player.getMountedImage(3).getName() $= "sm_stunImage")
-			return;			
+		if (%client.player.getDataBlock().getName() $= "PlayerRenowned") 
+		{
+			if(!isObject(%client.player) || %client.player.getEnergyLevel() != %client.player.getdatablock().maxEnergy) return;
 
-	        // Populate the survivor list
-	        for (%i = 0; %i < ClientGroup.getCount(); %i++)
+			%client.player.setEnergyLevel(0);
+			
+			// Ensure the player is valid and is the Puppet Master
+			if (isObject(Eventide_MinigameGroup))
 			{			
-				if (isObject(%survivor = ClientGroup.getObject(%i)))
-				{
-					if(%survivor == %client)
+				if(isObject(%client.player.getMountedImage(3)) && %client.player.getMountedImage(3).getName() $= "sm_stunImage")
+				return;			
+
+				// Populate the survivor list
+				for (%i = 0; %i < ClientGroup.getCount(); %i++)
+				{			
+					if (isObject(%survivor = ClientGroup.getObject(%i)))
 					{
-						continue;
+						// Skip the client
+						if(%survivor == %client)
+						{
+							continue;
+						}
+
+						if(isObject(getMiniGameFromObject(%survivor)) && isObject(%survivor.player) && !%survivor.player.getDataBlock().isKiller)
+						{
+							%survivorList[%survivorCount++] = %survivor;
+						}					
 					}
-
-					if(isObject(getMiniGameFromObject(%survivor)) && isObject(%survivor.player) && !%survivor.getDataBlock().isKiller)
-					{
-						%survivorList[%survivorCount++] = %survivor.player;
-					}					
 				}
-			}
-	        	        
-			if (%client.player.survivorSpecIndex <= %survivorCount)
-	        {
-	            %currentSurvivor = %survivorList[%client.player.survivorSpecIndex];
-				%client.setControlObject(%currentSurvivor.client.camera);    
-				%client.player.survivorSpecIndex++;
-	        }
-			else
-			{				
-				%client.player.survivorSpecIndex = 1;								
-				%client.setControlObject(%client.player);
-			}
 
-			return;
-	    }
-		else if(%client.player.getdataBlock().isKiller) return;
+				%currentSurvivor = %survivorList[getRandom(1,%survivorCount)];
+				if(isObject(%currentSurvivor))
+				{
+					%currentSurvivor.player.mountImage("RenownedPossessedImage",3);
+					%currentSurvivor.player.schedule(4000,unmountImage,3);
+					serverCmdSpy(%client,%currentSurvivor.name);					
+				}			
+
+				return;
+			}
+		}
 
 		Parent::serverCmdLight(%client);		
 	}
