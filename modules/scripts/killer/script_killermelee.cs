@@ -116,7 +116,7 @@ function killerMelee_playHitActions(%this,%obj,%hit)
 	}
 	
 	%hit.setvelocity(vectorscale(VectorNormalize(vectorAdd(%obj.getForwardVector(),"0" SPC "0" SPC "0.15")),15));								
-	%hit.damage(%obj, %hit.getHackPosition(), 50*getWord(%obj.getScale(),2), $DamageType::Default);					
+	%hit.damage(%obj, %hit.getHackPosition(), 50*getWord(%obj.getScale(),2), $DamageType::Default);
 	
 	%obj.setTempSpeed(0.3);	
 	%obj.schedule(2500,setTempSpeed,1);

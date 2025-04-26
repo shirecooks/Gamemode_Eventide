@@ -213,7 +213,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 					// Set the music to hurry					
 					if(isObject(%client = %minigame.member[%i]))
 					{
-						%client.SetChaseMusic("musicData_eventide_hurry",true);
+						%client.SetChaseMusic("musicData_escape" @ getRandom(1,3),true);
 
 						// Call the killer's onAllRitualsPlaced function
 						if(isObject(%client.player) && %client.player.getDatablock().isKiller)

@@ -107,11 +107,64 @@ datablock PlayerData(PlayerDisfigured : PlayerRenowned)
 	maxBackwardSpeed = 4.4;
 	maxSideSpeed = 6.6;
 	jumpForce = 0;
+	minimpactspeed = 10;
 };
+
+function PlayerDisfigured::killerGUI(%this,%obj,%client)
+{	
+	%energylevel = %obj.getEnergyLevel();
+
+	// Some dynamic varirables
+	%leftclickstatus = (%obj.getEnergyLevel() >= %this.maxEnergy/4) ? "hi" : "lo";
+	%rightclickstatus = (%obj.getEnergyLevel() >= %this.maxEnergy/2) ? "hi" : "lo";
+	%leftclicktext = (%this.leftclickicon !$= "") ? "<just:left>\c6Left click" : "";
+	%rightclicktext = (%this.rightclickicon !$= "") ? "<just:right>\c6Right click" : "";
+
+	// Regular icons
+	%leftclickicon = (%this.leftclickicon !$= "") ? "<just:left><bitmap:" @ $iconspath @ %leftclickstatus @ %this.leftclickicon @ ">" : "";
+	%rightclickicon = (%this.rightclickicon !$= "") ? "<just:right><bitmap:" @ $iconspath @ %rightclickstatus @ %This.rightclickicon @ ">" : "";
+	
+	if(%obj.getDataBlock() $= %this)
+	{
+		%client.bottomprint(%leftclicktext @ %rightclicktext @ "<br>" @ %leftclickicon @ %rightclickicon, 1);
+	}
+	else 
+	{
+		%client.bottomprint(%rightclicktext @ "<br>" @ %rightclickicon, 1);
+	}
+}
 
 function PlayerDisfigured::onTrigger(%this, %obj, %trig, %press) 
 {
-	PlayerCannibal::onTrigger(%this, %obj, %trig, %press);
+	Parent::onTrigger(%this, %obj, %trig, %press);
+		
+	if(%press)
+	{
+		switch(%trig)
+		{
+			case 0:	if(%obj.getEnergyLevel() >= 25)
+					{
+						%this.killerMelee(%obj,4);
+						%obj.faceConfigShowFace("Attack");
+						return;
+					}
+			
+			case 4: if(%obj.getEnergyLevel() >= %this.maxEnergy/2)
+					{
+						%obj.setEnergyLevel(%obj.getEnergyLevel()-50);
+						%obj.setVelocity(VectorScale(%obj.getForwardVector(),15));
+						
+						%soundpitch = getRandom(80,150);
+						%obj.spawnExplosion("pushBroomProjectile","0.5 0.5 0.5");
+						$oldTimescale = getTimescale();
+						setTimescale((%soundpitch*0.01) * $oldTimescale);
+						serverPlay3D("disfigured_dash_sound",%obj.getHackPosition());
+						setTimescale($oldTimescale);
+					}
+					
+		}
+		
+	}
 }
 
 function PlayerDisfigured::onPeggFootstep(%this,%obj)
@@ -160,6 +213,32 @@ function PlayerDisfigured::EventideAppearance(%this,%obj,%client)
 	%obj.setNodeColor("lhand",%skinColor);
 	%obj.setNodeColor("headskin",%skinColor);
 	%obj.startFade(0, 0, true);
+}
+
+function PlayerDisfigured::onImpact(%this, %obj, %col, %vec, %force)
+{		
+	Parent::onImpact(%this, %obj, %col, %vec, mCeil(%force));
+
+	if(isObject(%col) && (%col.getType() & $TypeMasks::PlayerObjectType) && minigameCanDamage(%obj,%col))
+	{
+		%hitforce = %force*1.5;
+		%damage = %force*2.5;
+		
+		if(getRandom(1,15) == 1)// Batter up!
+		{
+			%hitforce = %force*4;
+			%damage = %force*3;
+
+			%soundpitch = getRandom(90,150);
+			$oldTimescale = getTimescale();
+			setTimescale((%soundpitch*0.01) * $oldTimescale);
+			serverPlay3D("puzzlechime_sound",%col.getPosition());
+			setTimescale($oldTimescale);			
+		}
+		
+		%col.setVelocity(VectorScale(vectorAdd(%obj.getForwardVector(),"0 0 0.25"), %hitforce));
+		%col.damage(%obj, %col.getHackPosition(), %damage, $DamageType::Default);
+	}
 }
 
 function PlayerDisfigured::onDamage(%this, %obj, %delta)

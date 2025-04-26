@@ -9,8 +9,8 @@ datablock PlayerData(PlayerRender : PlayerRenowned)
 	showEnergyBar = true;
 	rechargeRate = 0.6;
 
-	killerChaseLvl1Music = "";
-	killerChaseLvl2Music = "";
+	killerChaseLvl1Music = "musicData_Eventide_LurkerNear";
+	killerChaseLvl2Music = "musicData_Eventide_LurkerChase";
 
 	killeridlesound = "render_idle";
 	killeridlesoundamount = 19;

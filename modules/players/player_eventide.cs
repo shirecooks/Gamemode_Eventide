@@ -67,12 +67,19 @@ function EventidePlayer::pulsingScreen(%this,%obj)
 	// If any of these are met, do not continue
 	if ((!isObject(%obj) || %obj.getclassname() !$= "Player" || %obj.getState() $= "Dead") || %obj.getDamageLevel() < 25) return;
 
-	if (isObject(%obj.client)) %obj.client.play2D("survivor_heartbeat_sound");
-	%obj.setdamageflash(0.125);
+	if (isObject(%obj.client)) 
+	{		
+		%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/5) ? 2 : 1;		
+		%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
+		%obj.setdamageflash(0.05);
+	}
+
+	%obj.startDrippingBlood(100);
 
 	// Prevent multiple schedules
 	cancel(%obj.pulsingScreenSched);
-	%obj.pulsingScreenSched = %this.schedule(850,pulsingScreen,%obj);
+	%pulseTime = mClampF((100-(%obj.getDamageLevel()/1.25)) * 15,250,850);
+	%obj.pulsingScreenSched = %this.schedule(%pulseTime,pulsingScreen,%obj);
 }
 
 function EventidePlayer::onNewDatablock(%this,%obj)
@@ -101,12 +108,7 @@ function EventidePlayer::onImpact(%this, %obj, %col, %vec, %force)
 	
 	Parent::onImpact(%this, %obj, %col, %vec, mCeil(%force));
 
-	if (%obj.getState() $= "Dead") 
-	{
-		return;
-	}
-	
-	if (%zvector > %this.minImpactSpeed) 
+	if (%obj.getState() !$= "Dead" && %zvector > %this.minImpactSpeed) 
 	{
 		%obj.playthread(3,"plant");
 	}
@@ -359,13 +361,17 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			// Clear the billboard
 			//$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
 			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
-			%victim.pseudoHealth = (%victim.survivorclass $= "fighter") ? 75 : (%obj.survivorClass $= "mender") ? 75 : 0;
-			%victim.mountimage("HealImage",3);
-			%victim.setwhiteout(0.1);
-		
-			if (isObject(%victim.client)) 
+			%victim.pseudoHealth = (%victim.survivorclass $= "fighter" || %obj.survivorClass $= "mender") ? 75 : 0;
+			
+			if(%obj.survivorClass $= "mender")
 			{
-				%victim.client.play2D("printfiresound");
+				%victim.mountimage("HealImage",3);
+				%victim.setwhiteout(0.1);
+
+				$oldTimescale = getTimescale();
+				setTimescale((%obj.reviveDownedCounter/6) + $oldTimescale);
+				serverPlay3D("printfiresound",%victim.getPosition());
+				setTimescale($oldTimescale);
 			}
 			
 			%victim.setDatablock("EventidePlayer");
