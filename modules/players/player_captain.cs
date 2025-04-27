@@ -390,12 +390,7 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         //Make Sky Captain partially invisible.
         %obj.setImageAmmo($LeftHandSlot, 1);
         %obj.startFade(0, 0, true);
-<<<<<<< HEAD
-        %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
-        %obj.unMountImage($LeftHandSlot);
-=======
         %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC %obj.baseInvisibility);
->>>>>>> 96406f05fd7c99cecd445eed87da2b19ed4f1373
     }
     else if(%trig == 3 && !%press)
     {
@@ -407,7 +402,6 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.startFade(0, 0, false);
         %obj.setNodeColor("ALL", "0.05 0.05 0.05 1");
         %obj.getDataBlock().EventideAppearance(%obj, %obj.client);
-        %obj.mountImage($LeftHandSlot, blackKnifeImage);
     }
 
     //Add jetting sounds for Sky Captain, if he has enough charge.
