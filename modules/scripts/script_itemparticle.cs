@@ -3,7 +3,11 @@ package Eventide_ItemParticle
 	function ItemData::onAdd(%this, %obj)	
 	{
 		Parent::onAdd(%this,%obj);
-		if(!%obj.static) itemEmitterLoop(%obj);
+
+		if(!%obj.static)
+		{
+			itemEmitterLoop(%obj);
+		}		
 	}
 
 	function ItemData::onRemove(%this, %obj)
@@ -28,16 +32,24 @@ function itemEmitterLoop(%obj, %emitterNode)
 	// check if the object is still valid, delete the emitter node if not
 	if (!isObject(%obj) || %obj.isRitual)
 	{
-		if (isObject(%emitterNode)) %emitterNode.delete();		
+		if (isObject(%emitterNode))
+		{
+			%emitterNode.delete();
+		}
 		return;
 	}
 
-	cancel(%obj.itemEmitterLoopSchedule);
+	%ItemEmitterDatablock = $ItemEmitterDatablock;
+
+	if(%obj.getDataBlock().image.isRitual)
+	{
+		%ItemEmitterDatablock = "brickDeployExplosionEmitter";
+	}
 
 	if (!isObject(%emitterNode))
 	{
 		// creates emitter node using either the emitter node setting, or the default GenericEmitterNode
-		%nodeData = $ItemEmitterDatablock.pointEmitterNode;
+		%nodeData = %ItemEmitterDatablock.pointEmitterNode;
 
 		if (!isObject(%nodeData))
 		{
@@ -47,15 +59,17 @@ function itemEmitterLoop(%obj, %emitterNode)
 		%emitterNode = new ParticleEmitterNode ("")
 		{
 			dataBlock = %nodeData;
-			emitter = $ItemEmitterDatablock;
+			emitter = %ItemEmitterDatablock;
 		};
 
-		%emitterNode.setEmitterDataBlock($ItemEmitterDatablock);
+		%emitterNode.setEmitterDataBlock(%ItemEmitterDatablock);
 		MissionCleanup.add(%emitterNode);
 	}
 
 	%emitterNode.setTransform(%obj.getTransform()); // moves the node
 	%emitterNode.inspectPostApply(); // sends updated position to clients
 	%obj.emitter = %emitterNode; // just for convenience if some script wants to use this
+	
+	cancel(%obj.itemEmitterLoopSchedule);
 	%obj.itemEmitterLoopSchedule = schedule(50, 0, itemEmitterLoop, %obj, %emitterNode); // schedule a repeat call to loop this function
 }

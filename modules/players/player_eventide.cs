@@ -14,6 +14,7 @@ datablock PlayerData(EventidePlayer : PlayerStandardArmor)
 	shapeFile = EventideplayerDts.baseShape;
 	uiName = "Eventide Player";
 
+	enablePeggFootsteps = true;
 	uniformCompatible = true;
 	isEventideModel = true;
 	firstpersononly = false;
@@ -65,13 +66,14 @@ datablock PlayerData(EventidePlayerDowned : EventidePlayer)
 function EventidePlayer::pulsingScreen(%this,%obj)
 {
 	// If any of these are met, do not continue
-	if ((!isObject(%obj) || %obj.getclassname() !$= "Player" || %obj.getState() $= "Dead") || %obj.getDamageLevel() < 25) return;
+	if ((!isObject(%obj) || %obj.getclassname() !$= "Player" || %obj.getState() $= "Dead") || %obj.getDamageLevel() < %this.maxDamage/4) return;
 
 	if (isObject(%obj.client)) 
 	{		
-		%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/5) ? 2 : 1;		
+		%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/5) ? 2 : 1;
+		%flashamount = (%obj.getDamageLevel() >= %this.maxDamage/4) ? 0.5 : 0.1;
 		%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
-		%obj.setdamageflash(0.05);
+		%obj.setdamageflash(%flashamount);
 	}
 
 	%obj.startDrippingBlood(100);
@@ -351,11 +353,10 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 				%obj.client.centerprint(%stringformat @ "You revived" SPC %victim.client.name,1);
 			}
 			
-			// Message the saved victim and apply the effects
+			// Message the saved victim
 			if (isObject(%victim.client)) 
 			{
-				%victim.client.centerprint(%stringformat @ "You were revived by" SPC %obj.client.name,1);			
-				%victim.getdataBlock().pulsingScreen(%victim);
+				%victim.client.centerprint(%stringformat @ "You were revived by" SPC %obj.client.name,1);							
 			}
 
 			// Clear the billboard
@@ -637,6 +638,11 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 			%killerSourceObject = %sourceObject;
 		}
 		%killerDatablock = %killerSourceObject.getDataBlock();
+	}	
+
+	if(%obj.getDamageLevel() >= %this.maxDamage/2)
+	{
+		%obj.getdataBlock().pulsingScreen(%obj);
 	}
 
 	// Dont let the player die if they havent been downed yet

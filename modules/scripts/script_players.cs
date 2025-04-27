@@ -127,6 +127,17 @@ package Eventide_Player
 	{		
 		Parent::onNewDatablock(%this,%obj);
 
+		%datablock = %obj.getDataBlock();
+		if(%datablock.isKiller && %obj.getMountedImage($LeftHandSlot) == nameToID("FlashlightImage"))
+		{
+			%obj.deleteFlashlightBeam();
+			%obj.unmountImage($LeftHandSlot);
+			if(isObject(%obj.Light))
+			{
+				%obj.Light.setDatablock(%this.killerLight);
+			}
+		}
+
 		%obj.schedule(33,setActionThread,"root");
 
 		// Initiate the gaze loop if the player is in a minigame
@@ -409,3 +420,5 @@ function GameConnection::Escape(%client)
 		return;
 	}	
 }
+
+talk("Cubicles");

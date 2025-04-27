@@ -71,6 +71,7 @@ datablock ShapeBaseImageData(Disfigured_FogImage)
 datablock PlayerData(PlayerDisfigured : PlayerRenowned) 
 {
 	uiName = "Disfigured Player";
+	enablePeggFootsteps = false;
 	
 	hitprojectile = KillerRoughHitProjectile;
 	hitobscureprojectile = "";
@@ -145,7 +146,6 @@ function PlayerDisfigured::onTrigger(%this, %obj, %trig, %press)
 			case 0:	if(%obj.getEnergyLevel() >= 25)
 					{
 						%this.killerMelee(%obj,4);
-						%obj.faceConfigShowFace("Attack");
 						return;
 					}
 			
@@ -169,7 +169,7 @@ function PlayerDisfigured::onTrigger(%this, %obj, %trig, %press)
 
 function PlayerDisfigured::onPeggFootstep(%this,%obj)
 {
-	serverplay3d("huntress_walking" @ getRandom(1,6) @ "_sound", %obj.getHackPosition());
+	serverplay3d("huntress_walking" @ getRandom(1,6) @ "_sound", %obj.getHackPosition());	
 }
 
 function PlayerDisfigured::onNewDatablock(%this,%obj)
@@ -181,9 +181,10 @@ function PlayerDisfigured::onNewDatablock(%this,%obj)
 	%obj.faceConfig.setFaceAttribute("Neutral", "length", -1);
 	
 	Parent::onNewDatablock(%this,%obj);
+
 	%obj.setScale("1.1 1.1 1.1");
 	%obj.mountImage("Disfigured_BleedImage",0);
-	%obj.mountImage("Disfigured_FogImage",1);
+	%obj.mountImage("Disfigured_FogImage",1);	
 }
 
 function PlayerDisfigured::EventideAppearance(%this,%obj,%client)
@@ -213,12 +214,15 @@ function PlayerDisfigured::EventideAppearance(%this,%obj,%client)
 	%obj.setNodeColor("lhand",%skinColor);
 	%obj.setNodeColor("headskin",%skinColor);
 	%obj.startFade(0, 0, true);
+
+	if(isObject(%obj.lshoe)) %obj.lshoe.delete();
+	if(isObject(%obj.rshoe)) %obj.rshoe.delete();
 }
 
 function PlayerDisfigured::onImpact(%this, %obj, %col, %vec, %force)
-{		
-	Parent::onImpact(%this, %obj, %col, %vec, mCeil(%force));
-
+{			
+	if(%force > %this.minImpactSpeed) %obj.spawnExplosion("pushBroomProjectile","0.5 0.5 0.5");
+	
 	if(isObject(%col) && (%col.getType() & $TypeMasks::PlayerObjectType) && minigameCanDamage(%obj,%col))
 	{
 		%hitforce = %force*1.5;
@@ -233,11 +237,41 @@ function PlayerDisfigured::onImpact(%this, %obj, %col, %vec, %force)
 			$oldTimescale = getTimescale();
 			setTimescale((%soundpitch*0.01) * $oldTimescale);
 			serverPlay3D("puzzlechime_sound",%col.getPosition());
-			setTimescale($oldTimescale);			
+			setTimescale($oldTimescale);
+		}
+
+		if(%col.getDataBlock().isDowned)
+		{
+			%damage = 0;
+			%hitforce *= 0.5;
 		}
 		
 		%col.setVelocity(VectorScale(vectorAdd(%obj.getForwardVector(),"0 0 0.25"), %hitforce));
 		%col.damage(%obj, %col.getHackPosition(), %damage, $DamageType::Default);
+
+		%soundpitch = getRandom(80,175);
+		$oldTimescale = getTimescale();
+		setTimescale((%soundpitch*0.01) * $oldTimescale);
+		serverPlay3D("melee_axe" @ getRandom(1,2) @ "_sound",%col.getPosition());
+		setTimescale($oldTimescale);
+
+		%col.spawnExplosion("pushBroomProjectile",vectorScale(%obj.getScale(),getRandom(1,2)));
+		if(%this.hitprojectile !$= "")
+		{
+			%effect = new Projectile()
+			{
+				dataBlock = %this.hitprojectile;
+				initialPosition = %col.getHackPosition();
+				initialVelocity = vectorNormalize(vectorSub(%col.getHackPosition(), %obj.getEyePoint()));
+				scale = vectorScale(%obj.getScale(),getRandom(2,3));
+				sourceObject = %obj;
+			};
+
+			MissionCleanup.add(%effect);
+			%effect.explode();
+		}
+
+		return;
 	}
 }
 

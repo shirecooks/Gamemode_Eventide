@@ -71,8 +71,8 @@ function MiniGameSO::randomizeEventideItems(%minigame)
         %randomritual = %ritualScriptGroup.getObject(getRandom(0,%ritualScriptGroup.getCount()-1)); // Get a random script object
         %randomritualitem = strreplace(%randomritual.getName(),"script_",""); // Get the item name from the script object
         %randomritualbrick = %ritualBrickSet.getObject(getRandom(0,%ritualBrickSet.getCount()-1)); // Get a random brick
-        %randomritualbrick.setItem(%randomritualitem); // Set the item of the random brick to the item of the random script object
-		%randomritualbrick.setEmitter("SparkleGroundEmitter"); // Set the emitter of the random brick
+        %randomritualbrick.setItem(%randomritualitem); // Set the item of the random brick to the item of the random script object        
+        %randomritualbrick.setEmitter("brickDeployExplosionEmitter"); // Set the emitter of the random brick
         
         // Delete the script object and remove the ritual brick from the set
         %randomritual.delete();

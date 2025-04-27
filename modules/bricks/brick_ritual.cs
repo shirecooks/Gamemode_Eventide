@@ -75,7 +75,8 @@ function brickEventideRitual::DisplayText(%this, %obj, %name, %color, %distance,
 
 function brickEventideRitual::ritualCheck(%this,%obj)
 {
-	if(!isObject(%obj) || !isObject(%minigame = getMiniGameFromObject(%obj)))
+	%minigame = getMiniGameFromObject(%obj);
+	if(!isObject(%obj) || !isObject(%minigame))
 	{
 		return;
 	}
@@ -213,7 +214,7 @@ function brickEventideRitual::ritualCheck(%this,%obj)
 					// Set the music to hurry					
 					if(isObject(%client = %minigame.member[%i]))
 					{
-						%client.SetChaseMusic("musicData_escape" @ getRandom(1,3),true);
+						%client.SetChaseMusic("musicData_escape" SPC getRandom(1, 3), false);
 
 						// Call the killer's onAllRitualsPlaced function
 						if(isObject(%client.player) && %client.player.getDatablock().isKiller)

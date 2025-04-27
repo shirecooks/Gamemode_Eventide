@@ -42,7 +42,7 @@ datablock PlayerData(PlayerRender : PlayerRenowned)
 
 function PlayerRender::onImpact(%this, %obj, %col, %vec, %force)
 {
-	if(%force > %this.minImpactSpeed) %obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");	
+	if(%force > %this.minImpactSpeed) %obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 }
 
 function PlayerRender::killerGUI(%this,%obj,%client)

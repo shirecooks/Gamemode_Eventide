@@ -224,8 +224,7 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
 		return;    
 	}
 
-	// If the ritual is complete and the song is not the hurry song, return
-	if((isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10) && strlwr(%songname) !$= "musicData_eventide_hurry")
+	if((isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10) && %ischasing)
 	{
 		return;
 	}

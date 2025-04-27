@@ -574,7 +574,7 @@ function parseSoundFromNumber(%val, %obj) // brick is an optional parameter
 //+++ Drop some rad peggstep noise in here!
 function PeggFootsteps(%obj, %lastVert)
 {
-	if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.getdataBlock().enablePeggFootsteps) return;
+	if(!isObject(%obj) || %obj.getState() $= "Dead" || !%obj.getdataBlock().enablePeggFootsteps) return;
 
 	cancel(%obj.peggstep);
 	if(%obj.getdataBlock().getName() $= "EventidePlayer")

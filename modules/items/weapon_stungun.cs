@@ -87,9 +87,10 @@ function StunGunImage::onDetonate(%this, %obj, %slot)
         }
     }
 
-    %light = new fxLight() { datablock = "brightLight"; };
-    %light.setTransform(%obj.getMuzzlePoint(0));
-    %light.schedule(100,delete);
+    //Create camera light
+    %cameralight = new fxLight() { datablock = "brightLight"; };
+    %cameralight.setTransform(%obj.getMuzzlePoint(0));
+    %cameralight.schedule(50,delete);
 
     // Flash nearby players
     initContainerRadiusSearch(%obj.getPosition(), 15, $TypeMasks::PlayerObjectType);

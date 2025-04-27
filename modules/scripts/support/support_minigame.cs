@@ -189,3 +189,15 @@ function MiniGameSO::playSound(%minigame,%datablock)
 		}
 	}
 }
+
+function MinigameSO::playMusic(%minigame, %datablock)
+{
+	for(%i = 0; %i < %minigame.numMembers; %i++)
+	{
+		%client = %minigame.member[%i];
+		if(isObject(%client))
+		{
+			%client.SetChaseMusic(%datablock, true);			
+		}									
+	}
+}
