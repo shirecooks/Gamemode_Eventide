@@ -89,6 +89,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
     gazeTickRate = 50;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
+    baseInvisibility = 0.15;
 };
 
 //
@@ -143,6 +144,7 @@ function PlayerCaptain::onNewDatablock(%this, %obj)
     //Start up the Gaze mechanic.
     %obj.gazeTickRate = %this.gazeTickRate;
     %obj.gazeFullyCharged = %this.gazeFullyCharged;
+    %obj.baseInvisibility = %this.baseInvisibility;
     %obj.SCMissleCount = 0;
     %obj.trackingStatus = "\c0OFFLINE";
     %obj.lastTrackingTime = 0;
@@ -388,7 +390,7 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         //Make Sky Captain partially invisible.
         %obj.setImageAmmo($LeftHandSlot, 1);
         %obj.startFade(0, 0, true);
-        %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
+        %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC %obj.baseInvisibility);
     }
     else if(%trig == 3 && !%press)
     {
@@ -824,6 +826,13 @@ function Player::SkyCaptainGaze(%obj)
 
                 %victimTrackingScale = (%victimKillerDistance - %victimLowTrackingDistance) / (%victimHighTrackingDistance - %victimLowTrackingDistance);
                 %trackingThreshold = mCeil(%victimLowTrackingTime + ((%victimHighTrackingTime - %victimLowTrackingTime) * %victimTrackingScale));
+
+                //Make Sky Captain more visible, based on distance. Closer is less visible.
+                if(%obj.isCrouching && %obj.isInvisible)
+                {
+                    %visibilityIncrease = (1 - %obj.baseInvisibility) * %victimTrackingScale;
+                    %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC (%obj.baseInvisibility + %visibilityIncrease));
+                }
                 
                 if(%foundPlayer.timeGazedUpon $= "")
                 {

@@ -193,6 +193,10 @@ datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 	stateTransitionOnTimeout[5] = "Visible";
 	stateSound[5] = "";
 };
+function blackKnifeImage::onFire(%this, %obj, %slot)
+{
+	//Dud function, prevent console errors.
+}
 
 datablock ShapeBaseImageData(kidsHammerImage : meleeTantoImage)
 {
