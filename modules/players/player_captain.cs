@@ -89,6 +89,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
     gazeTickRate = 50;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
+    baseInvisibility = 0.15;
 };
 
 //
@@ -143,6 +144,7 @@ function PlayerCaptain::onNewDatablock(%this, %obj)
     //Start up the Gaze mechanic.
     %obj.gazeTickRate = %this.gazeTickRate;
     %obj.gazeFullyCharged = %this.gazeFullyCharged;
+    %obj.baseInvisibility = %this.baseInvisibility;
     %obj.SCMissleCount = 0;
     %obj.trackingStatus = "\c0OFFLINE";
     %obj.lastTrackingTime = 0;
@@ -386,9 +388,14 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.isInvisible = true;
 
         //Make Sky Captain partially invisible.
+        %obj.setImageAmmo($LeftHandSlot, 1);
         %obj.startFade(0, 0, true);
+<<<<<<< HEAD
         %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
         %obj.unMountImage($LeftHandSlot);
+=======
+        %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC %obj.baseInvisibility);
+>>>>>>> 96406f05fd7c99cecd445eed87da2b19ed4f1373
     }
     else if(%trig == 3 && !%press)
     {
@@ -396,6 +403,7 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.isInvisible = false;
 
         //Disables Sky Captain's invisibility.
+        %obj.setImageAmmo($LeftHandSlot, 0);
         %obj.startFade(0, 0, false);
         %obj.setNodeColor("ALL", "0.05 0.05 0.05 1");
         %obj.getDataBlock().EventideAppearance(%obj, %obj.client);
@@ -824,6 +832,13 @@ function Player::SkyCaptainGaze(%obj)
 
                 %victimTrackingScale = (%victimKillerDistance - %victimLowTrackingDistance) / (%victimHighTrackingDistance - %victimLowTrackingDistance);
                 %trackingThreshold = mCeil(%victimLowTrackingTime + ((%victimHighTrackingTime - %victimLowTrackingTime) * %victimTrackingScale));
+
+                //Make Sky Captain more visible, based on distance. Closer is less visible.
+                if(%obj.isCrouching && %obj.isInvisible)
+                {
+                    %visibilityIncrease = (1 - %obj.baseInvisibility) * %victimTrackingScale;
+                    %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC (%obj.baseInvisibility + %visibilityIncrease));
+                }
                 
                 if(%foundPlayer.timeGazedUpon $= "")
                 {
