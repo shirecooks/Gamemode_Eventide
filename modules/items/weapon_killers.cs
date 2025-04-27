@@ -158,8 +158,40 @@ datablock ShapeBaseImageData(ShovelImage : meleeTantoImage)
 
 datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 {
-   shapeFile = "./models/BlackKnife.dts";
-   mountPoint = 1;
+	shapeFile = "./models/BlackKnife.dts";
+	mountPoint = 1;
+
+	stateName[0] = "Activate";
+	stateTimeoutValue[0] = 0.5;
+	stateTransitionOnTimeout[0] = "Ready";
+	stateSound[0] = "";
+
+	stateName[1] = "Ready";
+	stateTransitionOnAmmo[1] = "Fading";
+	stateTransitionOnNoAmmo[1] = "Visible";
+	stateSound[1] = "";
+
+	stateName[2] = "Visible";
+	stateSequence[2] = "Root";
+	stateTransitionOnAmmo[2] = "Fading";
+	stateSound[2] = "";
+
+	stateName[3] = "Fading";
+	stateSequence[3] = "fade";
+	stateTimeoutValue[3] = 0.2;
+	stateTransitionOnTimeout[3] = "Faded";
+	stateSound[3] = "";
+
+	stateName[4] = "Faded";
+	stateSequence[4] = "faded";
+	stateTransitionOnNoAmmo[4] = "Unfading";
+	stateSound[4] = "";
+
+	stateName[5] = "Unfading";
+	stateSequence[5] = "unfade";
+	stateTimeoutValue[5] = 0.2;
+	stateTransitionOnTimeout[5] = "Visible";
+	stateSound[5] = "";
 };
 
 datablock ShapeBaseImageData(kidsHammerImage : meleeTantoImage)
