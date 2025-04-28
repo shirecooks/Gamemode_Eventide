@@ -50,7 +50,7 @@ function MiniGameSO::randomizeEventideItems(%minigame)
                             }
         }
 
-        if(isObject(%brick.item)) %brick.setEmitter("SparkleGroundEmitter");
+        if(isObject(%brick.item)) %brick.setEmitter("WandEmitterA");
     }
 
     // Create the ritual script group to be used for the randomization of ritual spawns

@@ -152,7 +152,7 @@ function PlayerDisfigured::onTrigger(%this, %obj, %trig, %press)
 			case 4: if(%obj.getEnergyLevel() >= %this.maxEnergy/2)
 					{
 						%obj.setEnergyLevel(%obj.getEnergyLevel()-50);
-						%obj.setVelocity(VectorScale(%obj.getForwardVector(),15));
+						%obj.setVelocity(VectorScale(%obj.getForwardVector(),18));
 						
 						%soundpitch = getRandom(80,150);
 						%obj.spawnExplosion("pushBroomProjectile","0.5 0.5 0.5");
