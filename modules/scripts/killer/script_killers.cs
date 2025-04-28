@@ -263,7 +263,7 @@ function GameConnection::playAmbiance(%client)
 		return;
 	}
 	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 6);
-	%client.SetChaseMusic(%ambientMusicDatablock, false);
+	%client.SetChaseMusic(%ambientMusicDatablock, false, false);
 }
 
 function GameConnection::StopChase(%client)
@@ -271,11 +271,6 @@ function GameConnection::StopChase(%client)
     if(!isObject(%client))
 	{
 		return;
-	}
-
-    if(isObject(%client.EventideMusicEmitter))
-	{
-		%client.EventideMusicEmitter.delete();
 	}
 
 	%client.playAmbiance();
