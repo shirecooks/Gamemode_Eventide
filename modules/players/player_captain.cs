@@ -390,6 +390,9 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         //Make Sky Captain partially invisible.
         %obj.setImageAmmo($LeftHandSlot, 1);
         %obj.startFade(0, 0, true);
+
+        %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
+        %obj.unMountImage($LeftHandSlot);
         %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC %obj.baseInvisibility);
     }
     else if(%trig == 3 && !%press)
