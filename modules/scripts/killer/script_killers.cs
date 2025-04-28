@@ -216,7 +216,7 @@ function Armor::onRoundEnd(%this, %obj, %won)
 	//Hello, World!
 }
 
-function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
+function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override)
 {
     // Do not continue if there is no client, invalid song, or if the ritual is complete
 	if(!isObject(%client) || !isObject(%songname))
@@ -224,7 +224,8 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
 		return;    
 	}
 
-	if((isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10) && %ischasing)
+	//Don't play the music if all rituals have been placed.
+	if(isObject($EventideRitualBrick) && $EventideRitualBrick.ritualsPlaced >= 10 && !%override)
 	{
 		return;
 	}
@@ -253,24 +254,6 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing)
 
     MissionCleanup.add(%client.EventideMusicEmitter);
 	adjustObjectScopeToAll(%client.EventideMusicEmitter, false, %client);
-}
-
-function GameConnection::PlaySkullFrames(%client,%frame)
-{
-    if(!isObject(%client) || %frame > 12)
-	{
-		return;
-	}
-
-	if(!%frame)
-	{
-		%frame = 1;
-	}
-
-	%client.centerprint("<br><br><bitmap:Add-ons/Gamemode_Eventide/modules/misc/icons/skullFrames/SkullFrame" @ %frame @ ">",0.2);
-
-	cancel(%client.SkullFrameSched);
-	%client.SkullFrameSched = %client.schedule(60, PlaySkullFrames, %frame++);
 }
 
 function GameConnection::playAmbiance(%client)
@@ -316,4 +299,22 @@ function GameConnection::StopChase(%client)
 
     %client.player.chaseLevel = 0;
     %client.musicChaseLevel = 0;
+}
+
+function GameConnection::PlaySkullFrames(%client,%frame)
+{
+    if(!isObject(%client) || %frame > 12)
+	{
+		return;
+	}
+
+	if(!%frame)
+	{
+		%frame = 1;
+	}
+
+	%client.centerprint("<br><br><bitmap:Add-ons/Gamemode_Eventide/modules/misc/icons/skullFrames/SkullFrame" @ %frame @ ">",0.2);
+
+	cancel(%client.SkullFrameSched);
+	%client.SkullFrameSched = %client.schedule(60, PlaySkullFrames, %frame++);
 }

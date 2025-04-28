@@ -420,5 +420,3 @@ function GameConnection::Escape(%client)
 		return;
 	}	
 }
-
-talk("Cubicles");
