@@ -160,6 +160,7 @@ datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 {
 	shapeFile = "./models/BlackKnife.dts";
 	mountPoint = 1;
+	emap = false;
 
 	stateName[0] = "Activate";
 	stateTimeoutValue[0] = 0.5;
@@ -175,6 +176,7 @@ datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 	stateSequence[2] = "Root";
 	stateTransitionOnAmmo[2] = "Fading";
 	stateSound[2] = "";
+	stateScript[2] = "onReveal";
 
 	stateName[3] = "Fading";
 	stateSequence[3] = "fade";
@@ -186,6 +188,7 @@ datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 	stateSequence[4] = "faded";
 	stateTransitionOnNoAmmo[4] = "Unfading";
 	stateSound[4] = "";
+	stateScript[4] = "onFade";
 
 	stateName[5] = "Unfading";
 	stateSequence[5] = "unfade";
@@ -196,6 +199,14 @@ datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 function blackKnifeImage::onFire(%this, %obj, %slot)
 {
 	//Dud function, prevent console errors.
+}
+function blackKnifeImage::onFade(%this, %obj, %slot)
+{
+	
+}
+function blackKnifeImage::onReveal(%this, %obj, %slot)
+{
+	
 }
 
 datablock ShapeBaseImageData(kidsHammerImage : meleeTantoImage)

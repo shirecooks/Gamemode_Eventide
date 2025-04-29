@@ -89,7 +89,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
     gazeTickRate = 50;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
-    baseInvisibility = 0.15;
+    baseInvisibility = 0.25;
 };
 
 //
@@ -392,7 +392,6 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.startFade(0, 0, true);
 
         %obj.setNodeColor("ALL", "0.05 0.05 0.05 0.25");
-        %obj.unMountImage($LeftHandSlot);
         %obj.setNodeColor("ALL", "0.05 0.05 0.05" SPC %obj.baseInvisibility);
     }
     else if(%trig == 3 && !%press)
