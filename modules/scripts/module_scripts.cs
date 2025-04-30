@@ -27,7 +27,6 @@ exec("./killer/script_killermelee.cs");
 exec("./script_peggyfootsteps.cs");
 exec("./script_players.cs");
 exec("./script_facesystem.cs");
-exec("./script_classes.cs");
 exec("./script_saveloadstats.cs");
 exec("./script_shopsystem.cs");
 exec("./script_maprotation.cs");
