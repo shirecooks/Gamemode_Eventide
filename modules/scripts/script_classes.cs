@@ -32,36 +32,183 @@ datablock ShapeBaseImageData(stallerHoodImage)
 //
 /// Class playertypes.
 
-function EventidePlayer::StallerCallback(%this, %obj)
+datablock PlayerData(PlayerStaller : EventidePlayer)
 {
-	%obj.noFootsteps = true;
-	%obj.fadeTime = 250; //Measured in milliseconds.
-}
-
-function EventidePlayer::StallerFadeOut(%this, %obj, %alpha)
-{
-	if(%alpha == 1)
-	{
-		%obj.playaudio(1,"skullwolf_cloak_sound");
-
-	}
-	else if(%alpha <= 0)
-	{
-		if(isObject(%obj.light))
-		{
-			%obj.light.delete();
-			%obj.deleteFlashlightBeam();
-		}
-		%obj.setDataBlock(InvisibleStallerPlayer);
-	}
-}
-
-datablock PlayerData(InvisibleStallerPlayer : EventidePlayer)
-{
+	shapeFile = EventideplayerDts.baseShape;
+	uiName = "Staller Player";
 	enablePeggFootsteps = false;
 	noFlashlight = true;
-	uiName = "";
-	rechargeRate = -0.1;
+};
+
+datablock PlayerData(PlayerInvisibleStaller : PlayerStaller)
+{
+	shapeFile = EventideplayerDts.baseShape;
+	uiName = "Invisible Staller Player";
+	rechargeRate = -0.3125;
+};
+
+function PlayerStaller::StallerCallback(%this, %obj)
+{
+	%obj.noFootsteps = true;
+	%obj.playerClass = %obj.client.playerClass;
+	// %obj.fadeTime = 250; //Milliseconds.
+	// %obj.fadeTickRate = 25; //Milliseconds.
+}
+
+function PlayerStaller::onTrigger(%this, %obj, %trig, %press)
+{
+	Parent::onTrigger(%this, %obj, %trig, %press);
+
+	if(%trig == 3 && %press)
+    {
+        if(%obj.getEnergyLevel() >= 100 && !isEventPending(%obj.disappearsched))
+		{
+			%obj.disappearsched = %this.StallerFadeOut(%obj, 1);
+		}
+    }
+}
+
+function PlayerInvisibleStaller::onTrigger(%this, %obj, %trig, %press)
+{
+	Parent::onTrigger(%this, %obj, %trig, %press);
+
+	if(%trig == 3 && !%press)
+    {
+        if(!isEventPending(%obj.disappearsched))
+		{
+			%obj.disappearsched = %this.StallerFadeIn(%obj, 0);
+		}
+    }
+}
+
+function PlayerStaller::StallerFadeOut(%this, %obj, %alpha)
+{
+	if(!isObject(%obj))
+	{
+		return;
+	}
+
+	if(%obj.lastFadeTime !$= "" && ((getSimTime() - %obj.lastFadeTime) < 5000))
+	{
+		return;
+	}
+	else
+	{
+		%obj.lastFadeTime = getSimTime();
+	}
+
+	if(isObject(%obj.light))
+	{
+		%obj.light.delete();
+		%obj.deleteFlashlightBeam();
+	}
+
+	%obj.playaudio(1, "staller_cloak_sound");
+
+	%obj.setDataBlock(PlayerInvisibleStaller);
+	%obj.getDataBlock().invisibilityTick(%obj);
+
+	%obj.hideNode("ALL");
+	%obj.unmountImage(3);
+	%obj.dontChangeAppearance = true;
+	%obj.isInvisible = true;
+
+	// if(%alpha == 1)
+	// {
+	// 	%obj.playaudio(1, "staller_cloak_sound");
+	// 	%obj.startFade(0, 0, true);
+	// }
+	// else if(%alpha <= 0)
+	// {
+	// 	if(isObject(%obj.light))
+	// 	{
+	// 		%obj.light.delete();
+	// 		%obj.deleteFlashlightBeam();
+	// 	}
+
+	// 	%obj.setDataBlock(PlayerInvisibleStaller);
+	// 	%obj.getDataBlock().invisibilityTick(%obj);
+	// 	%obj.isInvisible = true;
+	// 	return;
+	// }
+
+	// %obj.setNodeColor("ALL","0.05 0.05 0.05" SPC %alpha);
+	// %alphaStep = (1 / %obj.fadeTime) * %obj.fadeTickRate;
+	// %alpha = %alpha - %alphaStep;
+
+	// %obj.disappearsched = %this.schedule(%obj.fadeTickRate, StallerFadeOut, %obj, %alpha);
+}
+
+function PlayerInvisibleStaller::invisibilityTick(%this, %obj)
+{
+	cancel(%obj.invisibilitySched);
+	if(!isObject(%obj))
+	{
+		return;
+	}
+
+	if(%obj.getEnergyLevel() <= 0)
+	{
+		%this.StallerFadeIn(%obj, 0);
+		return;
+	}
+	// else
+	// {
+	// 	%obj.setEnergyLevel(%obj.getEnergyLevel() - (0.3125 + %this.rechargeRate));
+	// }
+
+	%obj.invisibilitySched = %this.schedule(31, invisibilityTick, %obj);
+}
+
+function PlayerInvisibleStaller::StallerFadeIn(%this, %obj, %alpha)
+{
+	if(!isObject(%obj))
+	{
+		return;
+	}
+
+	%obj.playaudio(1, "staller_uncloak_sound");
+
+	%previousEnergy = %obj.getEnergyLevel();
+	%obj.setDataBlock(PlayerStaller);
+	%obj.setEnergyLevel(%previousEnergy);
+
+	%obj.isInvisible = false;
+	%obj.dontChangeAppearance = false;
+	%obj.mountImage(stallerHoodImage, 3);
+	%this.EventideAppearance(%obj, %ob.client);
+
+	// if(%alpha == 0)
+	// {
+	// 	%obj.playaudio(1,"staller_uncloak_sound");
+	// }
+	// else if(%alpha >= 1)
+	// {
+	// 	%previousEnergy = %obj.getEnergyLevel();
+	// 	%obj.setDataBlock(PlayerStaller);
+	// 	%obj.setEnergyLevel(%previousEnergy);
+
+	// 	%obj.startFade(0, 0, false);
+	// 	%obj.isInvisible = false;
+	// 	return;
+	// }
+
+	// %obj.setNodeColor("ALL","0.05 0.05 0.05" SPC %alpha);
+	// %alphaStep = (1 / %obj.fadeTime) * %obj.fadeTickRate;
+	// %alpha = %alpha + %alphaStep;
+
+	// %obj.disappearsched = %this.schedule(%obj.fadeTickRate, StallerFadeIn, %obj, %alpha);	
+}
+
+function PlayerStaller::EventideAppearance(%this, %obj, %client)
+{
+	Parent::EventideAppearance(%this, %obj, %client);
+}
+
+function PlayerInvisibleStaller::EventideAppearance(%this, %obj, %client)
+{
+	%obj.hideNode("ALL");
+	return;
 }
 
 //
@@ -189,6 +336,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 		{
 			class = "EventidePlayerClass";
 			title = "Staller";
+			customDatablock = PlayerStaller;
 			canStack = false;
 			clearNodes = true;
 			callback = "StallerCallback";

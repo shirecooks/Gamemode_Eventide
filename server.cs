@@ -85,5 +85,6 @@ exec("./modules/bricks/module_bricks.cs");
 exec("./modules/items/module_items.cs");
 exec("./modules/players/module_players.cs");
 
-//Needs to be executed after the playertypes have been loaded, so it goes here instead of inn `module_scripts`.
+//Needs to be executed after the playertypes have been loaded, so it goes here instead of in `module_scripts`.
 exec("./modules/scripts/script_slayer.cs"); 
+exec("./modules/scripts/script_classes.cs");

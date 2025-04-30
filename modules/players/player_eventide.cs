@@ -393,7 +393,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 
 function EventidePlayer::EventideAppearance(%this, %obj, %client)
 {
-	if(!isObject(%obj) || !isObject(%client))
+	if(!isObject(%obj) || !isObject(%client) || %obj.dontChangeAppearance)
 	{
 		return;
 	}
