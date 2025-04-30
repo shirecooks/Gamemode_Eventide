@@ -204,6 +204,23 @@ if(isPackage("Gamemode_Eventide_Player_Staller"))
 }
 activatePackage("Gamemode_Eventide_Player_Staller");
 
+package Gamemode_Eventide_Server_Hatmod
+{
+	function serverCmdHat(%client, %na, %nb, %nc, %nd, %ne)
+	{
+		if(%client.playerClass !$= "")
+		{
+			return;
+		}
+		parent::serverCmdHat(%client, %na, %nb, %nc, %nd, %ne);
+	}
+};
+if(isPackage("Gamemode_Eventide_Server_Hatmod"))
+{
+	deactivatePackage("Gamemode_Eventide_Server_Hatmod");
+}
+activatePackage("Gamemode_Eventide_Server_Hatmod");
+
 //
 // Miscellaneous functions.
 //
