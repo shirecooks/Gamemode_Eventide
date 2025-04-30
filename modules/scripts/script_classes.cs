@@ -20,7 +20,7 @@ datablock ShapeBaseImageData(menderMaskImage)
 datablock ShapeBaseImageData(stallerHoodImage)
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/grimhood.dts";
-	mountPoint = $headSlot;
+	mountPoint = $HeadSlot;
 
 	eyeOffset = "0 0 -1000";
 	emap = 0;
@@ -55,7 +55,7 @@ package Eventide_Staller
 	{
         if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
 		{
-			%client.ChatMessage("<color:ffffff>...");
+			%client.centerPrint("<color:ffffff>...", 3);
 			return;
 		}
 		Parent::serverCmdMessageSent(%client, %message);
@@ -65,10 +65,21 @@ package Eventide_Staller
 	{
 		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
 		{
-			%client.ChatMessage("<color:ffffff>...");
+			%client.centerPrint("<color:ffffff>...", 3);
 			return;
 		}
 		Parent::ServerCmdTeamMessageSent(%client, %message);
+	}
+
+	function Player::emote(%player, %data, %skipSpam)
+	{
+		%client = %player.client;
+		if(isObject(%player.playerClass) && %player.playerClass.title $= "Staller")
+		{
+			%client.centerPrint("<color:ffffff>...", 3);
+			return;
+		}
+		Parent::emote(%player, %data, %skipSpam);
 	}
 };
 if(isPackage("Eventide_Staller"))
@@ -216,6 +227,8 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 
 	%stallerClass = %this.index["Classic"].getClass("Staller");
+	%stallerClass.appearance.facePack["female"] = 0;
+	%stallerClass.appearance.facePack["male"] = 0;
 	%stallerClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomNode";

@@ -411,6 +411,14 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 			%client.customFacePack = %selectedFacePack;
 			%obj.createFaceConfig(%selectedFacePack);
 		}
+		else if(%selectedFacePack == 0)
+		{
+			if(isObject(%obj.faceConfig))
+			{
+				%obj.faceConfig.delete();
+				%obj.setFaceName("smiley");
+			}
+		}
 
 		//If the class demands to have all their nodes hidden, do so.
 		if(%eventidePlayerClass.clearNodes)
@@ -963,7 +971,7 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 	{
 		%client.playerClass = "";
 	}
-	
+
 	Parent::onRemove(%this, %obj);
 	
 	// Remove the downed billboard if it still exists
