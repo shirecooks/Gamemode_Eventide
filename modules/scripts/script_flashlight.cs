@@ -226,6 +226,10 @@ function Player::deleteFlashlightBeam(%obj)
 	{
 		%obj.flashlightBeamGroup.delete();
 	}
+	if(%obj.getMountedImage(1) == nameToID("flashlightImage"))
+	{
+		%obj.unmountImage(1);
+	}
 }
 
 function Player::flashlightSurge(%obj)
@@ -403,7 +407,11 @@ package Eventide_Flashlight
 		{
 			return;
 		}
-		else if(!isObject(%player) || %player.getState() $= "Dead" || %playerDatablock.noFlashlight)
+		else if(%player.flashlightDisabled || %playerDatablock.noFlashlight)
+		{
+			return;
+		}
+		else if(!isObject(%player) || %player.getState() $= "Dead")
 		{
 			parent::serverCmdLight(%client);
 			return;
@@ -425,9 +433,9 @@ package Eventide_Flashlight
 
 			serverPlay3D("flashlight_off_sound", %player.getHackPosition());
 
-			if(%player.getMountedImage($LeftHandSlot) == nameToID("FlashlightImage")) 
+			if(%player.getMountedImage(1) == nameToID("FlashlightImage")) 
 			{
-				%player.unMountImage($LeftHandSlot);
+				%player.unMountImage(1);
 			}
 		}
 		else 
@@ -449,9 +457,9 @@ package Eventide_Flashlight
 			serverPlay3D("flashlight_on_sound", %player.getHackPosition());
 
 			//Place a flashlight model in the player's left hand, if it's empty.
-			if(!isObject(%player.getMountedImage($LeftHandSlot)))
+			if(!isObject(%player.getMountedImage(1)))
 			{
-				%player.mountImage(flashLightImage, $LeftHandSlot);
+				%player.mountImage(flashLightImage, 1);
 			}
 
 			if(!isEventPending(%player.flashlightTick)) 
@@ -492,7 +500,7 @@ package Eventide_Flashlight
 	{
 		parent::unmountImage(%this, %slot);
 
-		if(%slot == $LeftHandSlot && isObject(%this.light) && !%this.getDatablock().isKiller) 
+		if(%slot == 1 && isObject(%this.light) && !%this.getDatablock().isKiller) 
 		{
 			%this.mountImage(FlashlightImage, 1);
 		}

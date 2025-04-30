@@ -1,3 +1,5 @@
+//findClientByName("Robbin").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
+
 //
 // Resources that must go in this file.
 //
@@ -32,193 +34,124 @@ datablock ShapeBaseImageData(stallerHoodImage)
 //
 /// Class playertypes.
 
-datablock PlayerData(PlayerStaller : EventidePlayer)
-{
-	shapeFile = EventideplayerDts.baseShape;
-	uiName = "Staller Player";
-	enablePeggFootsteps = false;
-	noFlashlight = true;
-};
-
-datablock PlayerData(PlayerInvisibleStaller : PlayerStaller)
-{
-	shapeFile = EventideplayerDts.baseShape;
-	uiName = "Invisible Staller Player";
-	rechargeRate = -0.3125;
-};
-
-function PlayerStaller::StallerCallback(%this, %obj)
+function EventidePlayer::StallerCallback(%this, %obj)
 {
 	%obj.noFootsteps = true;
 	%obj.playerClass = %obj.client.playerClass;
-	// %obj.fadeTime = 250; //Milliseconds.
-	// %obj.fadeTickRate = 25; //Milliseconds.
 }
 
-function PlayerStaller::onTrigger(%this, %obj, %trig, %press)
+function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 {
 	Parent::onTrigger(%this, %obj, %trig, %press);
 
-	if(%trig == 3 && %press)
-    {
-        if(%obj.getEnergyLevel() >= 100 && !isEventPending(%obj.disappearsched))
+	if(isObject(%obj.playerClass) && %obj.playerClass.title $= "Staller")
+	{
+		if(%trig == 3 && %press)
 		{
-			%obj.disappearsched = %this.StallerFadeOut(%obj, 1);
+			if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000)
+			{
+				%obj.disappearsched = %this.StallerFadeOut(%obj, 1);
+			}
 		}
-    }
+		else if(%trig == 3 && !%press)
+		{
+			if(%obj.isInvisible)
+			{
+				%this.StallerFadeIn(%obj, 0);
+			}
+		}
+	}
 }
 
-function PlayerInvisibleStaller::onTrigger(%this, %obj, %trig, %press)
+function EventidePlayer::StallerFadeOut(%this, %obj)
 {
-	Parent::onTrigger(%this, %obj, %trig, %press);
-
-	if(%trig == 3 && !%press)
-    {
-        if(!isEventPending(%obj.disappearsched))
-		{
-			%obj.disappearsched = %this.StallerFadeIn(%obj, 0);
-		}
-    }
-}
-
-function PlayerStaller::StallerFadeOut(%this, %obj, %alpha)
-{
-	if(!isObject(%obj))
-	{
-		return;
-	}
-
-	if(%obj.lastFadeTime !$= "" && ((getSimTime() - %obj.lastFadeTime) < 5000))
-	{
-		return;
-	}
-	else
-	{
-		%obj.lastFadeTime = getSimTime();
-	}
-
+	//Delete the player's flashlight, if they have it enabled.
 	if(isObject(%obj.light))
 	{
 		%obj.light.delete();
 		%obj.deleteFlashlightBeam();
 	}
+	%obj.flashlightDisabled = true;
 
 	%obj.playaudio(1, "staller_cloak_sound");
 
-	%obj.setDataBlock(PlayerInvisibleStaller);
-	%obj.getDataBlock().invisibilityTick(%obj);
-
+	//Turn the player invisible by hiding all their nodes. Including the custom hat.
 	%obj.hideNode("ALL");
 	%obj.unmountImage(3);
+
+	//Set some internal flags so the hidden nodes do not get revealed. Also ensure the killer loop cannot see the invisible person.
 	%obj.dontChangeAppearance = true;
 	%obj.isInvisible = true;
+	%obj.lastFadeTime = getSimTime();
 
-	// if(%alpha == 1)
-	// {
-	// 	%obj.playaudio(1, "staller_cloak_sound");
-	// 	%obj.startFade(0, 0, true);
-	// }
-	// else if(%alpha <= 0)
-	// {
-	// 	if(isObject(%obj.light))
-	// 	{
-	// 		%obj.light.delete();
-	// 		%obj.deleteFlashlightBeam();
-	// 	}
+	//Unequip the player's items, don't let them use them while invisible.
+	if(isObject(%obj.client))
+	{
+		serverCmdUnuseTool(%obj.client);
+	}
 
-	// 	%obj.setDataBlock(PlayerInvisibleStaller);
-	// 	%obj.getDataBlock().invisibilityTick(%obj);
-	// 	%obj.isInvisible = true;
-	// 	return;
-	// }
-
-	// %obj.setNodeColor("ALL","0.05 0.05 0.05" SPC %alpha);
-	// %alphaStep = (1 / %obj.fadeTime) * %obj.fadeTickRate;
-	// %alpha = %alpha - %alphaStep;
-
-	// %obj.disappearsched = %this.schedule(%obj.fadeTickRate, StallerFadeOut, %obj, %alpha);
+	//Start a loop that detects when the player runs out of energy, and disabled their invisibility when it does.
+	%this.invisibilityTick(%obj);
 }
 
-function PlayerInvisibleStaller::invisibilityTick(%this, %obj)
+function EventidePlayer::invisibilityTick(%this, %obj)
 {
-	cancel(%obj.invisibilitySched);
 	if(!isObject(%obj))
 	{
 		return;
 	}
 
-	if(%obj.getEnergyLevel() <= 0)
+	//Not needed in theory, but just in case...
+	cancel(%obj.invisibilitySched);
+
+	//The player ran out of energy, reveal them.
+	if(%obj.getEnergyLevel() <= 1)
 	{
-		%this.StallerFadeIn(%obj, 0);
+		%this.StallerFadeIn(%obj);
 		return;
 	}
-	// else
-	// {
-	// 	%obj.setEnergyLevel(%obj.getEnergyLevel() - (0.3125 + %this.rechargeRate));
-	// }
+	else
+	{
+		//The player still has energy left, decrease it.
+		%obj.setEnergyLevel(%obj.getEnergyLevel() - (0.3125 + %this.rechargeRate));
+	}
 
+	//Plan to check and decrease energy again in a little bit.
 	%obj.invisibilitySched = %this.schedule(31, invisibilityTick, %obj);
 }
 
-function PlayerInvisibleStaller::StallerFadeIn(%this, %obj, %alpha)
+function EventidePlayer::StallerFadeIn(%this, %obj)
 {
 	if(!isObject(%obj))
 	{
 		return;
 	}
 
+	//Not needed in theory, but just in case...
+	cancel(%obj.invisibilitySched);
+
 	%obj.playaudio(1, "staller_uncloak_sound");
 
-	%previousEnergy = %obj.getEnergyLevel();
-	%obj.setDataBlock(PlayerStaller);
-	%obj.setEnergyLevel(%previousEnergy);
-
+	//Reset the flags dedicated to invisibility.
 	%obj.isInvisible = false;
 	%obj.dontChangeAppearance = false;
+
+	//Re-enable the player's flashlight.
+	%obj.flashlightDisabled = false;
+
+	//Restore the Staller appearance.
 	%obj.mountImage(stallerHoodImage, 3);
-	%this.EventideAppearance(%obj, %ob.client);
-
-	// if(%alpha == 0)
-	// {
-	// 	%obj.playaudio(1,"staller_uncloak_sound");
-	// }
-	// else if(%alpha >= 1)
-	// {
-	// 	%previousEnergy = %obj.getEnergyLevel();
-	// 	%obj.setDataBlock(PlayerStaller);
-	// 	%obj.setEnergyLevel(%previousEnergy);
-
-	// 	%obj.startFade(0, 0, false);
-	// 	%obj.isInvisible = false;
-	// 	return;
-	// }
-
-	// %obj.setNodeColor("ALL","0.05 0.05 0.05" SPC %alpha);
-	// %alphaStep = (1 / %obj.fadeTime) * %obj.fadeTickRate;
-	// %alpha = %alpha + %alphaStep;
-
-	// %obj.disappearsched = %this.schedule(%obj.fadeTickRate, StallerFadeIn, %obj, %alpha);	
-}
-
-function PlayerStaller::EventideAppearance(%this, %obj, %client)
-{
-	Parent::EventideAppearance(%this, %obj, %client);
-}
-
-function PlayerInvisibleStaller::EventideAppearance(%this, %obj, %client)
-{
-	%obj.hideNode("ALL");
-	return;
+	%this.EventideAppearance(%obj, %obj.client);	
 }
 
 //
 /// Class packages/overrides.
 
-package Eventide_Staller
+package Gamemode_Eventide_Player_Staller
 {
     function ServerCmdStartTalking(%client)
 	{
-		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+		if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller")
 		{
 			return;
 		}
@@ -227,7 +160,7 @@ package Eventide_Staller
 
     function serverCmdMessageSent(%client, %message)
 	{
-        if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller")
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
@@ -255,12 +188,21 @@ package Eventide_Staller
 		}
 		Parent::emote(%player, %data, %skipSpam);
 	}
+
+	function ServerCmdUseTool(%client, %slot)
+    {
+        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller" && isObject(%client.player) && %client.player.isInvisible)
+		{
+			return;
+		}
+		parent::ServerCmdUseTool(%client, %slot);
+    }
 };
-if(isPackage("Eventide_Staller"))
+if(isPackage("Gamemode_Eventide_Player_Staller"))
 {
-	deactivatePackage("Eventide_Staller");
+	deactivatePackage("Gamemode_Eventide_Player_Staller");
 }
-activatePackage("Eventide_Staller");
+activatePackage("Gamemode_Eventide_Player_Staller");
 
 //
 // Miscellaneous functions.
@@ -336,7 +278,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 		{
 			class = "EventidePlayerClass";
 			title = "Staller";
-			customDatablock = PlayerStaller;
 			canStack = false;
 			clearNodes = true;
 			callback = "StallerCallback";
@@ -654,7 +595,8 @@ function Player::assignClass(%player, %eventidePlayerClass)
 
 	//Apply the custom appearance of the class.
 	%client.playerClass = %eventidePlayerClass;
-	%player.getDataBlock().EventideAppearance(%player, %client);
+	%playerDatablock = %player.getDataBlock();
+	%playerDatablock.EventideAppearance(%player, %client);
 
     //Set the player's psuedohealth, if applicable.
     %player.psuedohealth = %eventidePlayerClass.psuedoHealth;
@@ -683,7 +625,7 @@ function Player::assignClass(%player, %eventidePlayerClass)
 	//Perform any custom actions the class may have.
 	if(%eventidePlayerClass.callback !$= "")
 	{
-		%player.call(%eventidePlayerClass.callback);
+		%playerDatablock.call(%eventidePlayerClass.callback, %player);
 	}
 }
 
