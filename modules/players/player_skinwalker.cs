@@ -198,7 +198,7 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
         {
             %obj.playaudio(3,"skinwalker_change_sound");
 
-			if(isObject(%obj.client) && %obj.getdataBlock().getName() $= "EventidePlayer")
+			if(isObject(%obj.client) && %obj.getdataBlock().getName() $= "EventidePlayer" && (!isObject(%obj.victim.playerClass) || %obj.victim.playerClass.title !$= "Staller"))
 			{
 				%genderSound = (!%obj.client.chest) ? "male" : "female";
 				%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;

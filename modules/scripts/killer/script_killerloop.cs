@@ -40,7 +40,10 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
         if(%victimDistance < %searchDistance/2.5)
         {
 			// Play a thread to have them talk, but it makes it look like they're nervous when the killer is near
-            %victim.playthread(2, "talk");
+            if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+            {
+               %victim.playthread(2, "talk"); 
+            }
             
             if(%victimDistance < %searchDistance/4)
             {
@@ -48,7 +51,7 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
                 %dot = vectorDot(%victim.getEyeVector(), %viewNormal);
 
                 // Handle panic sounds when victim sees killer
-                if((%dot > 0.45) && %victim.lastChaseCall < getSimTime() && $Pref::Server::Eventide::victimScreamsEnabled)
+                if((%dot > 0.45) && %victim.lastChaseCall < getSimTime() && $Pref::Server::Eventide::victimScreamsEnabled && (!isObject(%victim.playerClass) || %victim.playerClass.title !$= "Staller"))
                 {
                     %genderSound = (!%victim.client.chest) ? "male" : "female";
                     %genderSoundAmount = (!%victim.client.chest) ? 3 : 5;

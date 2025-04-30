@@ -391,96 +391,128 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 	}	
 }
 
-function EventidePlayer::EventideAppearance(%this,%obj,%client)
+function EventidePlayer::EventideAppearance(%this, %obj, %client)
 {
-	if (!isObject(%obj) || !isObject(%client)) return;
+	if(!isObject(%obj) || !isObject(%client))
+	{
+		return;
+	}
 
 	// Use the victim client if the player is a skinwalker and they killed someone
 	%tempclient = (%obj.isSkinwalker && isObject(%obj.victimreplicatedclient)) ? %obj.victimreplicatedclient : %client;
-	
-	%obj.hideNode("ALL");
-	%obj.unHideNode((%tempclient.chest 	? 	"femChest" : "chest"));	
-	%obj.unHideNode((%tempclient.rhand 	? 	"rhook" : "rhand"));
-	%obj.unHideNode((%tempclient.lhand 	? 	"lhook" : "lhand"));
-	%obj.unHideNode((%tempclient.rarm 	? 	"rarmSlim" : "rarm"));
-	%obj.unHideNode((%tempclient.larm 	? 	"larmSlim" : "larm"));
-	%obj.unHideNode("headskin");
+	%eventidePlayerClass = %tempclient.playerClass;
 
-	//Packs
-	if ($pack[%tempclient.pack] !$= "none")
+	if(isObject(%eventidePlayerClass))
 	{
-		%obj.unHideNode($pack[%tempclient.pack]);
-		%obj.setNodeColor($pack[%tempclient.pack],%tempclient.packColor);
-	}
-	if ($secondPack[%tempclient.secondPack] !$= "none")
-	{
-		%obj.unHideNode($secondPack[%tempclient.secondPack]);
-		%obj.setNodeColor($secondPack[%tempclient.secondPack],%tempclient.secondPackColor);
-	}
-
-	//Hats
-	%hat = $HatMod::save::wornHat[%tempclient.bl_id];
-	if(isFunction(isHat) && isHat(%hat))
-	{
-		%obj.mountHat(%hat);
-	}
-	else if (%tempclient.hat)
-	{	
-		%hatName = $hat[%tempclient.hat];
-		%tempclient.hatString = %hatName;
-		
-		// Only check if it's the first hat
-		if (%tempclient.hat == 1)
+		//Make the player's face match the class they were assigned.
+		%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
+		if(isObject(%selectedFacePack))
 		{
-			%newhat = (%tempclient.accent ? "helmet" : "hoodie1");
-			%obj.unHideNode(%newhat);
-			%obj.setNodeColor(%newhat,%tempclient.hatColor);
+			%client.customFacePack = %selectedFacePack;
+			%obj.createFaceConfig(%selectedFacePack);
 		}
-		else
+
+		//If the class demands to have all their nodes hidden, do so.
+		if(%eventidePlayerClass.clearNodes)
 		{
-			%obj.unHideNode(%hatName);
-			%obj.setNodeColor(%hatName,%tempclient.hatColor);
-		}			
+			%obj.hideNode("ALL");
+		}
+
+		//If the class has any custom nodes, apply them.
+		%customAppearance = %eventidePlayerClass.appearance;
+		for(%i = 0; %i < %customAppearance.getCount(); %i++)
+		{
+			%customNode = %customAppearance.getObject(%i);
+			%customNode.apply(%obj);
+		}
 	}
-	
-	//Legs
-	if (%tempclient.hip) %obj.unHideNode("skirt");
 	else
 	{
-		%obj.unHideNode("pants");
-		%obj.unHideNode((%tempclient.rleg ? "rpeg" : "rshoe"));
-		%obj.unHideNode((%tempclient.lleg ? "lpeg" : "lshoe"));
+		%obj.hideNode("ALL");
+		%obj.unHideNode((%tempclient.chest 	? 	"femChest" : "chest"));	
+		%obj.unHideNode((%tempclient.rhand 	? 	"rhook" : "rhand"));
+		%obj.unHideNode((%tempclient.lhand 	? 	"lhook" : "lhand"));
+		%obj.unHideNode((%tempclient.rarm 	? 	"rarmSlim" : "rarm"));
+		%obj.unHideNode((%tempclient.larm 	? 	"larmSlim" : "larm"));
+		%obj.unHideNode("headskin");
+
+		//Packs
+		if ($pack[%tempclient.pack] !$= "none")
+		{
+			%obj.unHideNode($pack[%tempclient.pack]);
+			%obj.setNodeColor($pack[%tempclient.pack],%tempclient.packColor);
+		}
+		if ($secondPack[%tempclient.secondPack] !$= "none")
+		{
+			%obj.unHideNode($secondPack[%tempclient.secondPack]);
+			%obj.setNodeColor($secondPack[%tempclient.secondPack],%tempclient.secondPackColor);
+		}
+
+		//Hats
+		%hat = $HatMod::save::wornHat[%tempclient.bl_id];
+		if(isFunction(isHat) && isHat(%hat))
+		{
+			%obj.mountHat(%hat);
+		}
+		else if (%tempclient.hat)
+		{	
+			%hatName = $hat[%tempclient.hat];
+			%tempclient.hatString = %hatName;
+			
+			// Only check if it's the first hat
+			if (%tempclient.hat == 1)
+			{
+				%newhat = (%tempclient.accent ? "helmet" : "hoodie1");
+				%obj.unHideNode(%newhat);
+				%obj.setNodeColor(%newhat,%tempclient.hatColor);
+			}
+			else
+			{
+				%obj.unHideNode(%hatName);
+				%obj.setNodeColor(%hatName,%tempclient.hatColor);
+			}			
+		}
+		
+		//Legs
+		if (%tempclient.hip) %obj.unHideNode("skirt");
+		else
+		{
+			%obj.unHideNode("pants");
+			%obj.unHideNode((%tempclient.rleg ? "rpeg" : "rshoe"));
+			%obj.unHideNode((%tempclient.lleg ? "lpeg" : "lshoe"));
+		}
+
+		%obj.setHeadUp((%tempclient.pack+%tempclient.secondPack));
+
+		%obj.setDecalName(%tempclient.decalName);
+
+		// Set node colors
+		%obj.setNodeColor("headskin",%tempclient.headColor);	
+		%obj.setNodeColor("chest",%tempclient.chestColor);
+		%obj.setNodeColor("femChest",%tempclient.chestColor);
+		%obj.setNodeColor("pants",%tempclient.hipColor);
+		%obj.setNodeColor("skirt",%tempclient.hipColor);	
+		%obj.setNodeColor("rarm",%tempclient.rarmColor);
+		%obj.setNodeColor("larm",%tempclient.larmColor);
+		%obj.setNodeColor("rarmSlim",%tempclient.rarmColor);
+		%obj.setNodeColor("larmSlim",%tempclient.larmColor);
+		%obj.setNodeColor("rhand",%tempclient.rhandColor);
+		%obj.setNodeColor("lhand",%tempclient.lhandColor);
+		%obj.setNodeColor("rhook",%tempclient.rhandColor);
+		%obj.setNodeColor("lhook",%tempclient.lhandColor);	
+		%obj.setNodeColor("rshoe",%tempclient.rlegColor);
+		%obj.setNodeColor("lshoe",%tempclient.llegColor);
+		%obj.setNodeColor("rpeg",%tempclient.rlegColor);
+		%obj.setNodeColor("lpeg",%tempclient.llegColor);
 	}
 
-	%obj.setHeadUp((%tempclient.pack+%tempclient.secondPack));
-
+	//Unhide appropriate blood nodes.
 	if (%obj.bloody["lshoe"]) %obj.unHideNode("lshoe_blood");
 	if (%obj.bloody["rshoe"]) %obj.unHideNode("rshoe_blood");
 	if (%obj.bloody["lhand"]) %obj.unHideNode("lhand_blood");
 	if (%obj.bloody["rhand"]) %obj.unHideNode("rhand_blood");
 	if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
 	if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
-	
-	%obj.setDecalName(%tempclient.decalName);
-
-	// Set node colors
-	%obj.setNodeColor("headskin",%tempclient.headColor);	
-	%obj.setNodeColor("chest",%tempclient.chestColor);
-	%obj.setNodeColor("femChest",%tempclient.chestColor);
-	%obj.setNodeColor("pants",%tempclient.hipColor);
-	%obj.setNodeColor("skirt",%tempclient.hipColor);	
-	%obj.setNodeColor("rarm",%tempclient.rarmColor);
-	%obj.setNodeColor("larm",%tempclient.larmColor);
-	%obj.setNodeColor("rarmSlim",%tempclient.rarmColor);
-	%obj.setNodeColor("larmSlim",%tempclient.larmColor);
-	%obj.setNodeColor("rhand",%tempclient.rhandColor);
-	%obj.setNodeColor("lhand",%tempclient.lhandColor);
-	%obj.setNodeColor("rhook",%tempclient.rhandColor);
-	%obj.setNodeColor("lhook",%tempclient.lhandColor);	
-	%obj.setNodeColor("rshoe",%tempclient.rlegColor);
-	%obj.setNodeColor("lshoe",%tempclient.llegColor);
-	%obj.setNodeColor("rpeg",%tempclient.rlegColor);
-	%obj.setNodeColor("lpeg",%tempclient.llegColor);
 
 	// Set blood colors
 	%obj.setNodeColor("lshoe_blood", "0.7 0 0 1");
@@ -595,9 +627,12 @@ function EventidePlayer::skinwalkerDamageCheck(%this,%obj,%damage)
 			createBloodSplatterExplosion(%position, %position, "1 1 1");			
 		}
 		
-		%genderSound = (!%obj.client.chest) ? "male" : "female";
-		%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
-		%sound = %genderSound @ "_pain" @ getRandom(1, %genderSoundAmount) @ "_sound";
+		if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+		{
+			%genderSound = (!%obj.client.chest) ? "male" : "female";
+			%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
+			%sound = %genderSound @ "_pain" @ getRandom(1, %genderSoundAmount) @ "_sound";
+		}
 
 		// The disguise is about to be broken, now that the player has been hurt
 		if (getRandom(1,10) == 1) 	
@@ -730,7 +765,11 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 
 		if (%obj.getState() !$= "Dead" && %obj.lastDamageCall < getSimTime())
 		{
-			%obj.playaudio(0,%sound);
+			if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+			{
+				%obj.playaudio(0,%sound);
+			}
+			
 			%obj.lastDamageCall = getSimTime() + getRandom(250,750);
 		}
 	}
@@ -780,7 +819,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 			%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
 		}
 
-		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime())
+		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime() && (!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller"))
 		{
 			%genderSound = (!%obj.client.chest) ? "male" : "female";
 			%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
@@ -818,6 +857,13 @@ function EventidePlayer::onRemove(%this, %obj)
 
 function EventidePlayerDowned::onDisabled(%this,%obj)
 {	
+	//Get rid of the player's class, if they have one.
+	%client = %obj.client;
+	if(isObject(%client))
+	{
+		%client.playerClass = "";
+	}
+
 	Parent::onDisabled(%this,%obj);
 
 	// Remove all mounted images and stop all animation threads
@@ -833,9 +879,12 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	// Remove the downed billboard
 	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 
-	%genderSound = (!%obj.client.chest) ? "male" : "female";
-	%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
-	%obj.playaudio(0,%genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound");	
+	if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+	{
+		%genderSound = (!%obj.client.chest) ? "male" : "female";
+		%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
+		%obj.playaudio(0,%genderSound @ "_death" @ getRandom(1, %genderSoundAmount) @ "_sound");	
+	}
 
 	// Let the killer know that a survivor has been killed
 	%killers = getCurrentKillers();
@@ -908,6 +957,13 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 
 function EventidePlayerDowned::onRemove(%this, %obj)
 {
+	//Get rid of the player's class, if they have one.
+	%client = %obj.client;
+	if(isObject(%client))
+	{
+		%client.playerClass = "";
+	}
+	
 	Parent::onRemove(%this, %obj);
 	
 	// Remove the downed billboard if it still exists

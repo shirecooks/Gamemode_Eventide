@@ -574,7 +574,7 @@ function parseSoundFromNumber(%val, %obj) // brick is an optional parameter
 //+++ Drop some rad peggstep noise in here!
 function PeggFootsteps(%obj, %lastVert)
 {
-	if(!isObject(%obj) || %obj.getState() $= "Dead" || !%obj.getdataBlock().enablePeggFootsteps) return;
+	if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.noFootsteps == true ||!%obj.getdataBlock().enablePeggFootsteps) return;
 
 	cancel(%obj.peggstep);
 	if(%obj.getdataBlock().getName() $= "EventidePlayer")
@@ -599,17 +599,20 @@ function PeggFootsteps(%obj, %lastVert)
 		            %obj.getDatablock().TunnelVision(%obj, true);
 		            %obj.isFalling = true;
 
-					%genderSound = (!%obj.client.chest) ? "male" : "female";
-					%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
-					%sound = %genderSound @ "_shock" @ getRandom(1, %genderSoundAmount) @ "_sound";
-
-					// %5 chance for a funny sound
-					if(%genderSound $= "male" && getRandom(1, 100) <= 5)
+					if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
 					{
-						%sound = "male_shockgw_sound";
-					}
+						%genderSound = (!%obj.client.chest) ? "male" : "female";
+						%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
+						%sound = %genderSound @ "_shock" @ getRandom(1, %genderSoundAmount) @ "_sound";
 
-					%obj.playaudio(0,%sound);
+						// %5 chance for a funny sound
+						if(%genderSound $= "male" && getRandom(1, 100) <= 5)
+						{
+							%sound = "male_shockgw_sound";
+						}
+
+						%obj.playaudio(0,%sound);
+					}
 		        }
 		    }
 		}

@@ -2,6 +2,9 @@
 // Resources that must go in this file.
 //
 
+//
+/// Class hats.
+
 datablock ShapeBaseImageData(menderMaskImage) 
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/SurgicalMask.dts";
@@ -13,6 +16,66 @@ datablock ShapeBaseImageData(menderMaskImage)
 	doColorShift = false;
 	emap = 0;
 };
+
+datablock ShapeBaseImageData(stallerHoodImage)
+{
+	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/grimhood.dts";
+	mountPoint = $headSlot;
+
+	eyeOffset = "0 0 -1000";
+	emap = 0;
+	
+	doColorShift = true;
+	colorShiftColor = "0.1 0.1 0.1 1";
+};
+
+//
+/// Class playertypes.
+
+function Player::StallerCallback(%obj)
+{
+	%obj.noFootsteps = true;
+}
+
+//
+/// Class packages/overrides.
+
+package Eventide_Staller
+{
+    function ServerCmdStartTalking(%client)
+	{
+		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+		{
+			return;
+		}
+		Parent::ServerCmdStartTalking(%client);
+	}
+
+    function serverCmdMessageSent(%client, %message)
+	{
+        if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+		{
+			%client.ChatMessage("<color:ffffff>...");
+			return;
+		}
+		Parent::serverCmdMessageSent(%client, %message);
+	}
+
+	function ServerCmdTeamMessageSent(%client, %message)
+	{
+		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+		{
+			%client.ChatMessage("<color:ffffff>...");
+			return;
+		}
+		Parent::ServerCmdTeamMessageSent(%client, %message);
+	}
+};
+if(isPackage("Eventide_Staller"))
+{
+	deactivatePackage("Eventide_Staller");
+}
+activatePackage("Eventide_Staller");
 
 //
 // Miscellaneous functions.
@@ -83,6 +146,16 @@ function EventideClassGroupTemplates::onAdd(%this)
 			canStack = false;
 			spawnMessage = "You acquired a monkey wrench and stungun. Use the wrench to repair generators faster!";
 		};
+
+		new ScriptObject()
+		{
+			class = "EventidePlayerClass";
+			title = "Staller";
+			canStack = false;
+			clearNodes = true;
+			callback = "StallerCallback";
+			spawnMessage = "You are deathly quiet and you can crouch to become invisible! Only lasts 10 seconds.";
+		};
 	};
 
 	//Can't store datablocks directly in a ScriptGroup. How inconvenient.
@@ -92,7 +165,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%menderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomNode";
-		targetNode = $HeadSlot;
+		targetSlot = $HeadSlot;
 		mountableObject = menderMaskImage;
 	});
 	%menderClass.items.add(new ScriptObject()
@@ -140,6 +213,61 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassItem";
 		itemData = MonkeyWrench.getID();
+	});
+
+	%stallerClass = %this.index["Classic"].getClass("Staller");
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomNode";
+		mountableObject = stallerHoodImage;
+		targetSlot = 3;
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "headSkin";
+		nodeColor = "0 0 0 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.1 0.1 0.1 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.1 0.1 0.1 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.1 0.1 0.1 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LHand";
+		nodeColor = "0.5 0.5 0.5 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RHand";
+		nodeColor = "0.5 0.5 0.5 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "skirt";
+		nodeColor = "0.1 0.1 0.1 1";
+	});
+	%stallerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "AAA-None";
 	});
 }
 
@@ -238,21 +366,75 @@ function EventidePlayerClass::onAdd(%this)
             class = "EventideClassAppearance";
         };
     }
+
+	if(%this.clearNodes $= "")
+    {
+		%this.clearNodes = false;
+    }
 }
 
 //
 /// Containers for class node modifications.
 
-function EventideClassCustomNode::onAdd(%this)
+function EventideClassNodeColor::onAdd(%this)
 {
 	if(%this.targetNode $= "")
 	{
-		%this.targetNode = $BackSlot;
+		%this.targetNode = "chest";
+	}
+
+	if(%this.nodeColor $= "")
+	{
+		%this.nodeColor = "0 0 0 1";
+	}
+
+	if(%this.nodeVisible $= "")
+	{
+		%this.nodeVisible = true;
+	}
+}
+function EventideClassNodeColor::apply(%this, %obj)
+{
+	if(!%this.nodeVisible)
+	{
+		%obj.hideNode(%this.targetNode);
+	}
+	else
+	{
+		%obj.setNodeColor(%this.targetNode, %this.nodeColor);
+		%obj.unhideNode(%this.targetNode);
+	}
+}
+
+function EventideClassCustomNode::onAdd(%this)
+{
+	if(%this.targetSlot $= "") 
+	{
+		%this.targetSlot = 2;
 	}
 
 	if(%this.mountableObject $= "") 
 	{
 		%this.mountableObject = 0;
+	}
+}
+function EventideClassCustomNode::apply(%this, %obj)
+{
+	%obj.mountImage(%this.mountableObject, %this.targetSlot);
+}
+
+function EventideClassCustomDecal::onAdd(%this)
+{
+	if(%this.decalName $= "")
+	{
+		%this.decalName = "AAA-None";
+	}
+}
+function EventideClassCustomDecal::apply(%this, %obj)
+{
+	if(%this.decalName !$= "")
+	{
+		%obj.setDecalName($this.decalName);
 	}
 }
 
@@ -275,7 +457,16 @@ function Player::assignClass(%player, %eventidePlayerClass)
         return;
     }
 
+	if(%eventidePlayerClass.customDatablock !$= "" && %eventidePlayerClass.customDatablock != %player.getDataBlock())
+	{
+		%player.setDatablock(%eventidePlayerClass.customDatablock);
+	}
+
 	%player.playerClass = %eventidePlayerClass;
+
+	//Apply the custom appearance of the class.
+	%client.playerClass = %eventidePlayerClass;
+	%player.getDataBlock().EventideAppearance(%player, %client);
 
     //Set the player's psuedohealth, if applicable.
     %player.psuedohealth = %eventidePlayerClass.psuedoHealth;
@@ -298,27 +489,14 @@ function Player::assignClass(%player, %eventidePlayerClass)
 		%player.hoarderToolCount = %maxItems;
     }
 
-    //Make the player's face match the class they were assigned.
-	%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
-	if(isObject(%selectedFacePack))
-	{
-		%client.customFacePack = %selectedFacePack;
-    	%player.createFaceConfig(%selectedFacePack);
-	}
-
-	//If the class has any custom nodes, apply them.
-	%customAppearance = %eventidePlayerClass.appearance;
-	for(%i = 0; %i < %customAppearance.getCount(); %i++)
-	{
-		%customNode = %customAppearance.getObject(%i);
-		if(isObject(%customNode.mountableObject))
-		{
-			%player.mountImage(%customNode.mountableObject, 2);
-		}
-	}
-
     //Inform the player what class they got selected for.
     %client.centerprint("<font:impact:40><color:FFFF00>Class: " @ %eventidePlayerClass.title @ "<br>" @ %eventidePlayerClass.spawnMessage, 4);
+
+	//Perform any custom actions the class may have.
+	if(%eventidePlayerClass.callback !$= "")
+	{
+		%player.call(%eventidePlayerClass.callback);
+	}
 }
 
 //
