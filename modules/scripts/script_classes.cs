@@ -32,9 +32,36 @@ datablock ShapeBaseImageData(stallerHoodImage)
 //
 /// Class playertypes.
 
-function Player::StallerCallback(%obj)
+function EventidePlayer::StallerCallback(%this, %obj)
 {
 	%obj.noFootsteps = true;
+	%obj.fadeTime = 250; //Measured in milliseconds.
+}
+
+function EventidePlayer::StallerFadeOut(%this, %obj, %alpha)
+{
+	if(%alpha == 1)
+	{
+		%obj.playaudio(1,"skullwolf_cloak_sound");
+
+	}
+	else if(%alpha <= 0)
+	{
+		if(isObject(%obj.light))
+		{
+			%obj.light.delete();
+			%obj.deleteFlashlightBeam();
+		}
+		%obj.setDataBlock(InvisibleStallerPlayer);
+	}
+}
+
+datablock PlayerData(InvisibleStallerPlayer : EventidePlayer)
+{
+	enablePeggFootsteps = false;
+	noFlashlight = true;
+	uiName = "";
+	rechargeRate = -0.1;
 }
 
 //
@@ -567,7 +594,7 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 		%classSelectionIndex = getRandom(0, mClamp(%unpickedClasses.getCount()-1, 0, %unpickedClasses.getCount()));
 		%class = %unpickedClasses.getObject(%classSelectionIndex); //Choose a class.
 
-		%player.assignClass(%class); //Give the player the class.
+		%player.getDataBlock().assignClass(%player, %class); //Give the player the class.
 		//TODO: Legacy class system support. Need to clean all that up eventually.
 		%player.survivorclass = strlwr(%class.title);
 

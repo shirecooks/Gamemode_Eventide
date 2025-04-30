@@ -398,13 +398,14 @@ package Eventide_Flashlight
 	function serverCmdLight(%client) 
 	{
 		%player = %client.player;
-
-		if(!isObject(%player) || %player.getState() $= "Dead" || %player.getDatablock().isKiller) 
+		%playerDatablock = %player.getDataBlock();
+		if(%playerDatablock.isKiller) 
 		{
-			if(!%player.getDatablock().isKiller)
-			{
-				parent::serverCmdLight(%client);
-			}
+			return;
+		}
+		else if(!isObject(%player) || %player.getState() $= "Dead" || %playerDatablock.noFlashlight)
+		{
+			parent::serverCmdLight(%client);
 			return;
 		}
 
