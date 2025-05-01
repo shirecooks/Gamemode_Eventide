@@ -44,13 +44,13 @@ function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 {
 	Parent::onTrigger(%this, %obj, %trig, %press);
 
-	if(isObject(%obj.playerClass) && %obj.playerClass.title $= "Staller")
+	if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
 	{
 		if(%trig == 3 && %press)
 		{
-			if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000)
+			if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000 && !%obj.getDataBlock().isDowned)
 			{
-				%obj.disappearsched = %this.StallerFadeOut(%obj, 1);
+				%this.StallerFadeOut(%obj, 1);
 			}
 		}
 		else if(%trig == 3 && !%press)

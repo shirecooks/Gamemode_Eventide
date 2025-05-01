@@ -40,7 +40,7 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
         if(%victimDistance < %searchDistance/2.5)
         {
 			// Play a thread to have them talk, but it makes it look like they're nervous when the killer is near
-            if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+            if(!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller")
             {
                %victim.playthread(2, "talk"); 
             }
@@ -196,7 +196,7 @@ function Armor::killerContainerRadiusSearch(%this, %obj)
     {
         // Skip invalid conditions
         %victimDatablock = %victim.getDataBlock();
-        if(!isObject(getMinigamefromObject(%victim)) || %victimDatablock.isKiller || %victimDatablock.isDowned || %victim.getState() $= "Dead") 
+        if(!isObject(getMinigamefromObject(%victim)) || %victimDatablock.isKiller || %victimDatablock.isDowned || %victim.getState() $= "Dead" || %victim.isInvisible) 
         {
             continue;
         }

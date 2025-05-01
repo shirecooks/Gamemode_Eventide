@@ -635,7 +635,7 @@ function EventidePlayer::skinwalkerDamageCheck(%this,%obj,%damage)
 			createBloodSplatterExplosion(%position, %position, "1 1 1");			
 		}
 		
-		if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+		if(!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller")
 		{
 			%genderSound = (!%obj.client.chest) ? "male" : "female";
 			%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
@@ -773,7 +773,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 
 		if (%obj.getState() !$= "Dead" && %obj.lastDamageCall < getSimTime())
 		{
-			if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+			if(!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller")
 			{
 				%obj.playaudio(0,%sound);
 			}
@@ -827,7 +827,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 			%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
 		}
 
-		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime() && (!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller"))
+		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime() && (!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller"))
 		{
 			%genderSound = (!%obj.client.chest) ? "male" : "female";
 			%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
@@ -887,7 +887,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	// Remove the downed billboard
 	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 
-	if(!isObject(%obj.playerClass) || %obj.playerClass.title !$= "Staller")
+	if(!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller")
 	{
 		%genderSound = (!%obj.client.chest) ? "male" : "female";
 		%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
