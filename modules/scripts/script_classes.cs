@@ -595,8 +595,8 @@ function EventideClassNodeColor::apply(%this, %obj)
 			%targetNode = %obj.client.chest ? "femchest" : "chest";
 		}
 
-		%obj.setNodeColor(%this.targetNode, %this.nodeColor);
-		%obj.unhideNode(%this.targetNode);
+		%obj.setNodeColor(%targetNode, %this.nodeColor);
+		%obj.unhideNode(%targetNode);
 	}
 }
 
@@ -663,10 +663,10 @@ function Player::assignClass(%player, %eventidePlayerClass)
 		%player.setDatablock(%eventidePlayerClass.customDatablock);
 	}
 
+	%client.playerClass = %eventidePlayerClass;
 	%player.playerClass = %eventidePlayerClass;
 
 	//Apply the custom appearance of the class.
-	%client.playerClass = %eventidePlayerClass;
 	%playerDatablock = %player.getDataBlock();
 	%playerDatablock.EventideAppearance(%player, %client);
 

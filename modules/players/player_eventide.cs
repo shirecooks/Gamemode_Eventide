@@ -402,7 +402,7 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 	%tempclient = (%obj.isSkinwalker && isObject(%obj.victimreplicatedclient)) ? %obj.victimreplicatedclient : %client;
 	%eventidePlayerClass = %tempclient.playerClass;
 
-	if(isObject(%eventidePlayerClass))
+	if(%eventidePlayerClass !$= "")
 	{
 		//Make the player's face match the class they were assigned.
 		%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
@@ -416,7 +416,7 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 			if(isObject(%obj.faceConfig))
 			{
 				%obj.faceConfig.delete();
-				%obj.setFaceName("smiley");
+				%obj.setFaceName("smiley"); //TODO. Need to handle this better.
 			}
 		}
 
