@@ -37,6 +37,7 @@ datablock ShapeBaseImageData(stallerHoodImage)
 function EventidePlayer::StallerCallback(%this, %obj)
 {
 	%obj.noFootsteps = true;
+	%obj.lastFadeTime = 0;
 }
 
 function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
