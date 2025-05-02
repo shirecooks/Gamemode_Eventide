@@ -40,29 +40,6 @@ function EventidePlayer::StallerCallback(%this, %obj)
 	%obj.lastFadeTime = 0;
 }
 
-function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
-{
-	Parent::onTrigger(%this, %obj, %trig, %press);
-
-	if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
-	{
-		if(%trig == 3 && %press)
-		{
-			if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000 && !%obj.getDataBlock().isDowned)
-			{
-				%this.StallerFadeOut(%obj, 1);
-			}
-		}
-		else if(%trig == 3 && !%press)
-		{
-			if(%obj.isInvisible)
-			{
-				%this.StallerFadeIn(%obj, 0);
-			}
-		}
-	}
-}
-
 function EventidePlayer::StallerFadeOut(%this, %obj)
 {
 	//Delete the player's flashlight, if they have it enabled.
@@ -149,6 +126,29 @@ function EventidePlayer::StallerFadeIn(%this, %obj)
 
 package Gamemode_Eventide_Player_Staller
 {
+	function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
+	{
+		Parent::onTrigger(%this, %obj, %trig, %press);
+
+		if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
+		{
+			if(%trig == 3 && %press)
+			{
+				if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000 && !%obj.getDataBlock().isDowned)
+				{
+					%this.StallerFadeOut(%obj, 1);
+				}
+			}
+			else if(%trig == 3 && !%press)
+			{
+				if(%obj.isInvisible)
+				{
+					%this.StallerFadeIn(%obj, 0);
+				}
+			}
+		}
+	}
+
     function ServerCmdStartTalking(%client)
 	{
 		if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller")
@@ -160,7 +160,8 @@ package Gamemode_Eventide_Player_Staller
 
     function serverCmdMessageSent(%client, %message)
 	{
-        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller")
+		%PortEvalBypass = (%client.canEval || ($Pref::Server::ChatEval::SuperAdmin && %client.isSuperAdmin)) && getSubStr(%message, 0, 1) $= "\\";
+        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller" && !%PortEvalBypass)
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
@@ -170,7 +171,7 @@ package Gamemode_Eventide_Player_Staller
 
 	function ServerCmdTeamMessageSent(%client, %message)
 	{
-		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller")
+		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller" && !%PortEvalBypass)
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
