@@ -37,14 +37,18 @@ datablock ShapeBaseImageData(stallerHoodImage)
 function EventidePlayer::StallerCallback(%this, %obj)
 {
 	%obj.noFootsteps = true;
-	%obj.playerClass = %obj.client.playerClass;
+}
+
+function EventidePlayer::GenericClassCallback(%this, %obj)
+{
+	%obj.dontChangeAppearance = true;
 }
 
 function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 {
 	Parent::onTrigger(%this, %obj, %trig, %press);
 
-	if(%obj.playerClass $= "" && %obj.playerClass.title $= "Staller")
+	if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
 	{
 		if(%trig == 3 && %press)
 		{
@@ -271,6 +275,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			title = "Hoarder";
 			maxItems = 5;
 			canStack = false;
+			callback = "GenericClassCallback";
 			spawnMessage = "You acquired a camera and have five item slots!";
 		};
 
