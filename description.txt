@@ -1,0 +1,6 @@
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Fighter"));
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Hoarder"));
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Mender"));
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Runner"));
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
+findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Tinkerer"));
