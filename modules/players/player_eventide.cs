@@ -48,6 +48,7 @@ datablock PlayerData(EventidePlayer : PlayerStandardArmor)
 
 datablock PlayerData(EventidePlayerDowned : EventidePlayer)
 {	
+	shapeFile = EventideplayerDts.baseShape;
 	maxForwardSpeed = 0;
    	maxBackwardSpeed = 0;
    	maxSideSpeed = 0;
@@ -395,6 +396,7 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 {
 	if(!isObject(%obj) || !isObject(%client) || %obj.dontChangeAppearance)
 	{
+		talk("Changing nothing...");
 		return;
 	}
 
@@ -402,37 +404,10 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 	%tempclient = (%obj.isSkinwalker && isObject(%obj.victimreplicatedclient)) ? %obj.victimreplicatedclient : %client;
 	%eventidePlayerClass = %tempclient.playerClass;
 
-	if(%eventidePlayerClass !$= "")
+	//If the class demands to have all their nodes hidden, do so.
+	if(%eventidePlayerClass !$= "" && %eventidePlayerClass.clearNodes)
 	{
-		//Make the player's face match the class they were assigned.
-		%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
-		if(isObject(%selectedFacePack))
-		{
-			%client.customFacePack = %selectedFacePack;
-			%obj.createFaceConfig(%selectedFacePack);
-		}
-		else if(%selectedFacePack == 0)
-		{
-			if(isObject(%obj.faceConfig))
-			{
-				%obj.faceConfig.delete();
-				%obj.setFaceName("smiley"); //TODO. Need to handle this better.
-			}
-		}
-
-		//If the class demands to have all their nodes hidden, do so.
-		if(%eventidePlayerClass.clearNodes)
-		{
-			%obj.hideNode("ALL");
-		}
-
-		//If the class has any custom nodes, apply them.
-		%customAppearance = %eventidePlayerClass.appearance;
-		for(%i = 0; %i < %customAppearance.getCount(); %i++)
-		{
-			%customNode = %customAppearance.getObject(%i);
-			%customNode.apply(%obj);
-		}
+		%obj.hideNode("ALL");
 	}
 	else
 	{
@@ -512,30 +487,56 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 		%obj.setNodeColor("lshoe",%tempclient.llegColor);
 		%obj.setNodeColor("rpeg",%tempclient.rlegColor);
 		%obj.setNodeColor("lpeg",%tempclient.llegColor);
+
+		if (%obj.bloody["lshoe"]) %obj.unHideNode("lshoe_blood");
+		if (%obj.bloody["rshoe"]) %obj.unHideNode("rshoe_blood");
+		if (%obj.bloody["lhand"]) %obj.unHideNode("lhand_blood");
+		if (%obj.bloody["rhand"]) %obj.unHideNode("rhand_blood");
+		if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
+		if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
+
+		// Set blood colors
+		%obj.setNodeColor("lshoe_blood", "0.7 0 0 1");
+		%obj.setNodeColor("rshoe_blood", "0.7 0 0 1");
+		%obj.setNodeColor("lhand_blood", "0.7 0 0 1");
+		%obj.setNodeColor("rhand_blood", "0.7 0 0 1");
+		%obj.setNodeColor("chest_blood_front", "0.7 0 0 1");
+		%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
+		%obj.setNodeColor("femchest_blood_front", "0.7 0 0 1");
+		%obj.setNodeColor("femchest_blood_back", "0.7 0 0 1");
 	}
 
-	//Unhide appropriate blood nodes.
-	if (%obj.bloody["lshoe"]) %obj.unHideNode("lshoe_blood");
-	if (%obj.bloody["rshoe"]) %obj.unHideNode("rshoe_blood");
-	if (%obj.bloody["lhand"]) %obj.unHideNode("lhand_blood");
-	if (%obj.bloody["rhand"]) %obj.unHideNode("rhand_blood");
-	if (%obj.bloody["chest_front"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_front");
-	if (%obj.bloody["chest_back"]) %obj.unHideNode((%tempclient.chest ? "fem" : "") @ "chest_blood_back");
+	if(%eventidePlayerClass !$= "")
+	{
+		//Make the player's face match the class they were assigned.
+		%selectedFacePack = %client.chest ? %eventidePlayerClass.appearance.facePack["female"] : %eventidePlayerClass.appearance.facePack["male"];
+		if(isObject(%selectedFacePack))
+		{
+			%client.customFacePack = %selectedFacePack;
+			%obj.createFaceConfig(%selectedFacePack);
+		}
+		else if(%selectedFacePack == 0)
+		{
+			if(isObject(%obj.faceConfig))
+			{
+				%obj.faceConfig.delete();
+				%obj.setFaceName("smiley"); //TODO. Need to handle this better.
+			}
+		}
 
-	// Set blood colors
-	%obj.setNodeColor("lshoe_blood", "0.7 0 0 1");
-	%obj.setNodeColor("rshoe_blood", "0.7 0 0 1");
-	%obj.setNodeColor("lhand_blood", "0.7 0 0 1");
-	%obj.setNodeColor("rhand_blood", "0.7 0 0 1");
-	%obj.setNodeColor("chest_blood_front", "0.7 0 0 1");
-	%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
-	%obj.setNodeColor("femchest_blood_front", "0.7 0 0 1");
-	%obj.setNodeColor("femchest_blood_back", "0.7 0 0 1");
+		//If the class has any custom nodes, apply them.
+		%customAppearance = %eventidePlayerClass.appearance;
+		for(%i = 0; %i < %customAppearance.getCount(); %i++)
+		{
+			%customNode = %customAppearance.getObject(%i);
+			%customNode.apply(%obj);
+		}
+	}
 }
 
-function EventidePlayerDowned::EventideAppearance(%this,%obj,%funcclient)
+function EventidePlayerDowned::EventideAppearance(%this, %obj, %client)
 {
-	EventidePlayer::EventideAppearance(%this,%obj,%funcclient);
+	EventidePlayer::EventideAppearance(%this, %obj, %client);
 }
 
 function EventidePlayer::tunnelVision(%this,%obj,%bool)

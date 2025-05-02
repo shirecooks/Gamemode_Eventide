@@ -39,11 +39,6 @@ function EventidePlayer::StallerCallback(%this, %obj)
 	%obj.noFootsteps = true;
 }
 
-function EventidePlayer::GenericClassCallback(%this, %obj)
-{
-	%obj.dontChangeAppearance = true;
-}
-
 function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 {
 	Parent::onTrigger(%this, %obj, %trig, %press);
@@ -275,7 +270,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 			title = "Hoarder";
 			maxItems = 5;
 			canStack = false;
-			callback = "GenericClassCallback";
 			spawnMessage = "You acquired a camera and have five item slots!";
 		};
 
