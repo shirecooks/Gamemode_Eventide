@@ -21,9 +21,18 @@ package Eventide_Minigame
 		for(%i = 0; %i < %minigame.numMembers; %i++)
 		{
 			// Delete the music
-			if(isObject(%client = %minigame.member[%i]) && isObject(%client.EventideMusicEmitter))
+			%client = %minigame.member[%i];
+			if(isObject(%client))
 			{
-				%client.EventideMusicEmitter.delete();
+				if(isObject(%client.EventideMusicEmitter))
+				{
+					%client.EventideMusicEmitter.delete();
+				}
+				if(isObject(%client.EventideAmbianceEmitter))
+				{
+					%client.EventideAmbianceEmitter.delete();
+					$Eventide_currentAltAmbiance = "";
+				}
 			}
 		}
 
@@ -62,7 +71,7 @@ package Eventide_Minigame
 		//Need to clear this before everyone spawns when the parent is called.
 		clearCurrentKillers();
 		$Eventide_currentAltAmbiance = "musicData_altAmbiance" @ getRandom(1, 6);
-		
+
 		Parent::Reset(%minigame, %client);
 
 		if (isObject(Eventide_MinigameGroup)) Eventide_MinigameGroup.delete();
