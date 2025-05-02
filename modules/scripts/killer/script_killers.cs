@@ -229,7 +229,56 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 	{
 		return;
 	}
-    
+
+	//If enabled, play some dark ambient tracks instead of the pop music that is normally played.
+	if($Pref::Server::Eventide::alternativeAmbiance && !%ischasing && !%override)
+	{
+		//Set the client up for a new ambient track by deleting the current emitter.
+		if(%client.EventideAmbianceEmitter !$= "" && %client.EventideAmbianceEmitter.profile != $Eventide_currentAltAmbiance)
+		{
+			%client.EventideAmbianceEmitter.delete();
+		}
+
+		//Delete the AudioEmitter used for chase music, we don't need it now.
+		if(isObject(%client.EventideMusicEmitter))
+		{
+			%client.EventideMusicEmitter.delete();
+		}
+
+		//Finally, either make a new AudioEmitter or unmute the old one.
+		if(!isObject(%client.EventideAmbianceEmitter))
+		{
+			%client.EventideAmbianceEmitter = new AudioEmitter()
+			{
+				position = "9e9 9e9 9e9";
+				profile = $Eventide_currentAltAmbiance;
+				volume = 0.4;
+				type = 10;
+				useProfileDescription = false;
+				is3D = false;
+			};
+			
+			MissionCleanup.add(%client.EventideAmbianceEmitter);
+			adjustObjectScopeToAll(%client.EventideAmbianceEmitter, false, %client);
+			return;
+		}
+		else
+		{
+			//"Resume" the ambient AudioEmitter by giving it volume.
+			%client.EventideAmbianceEmitter.volume = 0.4;
+			return;
+		}
+	}
+	else if($Pref::Server::Eventide::alternativeAmbiance && %ischasing && !%override)
+	{
+		//Mute the ambient audio emitter, but let it keep playing.
+		//Ideally, we would be able to pause an AudioEmitter, but this is the next best thing.
+		if(%client.EventideAmbianceEmitter !$= "")
+		{
+			%client.EventideAmbianceEmitter.volume = 0.0;
+		}
+	}
+
 	if(isObject(%currentMusicEmitter = %client.EventideMusicEmitter)) 
 	{
 		if(%currentMusicEmitter.profile $= %songname)
@@ -242,15 +291,15 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 		}
 	}
 
-    %client.EventideMusicEmitter = new AudioEmitter()
-    {
-        position = "9e9 9e9 9e9";
-        profile = %songname;
-        volume = 1;
-        type = 10;
-        useProfileDescription = false;
-        is3D = false;
-    };
+	%client.EventideMusicEmitter = new AudioEmitter()
+	{
+		position = "9e9 9e9 9e9";
+		profile = %songname;
+		volume = 1;
+		type = 10;
+		useProfileDescription = false;
+		is3D = false;
+	};
 
     MissionCleanup.add(%client.EventideMusicEmitter);
 	adjustObjectScopeToAll(%client.EventideMusicEmitter, false, %client);
@@ -262,6 +311,12 @@ function GameConnection::playAmbiance(%client)
 	{
 		return;
 	}
+
+	if($Pref::Server::Eventide::alternativeAmbiance && $Eventide_currentAltAmbiance $= "")
+	{
+		$Eventide_currentAltAmbiance = "musicData_altAmbiance" @ getRandom(1, 6);
+	}
+
 	%ambientMusicDatablock = "musicData_ambiance" @ getRandom(1, 6);
 	%client.SetChaseMusic(%ambientMusicDatablock, false, false);
 }
