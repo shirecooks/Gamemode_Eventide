@@ -44,7 +44,7 @@ function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 {
 	Parent::onTrigger(%this, %obj, %trig, %press);
 
-	if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
+	if(%obj.playerClass $= "" && %obj.playerClass.title $= "Staller")
 	{
 		if(%trig == 3 && %press)
 		{
@@ -335,6 +335,47 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = DCamera.getID();
 	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "pants";
+		nodeColor = "0.9 0.9 0.9 1";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LShoe";
+		nodeColor = "0.3921568691730499 0.196078434586525 0.0 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RShoe";
+		nodeColor = "0.3921568691730499 0.196078434586525 0.0 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "hawaiianshirt";
+	});
 
 	%fighterClass = %this.index["Classic"].getClass("Fighter");
 	%fighterClass.appearance.facePack["female"] = $Eventide_FacePacks["fighterF"];
@@ -547,6 +588,13 @@ function EventideClassNodeColor::apply(%this, %obj)
 	}
 	else
 	{
+		//Custom check to support multi-gendered chests.
+		%targetNode = %this.targetNode;
+		if(isObject(%obj.client) && (%this.targetNode $= "chest" || %this.targetNode $= "femchest"))
+		{
+			%targetNode = %obj.client.chest ? "femchest" : "chest";
+		}
+
 		%obj.setNodeColor(%this.targetNode, %this.nodeColor);
 		%obj.unhideNode(%this.targetNode);
 	}
@@ -566,6 +614,13 @@ function EventideClassCustomNode::onAdd(%this)
 }
 function EventideClassCustomNode::apply(%this, %obj)
 {
+	//Get rid of the Hatmod hat, if necessary.
+	%hatModHat = %obj.getMountedImage(2);
+	if(isObject(%hatModHat) && %hatModHat.mountPoint == %this.mountableObject.mountPoint)
+	{
+		%obj.unmountImage(2);
+	}
+
 	%obj.mountImage(%this.mountableObject, %this.targetSlot);
 }
 
@@ -580,7 +635,7 @@ function EventideClassCustomDecal::apply(%this, %obj)
 {
 	if(%this.decalName !$= "")
 	{
-		%obj.setDecalName($this.decalName);
+		%obj.setDecalName(%this.decalName);
 	}
 }
 

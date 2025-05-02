@@ -599,7 +599,7 @@ function PeggFootsteps(%obj, %lastVert)
 		            %obj.getDatablock().TunnelVision(%obj, true);
 		            %obj.isFalling = true;
 
-					if(!%obj.playerClass !$= "" || %obj.playerClass.title !$= "Staller")
+					if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
 					{
 						%genderSound = (!%obj.client.chest) ? "male" : "female";
 						%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
