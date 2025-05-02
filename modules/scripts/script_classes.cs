@@ -758,7 +758,7 @@ function MiniGameSO::assignSurvivorClasses(%minigame)
 		%class = %unpickedClasses.getObject(%classSelectionIndex); //Choose a class.
 
 		talk("Survivor datablock:" SPC %player.getDataBlock().getName());
-		%player.getDataBlock().assignClass(%player, %class); //Give the player the class.
+		%player.assignClass(%class); //Give the player the class.
 		//TODO: Legacy class system support. Need to clean all that up eventually.
 		%player.survivorclass = strlwr(%class.title);
 
