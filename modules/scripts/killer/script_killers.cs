@@ -230,7 +230,7 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 		return;
 	}
 
-	%volume = 0.6;
+	%volume = 1.0;
 
 	//If enabled, play some dark ambient tracks instead of the pop music that is normally played.
 	%isAltAmbianceTrack = getSubStr(%songname, 0, strlen(%songname)-1) $= "musicData_altAmbiance";

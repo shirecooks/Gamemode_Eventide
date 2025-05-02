@@ -396,7 +396,6 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 {
 	if(!isObject(%obj) || !isObject(%client) || %obj.dontChangeAppearance)
 	{
-		talk("Changing nothing...");
 		return;
 	}
 
