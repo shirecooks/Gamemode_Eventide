@@ -85,6 +85,11 @@ package Eventide_Player
 	function GameConnection::applyBodyColors(%client) 
 	{
 		%player = %client.player;
+		if(!isObject(%player))
+		{
+			return;
+		}
+
 		%playerDatablock = %player.getDataBlock();
 		if(isObject(%player) && %playerDatablock.isEventideModel)
 		{
@@ -98,11 +103,16 @@ package Eventide_Player
 	}
 	function GameConnection::applyBodyParts(%client) 
 	{
-		// Call the EventideAppearance function if the player is an Eventide player
 		%player = %client.player;
+		if(!isObject(%player))
+		{
+			return;
+		}
+
 		%playerDatablock = %player.getDataBlock();
 		if(isObject(%player) && %playerDatablock.isEventideModel)
 		{
+			// Call the EventideAppearance function if the player is an Eventide player
 			%playerDatablock.EventideAppearance(%player, %client);
 		}
 		else
