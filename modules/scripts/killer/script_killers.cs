@@ -267,7 +267,7 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 		else
 		{
 			//"Resume" the ambient AudioEmitter by giving it reghosting it.
-			adjustObjectScopeOnClient(%client.EventideAmbianceEmitter, %client, true);
+			//adjustObjectScopeOnClient(%client.EventideAmbianceEmitter, %client, true);
 		}
 
 		return;
@@ -282,7 +282,7 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 	//Ideally, we would be able to pause an AudioEmitter, but this is the next best thing.
 	if(isObject(%client.EventideAmbianceEmitter))
 	{
-		adjustObjectScopeOnClient(%client.EventideAmbianceEmitter, %client, false);
+		%client.EventideAmbianceEmitter.delete();
 	}
 
 	//We aren't playing an ambient track, use the other emitter.
