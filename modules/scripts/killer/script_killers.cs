@@ -236,7 +236,6 @@ function GameConnection::SetChaseMusic(%client, %songname, %ischasing, %override
 	%isAltAmbianceTrack = getSubStr(%songname, 0, strlen(%songname)-1) $= "musicData_altAmbiance";
 	if(%isAltAmbianceTrack)
 	{
-		talk("Playing ambient track...");
 		//Delete the AudioEmitter used for chase music, we don't need it now.
 		if(isObject(%client.EventideMusicEmitter))
 		{
