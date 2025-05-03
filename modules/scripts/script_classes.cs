@@ -54,7 +54,7 @@ function EventidePlayer::StallerFadeOut(%this, %obj)
 
 	//Turn the player invisible by hiding all their nodes. Including the custom hat.
 	%obj.hideNode("ALL");
-	%obj.unmountImage(3);
+	%obj.unmountImage(2);
 
 	//Set some internal flags so the hidden nodes do not get revealed. Also ensure the killer loop cannot see the invisible person.
 	%obj.dontChangeAppearance = true;
@@ -117,7 +117,6 @@ function EventidePlayer::StallerFadeIn(%this, %obj)
 	%obj.flashlightDisabled = false;
 
 	//Restore the Staller appearance.
-	%obj.mountImage(stallerHoodImage, 3);
 	%this.EventideAppearance(%obj, %obj.client);	
 }
 
@@ -310,7 +309,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%menderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomNode";
-		targetSlot = $HeadSlot;
+		targetSlot = 2;
 		mountableObject = menderMaskImage;
 	});
 	%menderClass.items.add(new ScriptObject()
@@ -341,18 +340,21 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassNodeColor";
 		targetNode = "chest";
 		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+		indiscriminate = true;
 	});
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "LArm";
 		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+		indiscriminate = true;
 	});
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "RArm";
 		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
+		indiscriminate = true;
 	});
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
@@ -371,6 +373,30 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassNodeColor";
 		targetNode = "RShoe";
 		nodeColor = "0.3921568691730499 0.196078434586525 0.0 1.0";
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "lpeg";
+		nodeVisible = false;
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "rpeg";
+		nodeVisible = false;
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "lhook";
+		nodeVisible = false;
+	});
+	%hoarderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "rhook";
+		nodeVisible = false;
 	});
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
@@ -408,7 +434,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassCustomNode";
 		mountableObject = stallerHoodImage;
-		targetSlot = 3;
+		targetSlot = 2;
 	});
 	%stallerClass.appearance.add(new ScriptObject()
 	{
@@ -580,6 +606,11 @@ function EventideClassNodeColor::onAdd(%this)
 	{
 		%this.nodeVisible = true;
 	}
+
+	if(%this.indiscriminate $= "")
+	{
+		%this.indiscriminate = false;
+	}
 }
 function EventideClassNodeColor::apply(%this, %obj)
 {
@@ -591,11 +622,21 @@ function EventideClassNodeColor::apply(%this, %obj)
 	{
 		//Custom check to support multi-gendered chests.
 		%targetNode = %this.targetNode;
-		if(isObject(%obj.client) && (%this.targetNode $= "chest" || %this.targetNode $= "femchest"))
+		if(isObject(%obj.client) && %this.indiscriminate)
 		{
-			%targetNode = %obj.client.chest ? "femchest" : "chest";
+			if(%this.targetNode $= "chest" || %this.targetNode $= "femchest")
+			{
+				%targetNode = %obj.client.chest ? "femchest" : "chest";
+			}
+			else if(%this.targetNode $= "Larm" || %this.targetNode $= "LarmSlim")
+			{
+				%targetNode = %obj.client.larm ? "LarmSlim" : "Larm";
+			}
+			else if(%this.targetNode $= "Rarm" || %this.targetNode $= "RarmSlim")
+			{
+				%targetNode = %obj.client.rarm ? "RarmSlim" : "Rarm";
+			}
 		}
-
 		%obj.setNodeColor(%targetNode, %this.nodeColor);
 		%obj.unhideNode(%targetNode);
 	}
@@ -617,7 +658,7 @@ function EventideClassCustomNode::apply(%this, %obj)
 {
 	//Get rid of the Hatmod hat, if necessary.
 	%hatModHat = %obj.getMountedImage(2);
-	if(isObject(%hatModHat) && %hatModHat.mountPoint == %this.mountableObject.mountPoint)
+	if(isObject(%hatModHat))
 	{
 		%obj.unmountImage(2);
 	}

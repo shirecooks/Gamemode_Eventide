@@ -407,10 +407,21 @@ function EventidePlayer::EventideAppearance(%this, %obj, %client)
 	if(%eventidePlayerClass !$= "" && %eventidePlayerClass.clearNodes)
 	{
 		%obj.hideNode("ALL");
+		%hatModHat = %obj.getMountedImage(2);
+		if(isObject(%hatModHat))
+		{
+			%obj.unmountImage(2);
+		}
 	}
 	else
 	{
 		%obj.hideNode("ALL");
+		%hatModHat = %obj.getMountedImage(2);
+		if(isObject(%hatModHat))
+		{
+			%obj.unmountImage(2);
+		}
+		
 		%obj.unHideNode((%tempclient.chest 	? 	"femChest" : "chest"));	
 		%obj.unHideNode((%tempclient.rhand 	? 	"rhook" : "rhand"));
 		%obj.unHideNode((%tempclient.lhand 	? 	"lhook" : "lhand"));
