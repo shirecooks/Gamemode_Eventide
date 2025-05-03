@@ -343,12 +343,12 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "pants";
-		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
+		nodeColor = "0.595294147723 0.767843157048 0.608235323421 1.0";
 	});
 	%menderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
-		decalName = "civilian";
+		decalName = "AAA-None";
 	});
 
 
@@ -447,6 +447,38 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassItem";
 		itemData = sm_poolCueItem.getID();
+	});
+	%fighterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.2 0.2 0.2 1.0";
+		indiscriminate = true;
+	});
+	%fighterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.2 0.2 0.2 1.0";
+		indiscriminate = true;
+	});
+	%fighterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.2 0.2 0.2 1.0";
+		indiscriminate = true;
+	});
+	%fighterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassDefaultHat";
+		targetHat = "knitHat";
+		nodeColor = "0.15 0.15 0.15 1.0";
+	});
+	%fighterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "francis";
 	});
 
 
@@ -746,6 +778,71 @@ function EventideClassCustomNode::apply(%this, %obj)
 	}
 
 	%obj.mountImage(%this.mountableObject, %this.targetSlot);
+}
+
+function EventideClassDefaultHat::onAdd(%this)
+{
+	if(%this.targetHat $= "")
+	{
+		%this.targetHat = "knitHat";
+	}
+
+	if(%this.hatColor $= "")
+	{
+		%this.hatColor = "0 0 0 1";
+	}
+
+	if(%this.indiscriminate $= "")
+	{
+		%this.indiscriminate = false;
+	}
+}
+function EventideClassDefaultHat::apply(%this, %obj)
+{
+	%equippedHat = "none";
+	%indiscriminate = %this.indiscriminate;
+	%client = %obj.client;
+	
+	//Get rid of the HatMod hat, if it is equipped.
+	%hatModHat = %obj.getMountedImage(2);
+	if(isObject(%hatModHat))
+	{
+		%obj.unmountImage(2);
+	}
+
+	//Reveal the correct hat and hide the unnecessary ones.
+	%headNodes = "helmet pointyHelmet flareHelmet scoutHelmet bicorn copHat knitHat";
+	for(%i = 0; %i < getWordCount(%headNodes); %i++)
+	{
+		%potentialHat = getWord(%headNodes, %i);
+		if((%indiscriminate && $hat[%client] $= %potentialHat) || (!%this.indiscriminate && %potentialHat $= %this.targetHat))
+		{
+			%equippedHat = %potentialHat;
+			%obj.unhideNode(%potentialHat);
+			%obj.setNodeColor(%potentialHat, %this.hatColor);
+		}
+		else
+		{
+			%obj.hideNode(%potentialHat);
+		}
+	}
+
+	//Save this for later.
+	//%accentNodes = $accentsAllowed[%equippedHat];
+	//for(%i = 0; %i < getWordCount(%accentNodes); %i++){}
+
+	if(%equippedHat !$= "helmet")
+	{
+		%obj.hideNode("visor");
+	}
+	if(%indiscriminate)
+	{
+		if(isObject(%client) && $hat[%client] $= "helmet" && %client.accent == 1)
+		{
+			%obj.unhideNode("visor");
+			%obj.setNodeColor("visor", %client.accentColor);
+		}
+	}
 }
 
 function EventideClassCustomDecal::onAdd(%this)
