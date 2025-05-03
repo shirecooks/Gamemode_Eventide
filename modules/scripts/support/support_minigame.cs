@@ -70,7 +70,7 @@ package Eventide_Minigame
 	{
 		//Need to clear this before everyone spawns when the parent is called.
 		clearCurrentKillers();
-		$Eventide_currentAltAmbiance = "musicData_altAmbiance" @ getRandom(1, 6);
+		$Eventide_currentAltAmbiance = "";
 
 		Parent::Reset(%minigame, %client);
 
