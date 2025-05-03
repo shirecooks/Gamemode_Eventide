@@ -360,6 +360,35 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = SodaItem.getID();
 	});
+	%runnerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
+	});
+	%runnerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
+	});
+	%runnerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
+	});
+	%runnerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "pants";
+		nodeColor = "0.419607843137 0.41568627451 0.396078431372549 1.0";
+	});
+	%runnerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "scout";
+	});
 
 
 	%hoarderClass = %this.index["Classic"].getClass("Hoarder");
@@ -436,7 +465,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
-		decalName = "AAA-None";
+		decalName = "hawaiianshirt";
 	});
 
 
@@ -473,7 +502,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassDefaultHat";
 		targetHat = "knitHat";
-		nodeColor = "0.15 0.15 0.15 1.0";
+		hatColor = "0.125 0.125 0.125 1.0";
 	});
 	%fighterClass.appearance.add(new ScriptObject()
 	{
