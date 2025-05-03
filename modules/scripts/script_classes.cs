@@ -426,6 +426,52 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = MonkeyWrench.getID();
 	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.9 0.9 0.9 1.0";
+		indiscriminate = true;
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.9 0.9 0.9 1.0";
+		indiscriminate = true;
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.9 0.9 0.9 1.0";
+		indiscriminate = true;
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "pants";
+		nodeColor = "0.2 0.2 0.2 1.0";
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LShoe";
+		nodeColor = "0.0784314 0.0784314 0.0784314 1.0";
+		indiscriminate = true;
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RShoe";
+		nodeColor = "0.0784314 0.0784314 0.0784314 1.0";
+		indiscriminate = true;
+	});
+	%tinkererClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "civilian";
+	});
 
 	%stallerClass = %this.index["Classic"].getClass("Staller");
 	%stallerClass.appearance.facePack["female"] = 0;
@@ -635,6 +681,18 @@ function EventideClassNodeColor::apply(%this, %obj)
 			else if(%this.targetNode $= "Rarm" || %this.targetNode $= "RarmSlim")
 			{
 				%targetNode = %obj.client.rarm ? "RarmSlim" : "Rarm";
+			}
+			else if(%this.targetNode $= "pants" || %this.targetNode $= "skirt")
+			{
+				%targetNode = %obj.client.hip ? "skirt" : "pants";
+			}
+			else if(%this.targetNode $= "lshoe" || %this.targetNode $= "lpeg")
+			{
+				%targetNode = %obj.client.lleg ? "lpeg" : "lshoe";
+			}
+			else if(%this.targetNode $= "rshoe" || %this.targetNode $= "rpeg")
+			{
+				%targetNode = %obj.client.rleg ? "rpeg" : "rshoe";
 			}
 		}
 		%obj.setNodeColor(%targetNode, %this.nodeColor);
