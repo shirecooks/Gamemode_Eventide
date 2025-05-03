@@ -302,6 +302,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 		};
 	};
 
+
 	//Can't store datablocks directly in a ScriptGroup. How inconvenient.
 	%menderClass = %this.index["Classic"].getClass("Mender");
 	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["menderF"];
@@ -317,6 +318,39 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = (getRandom(0, 1) ? GauzeItem.getID() : ZombieMedpackItem.getID());
 	});
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "chest";
+		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
+		indiscriminate = true;
+	});
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "LArm";
+		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
+		indiscriminate = true;
+	});
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "RArm";
+		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
+		indiscriminate = true;
+	});
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassNodeColor";
+		targetNode = "pants";
+		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
+	});
+	%menderClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "civilian";
+	});
+
 
 	%runnerClass = %this.index["Classic"].getClass("Runner");
 	%runnerClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
@@ -326,6 +360,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = SodaItem.getID();
 	});
+
 
 	%hoarderClass = %this.index["Classic"].getClass("Hoarder");
 	%hoarderClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
@@ -401,8 +436,9 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
-		decalName = "hawaiianshirt";
+		decalName = "AAA-None";
 	});
+
 
 	%fighterClass = %this.index["Classic"].getClass("Fighter");
 	%fighterClass.appearance.facePack["female"] = $Eventide_FacePacks["fighterF"];
@@ -412,6 +448,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassItem";
 		itemData = sm_poolCueItem.getID();
 	});
+
 
 	%tinkererClass = %this.index["Classic"].getClass("Tinkerer");
 	%tinkererClass.appearance.facePack["female"] = $Eventide_FacePacks["tinkererF"];
@@ -455,23 +492,10 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 	%tinkererClass.appearance.add(new ScriptObject()
 	{
-		class = "EventideClassNodeColor";
-		targetNode = "LShoe";
-		nodeColor = "0.0784314 0.0784314 0.0784314 1.0";
-		indiscriminate = true;
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RShoe";
-		nodeColor = "0.0784314 0.0784314 0.0784314 1.0";
-		indiscriminate = true;
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
 		class = "EventideClassCustomDecal";
 		decalName = "civilian";
 	});
+
 
 	%stallerClass = %this.index["Classic"].getClass("Staller");
 	%stallerClass.appearance.facePack["female"] = 0;
