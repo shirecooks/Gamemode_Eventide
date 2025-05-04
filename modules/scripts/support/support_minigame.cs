@@ -31,7 +31,6 @@ package Eventide_Minigame
 				if(isObject(%client.EventideAmbianceEmitter))
 				{
 					%client.EventideAmbianceEmitter.delete();
-					$Eventide_currentAltAmbiance = "";
 				}
 			}
 		}
@@ -48,14 +47,15 @@ package Eventide_Minigame
 		%killers = getCurrentKillers();
 		for(%i = 0; %i < %killers.getCount(); %i++)
 		{
-			%killer = %killers.getObject(%i);
-			if(isObject(%killer) && isObject(%killer.player))
+			%killerClient = %killers.getObject(%i);
+			%killerPlayer = %killerClient.player;
+			if(isObject(%killerClient) && isObject(%killerPlayer))
 			{
-				%killerTeam = %killer.getTeam();
-				%won = (%winner.getClassName() $= "Slayer_TeamSO" && %winner.getId() == %killerTeam.getId()) || (%winner.getClassName() $= "GameConnection" && %winner.getId() == %killer.getId());
-				
-				%killerDataBlock = %killer.getDataBlock();
-				%killerDatablock.onRoundEnd(%killer, %won);
+				%killerTeam = %killerClient.getTeam();
+				%won = (%winner.getClassName() $= "Slayer_TeamSO" && %winner.getId() == %killerTeam.getId()) || (%winner.getClassName() $= "GameConnection" && %winner.getId() == %killerClient.getId());
+
+				%killerDataBlock = %killerPlayer.getDataBlock();
+				%killerDataBlock.onRoundEnd(%killerPlayer, %won);
 			}
 		}
 	}
