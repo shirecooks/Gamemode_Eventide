@@ -55,6 +55,13 @@ function ShireZombieBot::onBotLoop(%this, %obj)
     %obj.BotLoopSched = %this.schedule(500, onBotLoop, %obj);    
     %target = %obj.target;
     %currentTime = getSimTime();
+
+    %targetDatablock = %target.getDataBlock();
+    %targetPosition = %target.getPosition();
+
+    %zombiePosition = %obj.getPosition();
+    %zombieEyePoint = %obj.getEyePoint();
+    %zombieEyeVector = %obj.getEyeVector();
     
     // Target search logic
     if(!%target && %obj.lastSearchTime < %currentTime)
@@ -64,25 +71,28 @@ function ShireZombieBot::onBotLoop(%this, %obj)
         initContainerRadiusSearch(%obj.getPosition(), 30, $TypeMasks::PlayerObjectType);
         while (%target = containerSearchNext())
         {
+            %targetDatablock = %target.getDataBlock();
+            %targetPosition = %target.getPosition();
+
             // Skip invalid conditions
-            if (%target == %obj || %target.getDataBlock().isDowned)
+            if (%target == %obj || %targetDatablock.isDowned)
             {
                 continue;
             }
 
             // Split condition check to avoid long line
-            if (%target.getDataBlock().isKiller || %target.getDataBlock().classname $= "PlayerData")
+            if(%targetDatablock.isKiller || %targetDatablock.classname $= "PlayerData")
             {
                 continue;
             }
 
             // Obstruction check
             %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;
-            %obscure = containerRayCast(%obj.getEyePoint(),vectorAdd(%target.getPosition(), "0 0 1.9"),%typemasks,%obj);
+            %obscure = containerRayCast(%zombieEyePoint,vectorAdd(%targetPosition, "0 0 1.9"), %typemasks, %obj);
 
             // Valid line of sight
-            %line = vectorNormalize(vectorSub(%target.getPosition(), %obj.getPosition()));
-            %dot = vectorDot(%obj.getEyeVector(), %line);
+            %line = vectorNormalize(vectorSub(%targetPosition, %zombiePosition));
+            %dot = vectorDot(%zombieEyeVector, %line);
             
             // Valid target if no obstruction and is visible
             if(!isObject(%obscure) && %dot > 0.5)
@@ -95,7 +105,7 @@ function ShireZombieBot::onBotLoop(%this, %obj)
         }
     }
 
-    if(!isObject(%target) || %target.getState() $= "Dead" || %target.getDataBlock().isKiller || %target.getDataBlock().getName() $= "EventidePlayerDowned")
+    if(!isObject(%target) || %target.getState() $= "Dead" || %targetDatablock.isKiller || %targetDatablock.isDowned)
     {
         // Clear invalid target
         %obj.target = 0;
@@ -105,20 +115,18 @@ function ShireZombieBot::onBotLoop(%this, %obj)
     }
     else
     {
-        %distance = VectorDist(%obj.getPosition(), %target.getPosition());
+        %distance = VectorDist(%zombiePosition, %targetPosition);
 
         // Line of sight check
-        %targetpos = %target.getPosition();
-        %playerpos = %obj.getPosition();
         %typemasks = $TypeMasks::InteriorObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::FxBrickObjectType;
 
         // Calculate the dot product to determine if the target is within the visible range
-        %targetDirection = vectorNormalize(vectorSub(%targetPos, %playerPos));
-        %dotProduct = vectorDot(%obj.getEyeVector(), %targetDirection);
+        %targetDirection = vectorNormalize(vectorSub(%targetPosition, %zombiePosition));
+        %dotProduct = vectorDot(%zombieEyeVector, %targetDirection);
 
         // Perform a raycast to check if there are objects blocking the line of sight
-        %adjustedTargetPos = vectorAdd(%targetPos, "0 0 1.9"); // Adjust target height if necessary
-        %obstruction = containerRayCast(%obj.getEyePoint(), %adjustedTargetPos, %typeMasks, %obj);
+        %adjustedTargetPos = vectorAdd(%targetPosition, "0 0 1.9"); // Adjust target height if necessary
+        %obstruction = containerRayCast(%zombieEyePoint, %adjustedTargetPos, %typeMasks, %obj);
 
         if (!isObject(%obstruction) && %dotProduct > 0.5 && %distance < 50)
         {
@@ -223,7 +231,7 @@ function ShireZombieBot::onBotLoop(%this, %obj)
                 if(getRandom(0, 1))
                     %yPos *= -1;
                     
-                %obj.setAimLocation(vectorAdd(%obj.getEyePoint(), %xPos SPC %yPos SPC getRandom(1, -1)));
+                %obj.setAimLocation(vectorAdd(%zombieEyePoint, %xPos SPC %yPos SPC getRandom(1, -1)));
                 
                 if(getRandom(1, 4) == 1)
                 {
@@ -250,7 +258,7 @@ function ShireZombieBot::onBotLoop(%this, %obj)
                 if(getRandom(0, 1))
                     %yPos *= -1;
                     
-                %obj.setAimLocation(vectorAdd(%obj.getEyePoint(), %xPos SPC %yPos SPC 0));
+                %obj.setAimLocation(vectorAdd(%zombieEyePoint, %xPos SPC %yPos SPC 0));
                 
             default:
                 %obj.clearMoveY();
