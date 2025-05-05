@@ -345,7 +345,7 @@ function GameConnection::StopChase(%client)
 	%client.playAmbiance();
 
 	// Handle survivor conditions
-	if(isObject(%client.player) && %client.player.getdataBlock().getName() $= "EventidePlayer")
+	if(isObject(%client.player) && %client.player.getdataBlock().isEventideModel)
 	{
 		//Return to calm facial expressions
 		if(isObject(%client.player.faceConfig) && %client.player.faceConfig.subCategory $= "Scared")

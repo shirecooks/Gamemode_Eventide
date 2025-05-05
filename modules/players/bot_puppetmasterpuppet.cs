@@ -165,7 +165,8 @@ function PuppetMasterPuppet::onBotLoop(%this, %obj)
     // Target validation
     if(%target)
     {
-        if(!isObject(%target) || %target.getState() $= "Dead" || %target.getDataBlock().isKiller || %target.getDataBlock().getName() $= "EventidePlayerDowned")
+        %targetDatablock = %target.getDataBlock();
+        if(!isObject(%target) || %target.getState() $= "Dead" || %targetDatablock.isKiller || %targetDatablock.isDowned)
         {
             // Clear invalid target
             %obj.target = 0;

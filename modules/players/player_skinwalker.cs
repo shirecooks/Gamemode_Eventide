@@ -179,7 +179,8 @@ function PlayerSkinwalker::onTrigger(%this, %obj, %trig, %press)
 function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
 {	
 	// Check if the player is dead, has enough energy, or is already transforming before continuing
-    if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.getEnergyLevel() != %obj.getDataBlock().maxEnergy || isEventPending(%obj.Transformschedule)) 
+	%skinwalkerDatablock = %obj.getDatablock();
+    if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.getEnergyLevel() != %skinwalkerDatablock.maxEnergy || isEventPending(%obj.Transformschedule)) 
 	{
 		return;
 	}
@@ -198,7 +199,7 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
         {
             %obj.playaudio(3,"skinwalker_change_sound");
 
-			if(isObject(%obj.client) && %obj.getdataBlock().getName() $= "EventidePlayer" && (!isObject(%obj.victim.playerClass) || %obj.victim.playerClass.title !$= "Staller"))
+			if(isObject(%obj.client) && %skinwalkerDatablock.isEventideModel && (!isObject(%obj.victim.playerClass) || %obj.victim.playerClass.title !$= "Staller"))
 			{
 				%genderSound = (!%obj.client.chest) ? "male" : "female";
 				%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;
@@ -206,7 +207,7 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
 			}
         }
 
-		if(%obj.getdataBlock().getName() $= "EventidePlayer" && getRandom(1,25) == 1)
+		if(%skinwalkerDatablock.isEventideModel && getRandom(1,25) == 1)
 		{
 			%obj.faceConfigShowFace("Smirk");			
 		}
@@ -222,7 +223,7 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
 			%obj.light.delete();
 		}		
 
-		if(%obj.getDataBlock() !$= %this)
+		if(%skinwalkerDatablock !$= %this)
 		{
 			%obj.setdatablock("PlayerSkinwalker");
 		}

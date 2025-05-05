@@ -574,10 +574,11 @@ function parseSoundFromNumber(%val, %obj) // brick is an optional parameter
 //+++ Drop some rad peggstep noise in here!
 function PeggFootsteps(%obj, %lastVert)
 {
-	if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.noFootsteps == true ||!%obj.getdataBlock().enablePeggFootsteps) return;
+	%playerDatablock = %obj.getDatablock();
+	if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.noFootsteps == true ||!%playerDatablock.enablePeggFootsteps) return;
 
 	cancel(%obj.peggstep);
-	if(%obj.getdataBlock().getName() $= "EventidePlayer")
+	if(%playerDatablock.isEventideModel)
 	{
 		%velz = getword(%obj.getVelocity(), 2);
 		if (%velz < 0)
@@ -596,7 +597,7 @@ function PeggFootsteps(%obj, %lastVert)
 		        if (!%obj.isFalling)
 		        {
 		            %obj.playthread(2, "side");		            
-		            %obj.getDatablock().TunnelVision(%obj, true);
+		            %playerDatablock.TunnelVision(%obj, true);
 		            %obj.isFalling = true;
 
 					if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
@@ -619,7 +620,7 @@ function PeggFootsteps(%obj, %lastVert)
 		else if (%obj.isFalling)
 		{
 		    %obj.playthread(2, "root");
-		    %obj.getDatablock().TunnelVision(%obj, false);
+		    %playerDatablock.TunnelVision(%obj, false);
 		    %obj.isFalling = false;
 		}
 	}	
@@ -719,7 +720,7 @@ function PeggFootsteps(%obj, %lastVert)
 			setTimescale((getRandom(75,150)*0.01) * $oldTimescale);
 			serverplay3d(checkPlayback(%obj), %obj.getHackPosition());
 			setTimescale($oldTimescale);
-			if(!%obj.isCrouched()) %obj.getDatablock().onPeggFootstep(%obj);
+			if(!%obj.isCrouched()) %playerDatablock.onPeggFootstep(%obj);
 			%obj.peggstep = schedule(500 * getWord(%obj.getScale(), 0), 0, PeggFootsteps, %obj);
 		}
 		else if(mFloor(%horiz) == 0 || !%isGround) %obj.peggstep = schedule(50, 0, PeggFootsteps, %obj, %vert);
@@ -731,7 +732,7 @@ function PeggFootsteps(%obj, %lastVert)
 			setTimescale((getRandom(75,150)*0.01) * $oldTimescale);
 			serverplay3d(checkPlayback(%obj), %obj.getHackPosition());
 			setTimescale($oldTimescale);
-			if(!%obj.isCrouched()) %obj.getDatablock().onPeggFootstep(%obj);
+			if(!%obj.isCrouched()) %playerDatablock.onPeggFootstep(%obj);
 		}
 
 		%obj.peggstep = schedule(1000, 0, PeggFootsteps, %obj);
