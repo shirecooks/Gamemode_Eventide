@@ -28,11 +28,13 @@ function Armor::onKillerLoop(%this, %obj)
 // Support function to handle victim's state changes during chase
 function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %victimDistance, %searchDistance, %isActiveChase)
 {
+    %victimDatablock = %victim.getDatablock();
+
     // The victim is being chased, this condition does some actions
 	if(%isActiveChase)
     {
 		// Start the tunnel vision effect
-		if(isObject(%victim.client) && !%victim.tunnelvision && %victim.getClassName() $= "EventidePlayer")
+		if(isObject(%victim.client) && !%victim.tunnelvision && %victimDatablock.isEventideModel)
 		{
 			%this.TunnelVision(%victim,true);
 		}
@@ -51,7 +53,7 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
                 %dot = vectorDot(%victim.getEyeVector(), %viewNormal);
 
                 // Handle panic sounds when victim sees killer
-                if((%dot > 0.45) && %victim.lastChaseCall < getSimTime() && $Pref::Server::Eventide::victimScreamsEnabled && (!isObject(%victim.playerClass) || %victim.playerClass.title !$= "Staller"))
+                if((%dot > 0.45) && %victim.lastChaseCall < getSimTime() && $Pref::Server::Eventide::victimScreamsEnabled && (%victim.playerClass $= "" || %victim.playerClass.title !$= "Staller"))
                 {
                     %genderSound = (!%victim.client.chest) ? "male" : "female";
                     %genderSoundAmount = (!%victim.client.chest) ? 3 : 5;
@@ -72,7 +74,7 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
                 if(%victim.faceConfig.isFace("Scared"))
                 {
                     %victim.faceConfig.dupeFaceSlot("Neutral", "Scared");                    
-                }                    
+                }
             }
             
             // Handle victim's chase music
