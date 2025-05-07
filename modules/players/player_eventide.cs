@@ -982,24 +982,52 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 	{
 		%client.playerClass = "";
 	}
+	else
+	{
+		return Parent::onRemove(%this, %obj);
+	}
 
 	Parent::onRemove(%this, %obj);
 	
 	// Remove the downed billboard if it still exists
 	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 
-	// If there is one remaining survivor, then call the minigame's onLastSurvivor function
-	if(isObject(%minigame = getMinigameFromObject(%obj)) && isObject(%obj.client) && %obj.client.getRemainingTeamMembers() == 1)
-	{		
-		if (isObject(%ritualbrick = $EventideRitualBrick))
+	%minigame = getMinigameFromObject(%client);
+
+	if(%minigame == -1)
+	{
+		return;
+	}
+
+	%survivorTeam = %minigame.Teams.getTeamFromName("Survivors");
+	%teamLiving = %survivorTeam.getLiving();
+
+	if(isObject(%minigame) && %teamLiving == 1)
+	{
+		//Only one survivor left. Figure out who they are.
+		%lastSurvivorClient = "";
+		%lastSurvivorPlayer = "";
+		for(%i = 0; %i < %survivorTeam.numMembers["GameConnection"]; %i++)
 		{
-			$InputTarget_["Self"] = %ritualbrick;
-			$InputTarget_["Player"] = 0;
-			$InputTarget_["Client"] = 0;
-			$InputTarget_["MiniGame"] = getMiniGameFromObject(%ritualbrick);
-			%ritualbrick.processInputEvent("onLastSurvivor");
+			%client = %survivorTeam.member["GameConnection", %index];
+			if(isObject(%client) && !%client.dead())
+			{
+				%lastSurvivorClient = %client;
+				%lastSurvivorPlayer = %client.player;
+				break;
+			}
+		}
+
+		//If there is one remaining survivor, then call the ritual brick's `onLastSurvivor` function.
+		if(isObject($EventideRitualBrick))
+		{
+			$InputTarget_["Self"] = $EventideRitualBrick;
+			$InputTarget_["Player"] = %lastSurvivorPlayer;
+			$InputTarget_["Client"] = %lastSurvivorClient;
+			$InputTarget_["MiniGame"] = %minigame;
+			$EventideRitualBrick.processInputEvent("onLastSurvivor");
 		}
 	}	
 }
 
-registerInputEvent("fxDTSBrick", "onLastSurvivor", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1);
+registerInputEvent("fxDTSBrick", "onLastSurvivor", "Self fxDTSBrick" TAB "Player Player" TAB "Client GameConnection" TAB "MiniGame MiniGame", 1);
