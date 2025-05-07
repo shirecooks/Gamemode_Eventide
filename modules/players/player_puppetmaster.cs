@@ -100,7 +100,7 @@ function PlayerPuppetMaster::onTrigger(%this,%obj,%triggerNum,%bool)
 
 					//Do not continue if there are already 4 puppets in the group
 					for(%i = 0; %i < Eventide_MinigameGroup.getCount(); %i++)
-					if(isObject(%p = Eventide_MinigameGroup.getObject(%i)) && %p.getDataBlock().getName() $= "PuppetMasterPuppet" && %puppetcount++ >= 5)
+					if(isObject(%p = Eventide_MinigameGroup.getObject(%i)) && %p.getDataBlock().getName() $= "PuppetMasterPuppet" && %puppetcount++ >= 3)
 					{
 						%obj.noSpawnPuppet = true;
 						return;

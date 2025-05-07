@@ -90,7 +90,7 @@ function EventidePlayer::invisibilityTick(%this, %obj)
 	else
 	{
 		//The player still has energy left, decrease it.
-		%obj.setEnergyLevel(%obj.getEnergyLevel() - (0.3125 + %this.rechargeRate));
+		%obj.setEnergyLevel(%obj.getEnergyLevel() - (0.5525 + %this.rechargeRate));
 	}
 
 	//Plan to check and decrease energy again in a little bit.
@@ -320,35 +320,8 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 	%menderClass.appearance.add(new ScriptObject()
 	{
-		class = "EventideClassNodeColor";
-		targetNode = "chest";
-		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
-		indiscriminate = true;
-	});
-	%menderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LArm";
-		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
-		indiscriminate = true;
-	});
-	%menderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RArm";
-		nodeColor = "0.5411764979362488 0.6980392336845398 0.5529412031173706 1.0";
-		indiscriminate = true;
-	});
-	%menderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "pants";
-		nodeColor = "0.595294147723 0.767843157048 0.608235323421 1.0";
-	});
-	%menderClass.appearance.add(new ScriptObject()
-	{
 		class = "EventideClassCustomDecal";
-		decalName = "AAA-None";
+		decalName = "sweater";
 	});
 
 
@@ -359,30 +332,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassItem";
 		itemData = SodaItem.getID();
-	});
-	%runnerClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "chest";
-		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
-	});
-	%runnerClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LArm";
-		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
-	});
-	%runnerClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RArm";
-		nodeColor = "0.741176470588 0.23137254902 0.23137254902 1.0";
-	});
-	%runnerClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "pants";
-		nodeColor = "0.419607843137 0.41568627451 0.396078431372549 1.0";
 	});
 	%runnerClass.appearance.add(new ScriptObject()
 	{
@@ -401,69 +350,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 	});
 	%hoarderClass.appearance.add(new ScriptObject()
 	{
-		class = "EventideClassNodeColor";
-		targetNode = "chest";
-		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
-		indiscriminate = true;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LArm";
-		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
-		indiscriminate = true;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RArm";
-		nodeColor = "0.1803921568627451 0.803921568627451 0.8431372549019608 1.0";
-		indiscriminate = true;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "pants";
-		nodeColor = "0.9 0.9 0.9 1";
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LShoe";
-		nodeColor = "0.3921568691730499 0.196078434586525 0.0 1.0";
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RShoe";
-		nodeColor = "0.3921568691730499 0.196078434586525 0.0 1.0";
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "lpeg";
-		nodeVisible = false;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "rpeg";
-		nodeVisible = false;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "lhook";
-		nodeVisible = false;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "rhook";
-		nodeVisible = false;
-	});
-	%hoarderClass.appearance.add(new ScriptObject()
-	{
 		class = "EventideClassCustomDecal";
 		decalName = "hawaiianshirt";
 	});
@@ -476,33 +362,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassItem";
 		itemData = sm_poolCueItem.getID();
-	});
-	%fighterClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "chest";
-		nodeColor = "0.2 0.2 0.2 1.0";
-		indiscriminate = true;
-	});
-	%fighterClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LArm";
-		nodeColor = "0.2 0.2 0.2 1.0";
-		indiscriminate = true;
-	});
-	%fighterClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RArm";
-		nodeColor = "0.2 0.2 0.2 1.0";
-		indiscriminate = true;
-	});
-	%fighterClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassDefaultHat";
-		targetHat = "knitHat";
-		hatColor = "0.125 0.125 0.125 1.0";
 	});
 	%fighterClass.appearance.add(new ScriptObject()
 	{
@@ -523,33 +382,6 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassItem";
 		itemData = MonkeyWrench.getID();
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "chest";
-		nodeColor = "0.9 0.9 0.9 1.0";
-		indiscriminate = true;
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "LArm";
-		nodeColor = "0.9 0.9 0.9 1.0";
-		indiscriminate = true;
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "RArm";
-		nodeColor = "0.9 0.9 0.9 1.0";
-		indiscriminate = true;
-	});
-	%tinkererClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassNodeColor";
-		targetNode = "pants";
-		nodeColor = "0.2 0.2 0.2 1.0";
 	});
 	%tinkererClass.appearance.add(new ScriptObject()
 	{
