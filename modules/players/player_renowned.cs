@@ -38,7 +38,7 @@ datablock PlayerData(PlayerRenowned : EventidePlayer)
 
 	isKiller = true;
 	killerraisearms = false;
-	killerlight = "NoFlareYLight";	
+	killerlight = "NoFlareRLight";	
 
 	killerChaseLvl1Music = "musicData_Eventide_RenownedNear";
 	killerChaseLvl2Music = "musicData_Eventide_RenownedChase";
