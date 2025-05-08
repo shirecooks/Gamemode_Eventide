@@ -1009,7 +1009,7 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 		%lastSurvivorPlayer = "";
 		for(%i = 0; %i < %survivorTeam.numMembers["GameConnection"]; %i++)
 		{
-			%client = %survivorTeam.member["GameConnection", %index];
+			%client = %survivorTeam.member["GameConnection", %i];
 			if(isObject(%client) && !%client.dead())
 			{
 				%lastSurvivorClient = %client;
