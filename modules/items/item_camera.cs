@@ -88,6 +88,7 @@ function DCameraImage::onDetonate(%this, %obj, %slot)
     while (%nearbyplayer = containerSearchNext()) 
     {                
         %nearbyplayer.setwhiteout(%nearbyplayer.getDataBlock().isKiller ? 4 : 0.375); // Flash nearby players
+		%nearbyplayer.setEnergyLevel(%nearbyplayer.getDataBlock().isKiller ? 0 : 80);
     }
 
     //Create camera light

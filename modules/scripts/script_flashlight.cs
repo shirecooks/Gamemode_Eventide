@@ -332,7 +332,7 @@ function Player::flashlightSurge(%obj)
 		%player.whiteOut = 0;
 
 		//Reset their energy to avoid spam-clicking.
-		%player.setEnergyLevel(0);
+		//%player.setEnergyLevel(0);
 
 		//Make them play a little animation.
 		%player.playThread(3, activate2);
