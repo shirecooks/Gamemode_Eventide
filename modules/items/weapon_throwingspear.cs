@@ -244,7 +244,7 @@ datablock ProjectileData(ThrowingspearProjectile)
    lightRadius = 3.0;
    lightColor  = "0 0 0.5";
 
-   muzzleVelocity      = 48;
+   muzzleVelocity      = 64;
    velInheritFactor    = 1;
 
    uiName = "Spear";
@@ -305,7 +305,7 @@ datablock ItemData(ThrowingspearItem)
 
     //gui stuff
     uiName = "Throwing Spear";
-    iconName = "./icon_Throwing_Spear";
+    iconName = "./models/throwingspear/icon_Throwing_Spear";
     doColorShift = true;
     colorShiftColor = "0.400 0.196 0 1.000";
 
@@ -414,18 +414,18 @@ datablock ShapeBaseImageData(ThrowingspearImage)
 
 function ThrowingspearImage::onCharge(%this, %obj, %slot)
 {
-    %obj.playthread(3, spearReady);
+    %obj.playthread(2, spearReady);
     %obj.ThrowingSpearSlot = %obj.currTool;
 }
 
 function ThrowingspearImage::onAbortCharge(%this, %obj, %slot)
 {
-    %obj.playthread(3, root);
+    %obj.playthread(2, root);
 }
 
 function ThrowingSpearImage::onFire(%this, %obj, %slot)
 {
-    %obj.playthread(3, ThrowingspearThrow);
+    %obj.playthread(2, ThrowingspearThrow);
     serverPlay3D(ThrowingspearFireSound, %obj.getTransform());
     Parent::OnFire(%this, %obj, %slot);
 
