@@ -85,6 +85,10 @@ Add-Ons/Gamemode_Eventide/modules/players/faces/shire/shirePain.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/shire/shireNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/shire/shireBlink.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/shire/shireAttack.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/shadow/shadowPain.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/shadow/shadowNeutral.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/shadow/shadowBlink.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/shadow/shadowAttack.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/runnerM/scared/runnerMScaredTooth.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/runnerM/scared/runnerMScaredSmirk.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/runnerM/scared/runnerMScaredSmiley.png
@@ -276,3 +280,6 @@ Add-Ons/Gamemode_Eventide/modules/players/faces/cannibal/cannibalNeutral.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/cannibal/cannibalBlink.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/cannibal/cannibalAttack.png
 Add-Ons/Gamemode_Eventide/modules/players/faces/brute/huntressface.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/blockhead/blockheadPain.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/blockhead/blockheadNeutral.png
+Add-Ons/Gamemode_Eventide/modules/players/faces/blockhead/blockheadBlink.png

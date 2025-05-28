@@ -386,6 +386,7 @@ datablock ShapeBaseImageData(ZombieBodyImage)
 	shapeFile			= "base/data/shapes/empty.dts";
 	mountPoint			= 2;
 	offset = "0 0 -0.55";
+	eyeOffset = "0 0 -1000";
 	correctMuzzleVector	= false;
 	stateName[0]				= "Glow";
 	stateEmitter[0]				= ZombieBodyEmitter;

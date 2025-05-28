@@ -17,6 +17,7 @@ addExtraResource(%root @ "/models/trails/raggedClaw.trail.png");
 // Killer other trails:
 
 addExtraResource(%root @ "/models/trails/magic.trail.png");
+addExtraResource(%root @ "/models/trails/glitch.trail.png");
 
 datablock StaticShapeData(KillerTrailShape)
 {

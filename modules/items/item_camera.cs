@@ -87,7 +87,8 @@ function DCameraImage::onDetonate(%this, %obj, %slot)
     initContainerRadiusSearch(%obj.getPosition(), 15, $TypeMasks::PlayerObjectType);
     while (%nearbyplayer = containerSearchNext()) 
     {                
-        %nearbyplayer.setwhiteout(%nearbyplayer.getDataBlock().isKiller ? 4 : 0.375); // Flash nearby players
+        %nearbyplayer.setwhiteout(%nearbyplayer.getDataBlock().isKiller ? 0.5 : 0.375); // Flash nearby players
+		%nearbyplayer.setEnergyLevel(%nearbyplayer.getDataBlock().isKiller ? 0 : 80);
     }
 
     //Create camera light

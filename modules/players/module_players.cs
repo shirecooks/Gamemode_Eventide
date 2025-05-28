@@ -19,10 +19,12 @@ exec("./player_shire.cs");
 exec("./bot_shirezombie.cs");
 exec("./player_skinwalker.cs");
 exec("./player_skullwolf.cs");
+
 exec("./player_captain.cs");
 exec("./player_mastermind.cs");
 exec("./player_kid.cs");
-exec("./player_yourself.cs");
 exec("./player_diver.cs");
 exec("./player_redherring.cs");
+exec("./player_shadow.cs");
+exec("./player_blockhead.cs");
 //exec("./player_wrathful/wrathful.cs");

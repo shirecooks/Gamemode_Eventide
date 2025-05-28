@@ -36,16 +36,13 @@ function MiniGameSO::randomizeEventideItems(%minigame)
                                 default: %brick.setItem("none");
                             }
 
-            case "_weapon": switch(getRandom(1,16)) // Randomly pick a weapon to spawn, anything greater than 8 will be none
+            case "_weapon": switch(getRandom(1,12)) // Randomly pick a weapon to spawn, anything greater than 5 will be none
                             {
-                                case 1: %brick.setItem("sm_barStoolItem");
-                                case 2: %brick.setItem("sm_bottleItem");
-                                case 3: %brick.setItem("sm_chairItem");
-                                case 4: %brick.setItem("sm_poolCueItem");
-                                case 5: %brick.setItem("sm_chairItem");                                
-                                case 6: %brick.setItem("FlareGunItem");
-								case 7: %brick.setItem("DCamera");
-                                case 8: %brick.setItem("StunGun");
+                                case 1: %brick.setItem("sm_frailswordItem");
+								case 2: %brick.setItem("ThrowingSpearItem");
+                                case 3: %brick.setItem("StunGun");								
+                                case 4: %brick.setItem("FlareGunItem");
+								case 5: %brick.setItem("DCamera");
                                 default: %brick.setItem("none");
                             }
         }

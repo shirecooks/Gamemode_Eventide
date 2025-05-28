@@ -1,6 +1,6 @@
 datablock ItemData(MonkeyWrench)
 {
-	shapeFile = "./models/Monkey_Wrench.dts";
+	shapeFile = "base/data/shapes/wrench.dts";
 	rotate = false;
 	mass = 1;
 	density = 0.2;
@@ -9,16 +9,16 @@ datablock ItemData(MonkeyWrench)
 	emap = false;
 	
 	uiName = "Monkey Wrench";
-	iconName = "./icons/icon_monkeywrench";
+	iconName = "base/client/ui/itemIcons/Wrench.png";
 	doColorShift = false;
 	
 	image = MonkeyWrenchImage;
-	canDrop = true;
+	canDrop = false;
 };
 
 datablock ShapeBaseImageData(MonkeyWrenchImage)
 {
-	shapeFile = "./models/Monkey_Wrench.dts";
+	shapeFile = "base/data/shapes/wrench.dts";
 	emap = false;
 	mountPoint = 0;
 	offset = "0.0 0.0 0.0";

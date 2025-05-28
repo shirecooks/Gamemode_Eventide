@@ -387,6 +387,8 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.isCrouching = true;
         %obj.isInvisible = true;
 
+        %obj.unmountImage($LeftHandSlot);
+
         //Make Sky Captain partially invisible.
         %obj.setImageAmmo($LeftHandSlot, 1);
         %obj.startFade(0, 0, true);
@@ -398,6 +400,8 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
     {
         %obj.isCrouching = false;
         %obj.isInvisible = false;
+
+        %obj.mountImage(%obj.getDatablock().killerweapon, $LeftHandSlot);
 
         //Disables Sky Captain's invisibility.
         %obj.setImageAmmo($LeftHandSlot, 0);

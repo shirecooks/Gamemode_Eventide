@@ -4,7 +4,7 @@ datablock PlayerData(PlayerMastermind : PlayerRenowned)
 
 	hitprojectile = KillerRoughHitProjectile;
 	hitobscureprojectile = "";
-	meleetrailskin = "base";
+	meleetrailskin = "ragged";
 	meleetrailoffset = "0.3 1.4 0.7"; 	
 	meleetrailscale = "4 4 3";
 
@@ -110,8 +110,7 @@ function PlayerMastermind::onTrigger(%this, %obj, %trig, %press)
 function PlayerMastermind::onNewDatablock(%this,%obj)
 {
 	Parent::onNewDatablock(%this,%obj);
-	%obj.mountImage("meleeKnifeImage",1);
-	%obj.mountImage("overcoatMountedImage",0);
+	%obj.mountImage("overcoatMountedImage",1);
 	%obj.setScale("1 1 1");
 
     %obj.gazeTickRate = %this.gazeTickRate;

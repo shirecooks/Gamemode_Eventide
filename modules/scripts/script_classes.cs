@@ -361,7 +361,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%fighterClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = sm_poolCueItem.getID();
+		itemData = sm_frailswordItem.getID();
 	});
 	%fighterClass.appearance.add(new ScriptObject()
 	{
@@ -444,7 +444,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%stallerClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
-		decalName = "AAA-None";
+		decalName = "robe";
 	});
 }
 
