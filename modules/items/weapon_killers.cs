@@ -90,7 +90,7 @@ datablock ParticleData(kidsHammerParticle)
 	colors[2]            = "1 0 0 0.5";
 	colors[3]            = "1 0 0 0";
 	sizes[0]             = 0.1;
-	sizes[1]             = 1.5;
+	sizes[1]             = 1;
 	sizes[2]             = 0.7;
 	sizes[3]             = 0.2;
 	times[0]             = 0;
@@ -156,6 +156,13 @@ datablock ShapeBaseImageData(ShovelImage : meleeTantoImage)
    mountPoint = 1;
 };
 
+datablock ShapeBaseImageData(corruptedswordImage : meleeTantoImage)
+{
+   shapeFile = "./models/corruptedsword.dts";
+   mountPoint = 0;
+};
+
+
 datablock ShapeBaseImageData(blackKnifeImage : meleeTantoImage)
 {
 	shapeFile = "./models/BlackKnife.dts";
@@ -215,6 +222,7 @@ datablock ShapeBaseImageData(kidsHammerImage : meleeTantoImage)
 	doColorShift = true;
 	colorShiftColor = "1 0 0 1";
 	mountPoint = $RightHandSlot;
+	eyeOffset = "0 0 -1000";
 
 	stateName[0] = "Activate";
 	stateTimeoutValue[0] = 0.15;

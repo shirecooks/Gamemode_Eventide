@@ -13,7 +13,7 @@ datablock ItemData(MonkeyWrench)
 	doColorShift = false;
 	
 	image = MonkeyWrenchImage;
-	canDrop = true;
+	canDrop = false;
 };
 
 datablock ShapeBaseImageData(MonkeyWrenchImage)

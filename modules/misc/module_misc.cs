@@ -12,3 +12,5 @@ exec("./datablocks_shire.cs");
 exec("./datablocks_stun.cs");
 exec("./datablocks_trail.cs");
 exec("./datablocks_kid.cs");
+exec("./datablocks_blockhead.cs");
+

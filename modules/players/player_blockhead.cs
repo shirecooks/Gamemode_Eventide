@@ -4,7 +4,7 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 
 	hitprojectile = KillerRoughHitProjectile;
 	hitobscureprojectile = "";
-	meleetrailskin = "base";
+	meleetrailskin = "glitch";
 	meleetrailoffset = "0.3 1.4 0.7"; 	
 	meleetrailscale = "4 4 3";
 
@@ -20,8 +20,9 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	killermeleesound = "";
 	killermeleesoundamount = 1;	
 	
-	killerweaponsound = "shadow_weapon";
-	killerweaponsoundamount = 3;
+	killerweapon = "corruptedswordImage";
+	killerweaponsound = "blockhead_weapon";
+	killerweaponsoundamount = 4;
 
 	killermeleehitsound = "melee_tanto";
 	killermeleehitsoundamount = 3;
@@ -61,6 +62,7 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	leftclickicon = "color_melee";
 	rightclickicon = "color_random_item";
 
+	isKiller = true;
 	rechargeRate = 0.3;
 	maxTools = 1;
 	maxWeapons = 1;
@@ -70,22 +72,6 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	jumpForce = 0;
 
     gazeTickRate = 50;
-};
-
-datablock ShapeBaseImageData(Blockhead666Image) 
-{
-	shapeFile			= "base/data/shapes/empty.dts";
-	mountPoint			= 2;
-	offset = "0 0 -0.55";
-	eyeOffset = "0 0 -1000";
-	correctMuzzleVector	= false;
-	stateName[0]				= "Glow";
-	stateEmitter[0]				= ZombieBodyEmitter;
-	stateEmitterTime[0]			= 1000;
-	stateWaitForTimeout[0]		= true;
-	stateTimeoutValue[0]		= 1000;
-	stateTransitionOnTimeout[0]	= "Glow";
-	stateScript[0]				= "onGlow";
 };
 
 function PlayerBlockhead666::onTrigger(%this, %obj, %trig, %press) 
@@ -100,7 +86,7 @@ function PlayerBlockhead666::onTrigger(%this, %obj, %trig, %press)
 
 function PlayerBlockhead666::onPeggFootstep(%this,%obj)
 {
-	serverplay3d("shadow_walking" @ getRandom(1,4) @ "_sound", %obj.getHackPosition());
+	serverplay3d("blockhead_walking" @ getRandom(1,6) @ "_sound", %obj.getHackPosition());
 }
 
 function PlayerBlockhead666::onNewDatablock(%this,%obj)
@@ -111,8 +97,8 @@ function PlayerBlockhead666::onNewDatablock(%this,%obj)
 	%obj.faceConfig.setFaceAttribute("Blink", "length", 500);
 	
 	Parent::onNewDatablock(%this,%obj);
-	%obj.mountImage(%this.killerweapon, $LeftHandSlot);
-	%obj.mountImage("Blockhead666Image", 2);
+	%obj.mountImage(%this.killerweapon, 0);
+	%obj.mountImage("Blockhead666Image", 1);
 	%obj.setScale("1 1 1");
 
     %obj.gazeTickRate = %this.gazeTickRate;
@@ -138,26 +124,33 @@ function PlayerBlockhead666::EventideAppearance(%this,%obj,%client)
 	%obj.unhideNode("pants");
 	%obj.unhideNode("headskin");
 	%obj.unhideNode("larm");
+	%obj.unhideNode("rarmslim");
 	%obj.unhideNode("rarm");
 	%obj.unhideNode("rshoe");
 	%obj.unhideNode("lshoe");
 	%obj.unhideNode("lhand");
 	%obj.unhideNode("rhand");
+	%obj.unhideNode("rhook");
 	%obj.unhideNode("chest");
 
 	%shirtColor = "1 1 1 1";
 	%pantsColor = "0.2 0 0.8 1";
 	%sleevesColor = "0.95 0 0 1";
-	%skinColor = "0 0 0 1";
+	%skinColor = "1 0.88 0.61 1";
+	%glitchAColor = "1 0.88 0.61 0.4";
+	%glitchBColor = "0.95 0 0 0.5";
+	%glitchCColor = "0.2 0 0.8 0.5";
 
 	%obj.setDecalName("none");
-	%obj.setNodeColor("rarm",%sleevesColor);
+	%obj.setNodeColor("rarm",%glitchBColor);
 	%obj.setNodeColor("larm",%sleevesColor);
+	%obj.setNodeColor("rarmslim",%sleevesColor);
 	%obj.setNodeColor("chest",%shirtColor);
 	%obj.setNodeColor("pants",%pantsColor);
-	%obj.setNodeColor("rshoe",%pantsColor);
+	%obj.setNodeColor("rshoe",%glitchCColor);
 	%obj.setNodeColor("lshoe",%pantsColor);
-	%obj.setNodeColor("rhand",%skinColor);
+	%obj.setNodeColor("rhand",%glitchAColor);
+	%obj.setNodeColor("rhook",%glitchAColor);
 	%obj.setNodeColor("lhand",%skinColor);
 	%obj.setNodeColor("headskin",%skinColor);
 	
