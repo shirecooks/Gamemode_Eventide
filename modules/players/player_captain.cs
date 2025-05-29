@@ -387,7 +387,10 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.isCrouching = true;
         %obj.isInvisible = true;
 
-        %obj.unmountImage($LeftHandSlot);
+        //Hide the knife from other players by unscoping it.
+        %client = isObject(%obj.client) ? %obj.client : 0;
+        adjustObjectScopeToAll(%obj.getMountedImage($LeftHandSlot), false, %client);
+        //%obj.unmountImage($LeftHandSlot);
 
         //Make Sky Captain partially invisible.
         %obj.setImageAmmo($LeftHandSlot, 1);
@@ -401,7 +404,9 @@ function PlayerCaptain::onTrigger(%this, %obj, %trig, %press)
         %obj.isCrouching = false;
         %obj.isInvisible = false;
 
-        %obj.mountImage(%obj.getDatablock().killerweapon, $LeftHandSlot);
+        //Scope the knife to everyone again so they can see it.
+        adjustObjectScopeToAll(%obj.getMountedImage($LeftHandSlot), true);
+        //%obj.mountImage(%obj.getDatablock().killerweapon, $LeftHandSlot);
 
         //Disables Sky Captain's invisibility.
         %obj.setImageAmmo($LeftHandSlot, 0);
