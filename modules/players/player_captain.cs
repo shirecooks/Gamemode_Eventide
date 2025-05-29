@@ -730,7 +730,7 @@ function Player::SkyCaptainGaze(%obj)
     initContainerRadiusSearch(%currentPosition, %maximumDistance, $TypeMasks::PlayerObjectType);
     while(%foundPlayer = ContainerSearchNext())
     {
-        %killerPosition = %obj.getEyePoint();
+        %killerEyePosition = %obj.getEyePoint();
         %killerDatablock = %obj.getDataBlock();
         %victimPosition = %foundPlayer.getEyePoint();
         %victimDatablock = %foundPlayer.getDataBlock();
@@ -746,9 +746,9 @@ function Player::SkyCaptainGaze(%obj)
             //Victim is downed, skip.
             continue;
         }
-        else if(isObject(getWord(ContainerRayCast(%victimPosition, %killerPosition, %obstructions), 0)))
+        else if(isObject(getWord(ContainerRayCast(%victimPosition, %killerEyePosition, %obstructions), 0)))
         {
-            //The killer and victim are phyiscally blocked, skip.
+            //The killer and victim are physically blocked, skip.
             continue;
         }
         else if(%obj.isChasing && %foundPlayer.chaseLevel == 2)
@@ -801,7 +801,7 @@ function Player::SkyCaptainGaze(%obj)
         %victimLookingAt = ContainerRayCast(%victimPosition, %victimEyeVectorEnd, ($TypeMasks::PlayerObjectType | %obstructions), %foundPlayer);
         %foundObject = getWord(%victimLookingAt, 0);
 
-        if(%foundObject $= %obj.getId())
+        if(%foundObject $= %obj.getId() && isObject(%obj.trackingCandidate) && %obj.trackingCandidate.getId() == %foundPlayer.getId())
         {
             //The victim is looking at the killer, reset their gaze and disable tracking.
             %killerDatablock.clearTrackingTarget(%obj);
@@ -809,7 +809,7 @@ function Player::SkyCaptainGaze(%obj)
         else
         {
             //If the victim isn't looking at us, are we looking at them?
-            //First, check if we already have them as a tracking target. Then, these math is pointless.
+            //First, check if we already have them as a tracking target. Then, this math is pointless.
             if(isObject(%obj.trackingCandidate) && %obj.trackingCandidate.getId() == %foundPlayer.getId())
             {
                 continue;
