@@ -1,0 +1,505 @@
+$resolutionHash = $pref::Video::resolution;
+$resolution = getWord($pref::Video::resolution, 0) SPC getWord($pref::Video::resolution, 1);
+$resolutionX = getWord($resolution, 0);
+$resolutionY = getWord($resolution, 1);
+
+//
+// Resolution support functions.
+//
+
+function resolutionHashInvalid()
+{
+   return $resolutionHash !$= $pref::Video::Resolution;
+}
+
+function getResolution()
+{
+   if(resolutionHashInvalid())
+   {
+      $resolution = getWord(%resolution, 0) SPC getWord(%resolution, 1);
+   }
+   return $resolution;
+}
+
+function getResolutionX()
+{
+   if(resolutionHashInvalid())
+   {
+      $resolutionX = getWord(getResolution(), 0);
+   }
+   return $resolutionX;
+}
+
+function getResolutionY()
+{
+   if(resolutionHashInvalid())
+   {
+      $resolutionY = getWord(getResolution(), 1);
+   }
+   return $resolutionY;
+}
+
+//
+// Font support functions.
+//
+
+function calculateFontHeight(%minimumSize)
+{
+   %minimumResolutionY = 480;
+   %currentResolutionY = getResolutionY();
+
+   %scale = (%currentResolutionY / %minimumResolutionY);
+   return %scale = %scale >= 1 ? %scale : 1;
+}
+
+function scaledHeightFont(%name, %minimumSize)
+{
+   %scale = calculateFontHeight(%minimumSize);
+   %textSize = (%minimumSize * %scale);
+   return "<font:" @ %name @ ":" @ %textSize @ ">";
+}
+
+function scaledHeightFontCoverage(%minimumSize, %characterWidth)
+{
+   %extentY = calculateFontHeight(%minimumSize);
+   //TODO
+}
+
+//
+// Viewport support functions.
+//
+
+function eventideGuiGetViewportCenter(%screenSizePixels, %objectSizePixels)
+{
+   %screenX = getWord(%screenSizePixels, 0);
+   %screenY = getWord(%screenSizePixels, 1);
+   %objectX = getWord(%objectSizePixels, 0);
+   %objectY = getWord(%objectSizePixels, 1);
+   return ((%screenX - %objectX) / 2) SPC ((%screenY - %objectY) / 2);
+}
+
+function eventideGuiGetViewportX(%screenSizePixels, %objectSizePixels)
+{
+   %screenX = getWord(%screenSizePixels, 0);
+   %objectX = getWord(%objectSizePixels, 0);
+   return ((%screenX - %objectX) / 2);
+}
+
+function eventideGuiCalculateViewportDimensions()
+{
+   %dimensions = getResolutionX() SPC (getResolutionY() * 0.8);
+   return %dimensions;
+}
+
+function eventideGuiCorrectViewportFOV(%gameCtrlSizePixels, %horizontalFOV)
+{
+   %width = getWord(%gameCtrlSizePixels, 0);
+   %height = getWord(%gameCtrlSizePixels, 1);
+
+   %originalAspectRatio = (getResolutionX() / getResolutionY());
+   %newAspectRatio = %width / %height;
+
+   %horizontalFOVRadians = mDegToRad(%horizontalFOV);
+   %verticalFOVRadians = 2 * mAtan(mTan(%horizontalFOVRadians / 2) / %originalAspectRatio, 1);
+   %finalHorizontalFOV = 2 * mAtan(mTan(%verticalFOVRadians / 2) * %newAspectRatio, 1);
+   
+   return mRadToDeg(%finalHorizontalFOV);
+}
+
+//
+// Inventory grid support functions.
+//
+
+function calculateInventoryBoxPosition(%previousPosition, %boxSize)
+{
+   %previousPositionX = getWord(%previousPosition, 0);
+   %previousPositionY = getWord(%previousPosition, 1);
+   %boxSizeX = getWord(%boxSize, 0);
+
+   return mCeil(%previousPositionX + %boxSizeX + (getResolutionX() * 0.0075)) SPC %previousPositionY;
+}
+
+//
+// Style objects.
+//
+
+new GuiControlProfile(WhiteTextProfile : GuiDefaultProfile) 
+{
+   fontColor = "255 255 255";
+   fontType = "Georgia Bold";
+};
+
+new GuiControlProfile(WhiteMLTextProfile : GuiMLTextProfile) 
+{
+   fontColor = "255 255 255";
+   fontType = "Georgia Bold";
+   fontSize = 16;
+};
+
+//
+// GUI Objects.
+//
+
+//--- OBJECT WRITE BEGIN ---
+new GuiControl(eventideGui) {
+   profile = "GuiDefaultProfile";
+   horizSizing = "relative";
+   vertSizing = "relative";
+   position = "0 0";
+   extent = getResolution();
+   minExtent = "640 480";
+   enabled = "1";
+   visible = "1";
+   noCursor = "1";
+
+   //
+   // HUD background graphic.
+   //
+   new GuiBitmapCtrl(eventideGuiBackground) {
+      profile = "GuiDefaultProfile";
+      horizSizing = "relative";
+      vertSizing = "relative";
+      position = "0 0";
+      extent = getResolution();
+      minExtent = "640 480";
+      enabled = "1";
+      visible = "1";
+      bitmap = "./textures/cobblestone.png";
+      wrap = "1";
+      lockAspectRatio = "0";
+      alignLeft = "0";
+      alignTop = "0";
+      overflowImage = "0";
+      keepCached = "0";
+      mColor = "255 255 255 255";
+      mMultiply = "0";
+      noCursor = "1";
+   };
+
+   //
+   // Viewport where the game's 3D scene is rendered.
+   //
+   new GameTSCtrl(eventideGuiViewport) {
+      profile = "GuiDefaultProfile";
+      horizSizing = "relative";
+      vertSizing = "relative";
+      position = "0 0";
+      extent = eventideGuiCalculateViewportDimensions();
+      minExtent = "640 384";
+      enabled = "1";
+      visible = "1";
+      cameraZRot = "0";
+      forceFOV = eventideGuiCorrectViewportFOV(eventideGuiCalculateViewportDimensions(), $pref::Player::defaultFov);
+      noCursor = "1";
+
+      new GuiShapeNameHud(eventideGuiShapeNameHud)
+      {
+         profile = "BlockChatTextProfile";
+         horizSizing = "relative";
+         vertSizing = "relative";
+         position = "0 0";
+         extent = eventideGuiCalculateViewportDimensions();
+         minExtent = "640 384";
+         enabled = "1";
+         visible = "1";
+         fillColor = "0.250000 0.250000 0.250000 0.000000";
+         frameColor = "0.972500 0.800000 0.000000 0.000000";
+         textColor = "1.000000 1.000000 0.909000 1.000000";
+         showFill = "0";
+         showFrame = "0";
+         verticalOffset = "0.85";
+         distanceFade = "0.1";
+
+	   };
+
+      new GuiCrossHairHud(eventideGuiCrosshair) {
+         profile = "GuiDefaultProfile";
+         horizSizing = "center";
+         vertSizing = "center";
+         //The cursor graphic is moved around by the top-left corner, 
+         //so we subtract half of it's size (16) to make sure it lands in the middle of the screen.
+         position = (mCeil(getResolutionX() * 0.5) - 16) SPC (mCeil(getResolutionY() * 0.4) - 16);
+         extent = "32 32";
+         minExtent = "8 8";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         bitmap = "base/client/ui/crossHair";
+         wrap = "0";
+         lockAspectRatio = "0";
+         alignLeft = "0";
+         alignTop = "0";
+         overflowImage = "0";
+         keepCached = "0";
+         mColor = "255 255 255 255";
+         mMultiply = "0";
+         damageFillColor = "0.000000 1.000000 0.000000 1.000000";
+         damageFrameColor = "1.000000 0.600000 0.000000 1.000000";
+         damageRect = "50 4";
+         damageOffset = "0 10";
+      };
+   };
+
+   //
+   //Container where the HUD's information is stored.
+   //
+   new GuiControl(eventideGuiInfoContainer) {
+      profile = "GuiDefaultProfile";
+      horizSizing = "width";
+      vertSizing = "relative";
+      position = "0" SPC (getResolutionY() * 0.8); //80% from top
+      extent = getResolutionX() SPC (getResolutionY() * 0.2);
+      minExtent = "640 96";
+      enabled = "1";
+      visible = "1";
+      noCursor = "1";
+
+      //
+      // Chat box.
+      //
+
+      new GuiSwatchCtrl(eventideGuiChatbox)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = mCeil((getResolutionX() - (getResolutionX() * 0.3)) / 2) SPC mCeil(getResolutionY() * 0.0125);
+         extent = mCeil(getResolutionX() * 0.3) SPC mCeil(getResolutionY() * 0.175);
+         visible = "1";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiMLTextCtrl(eventideGuiChatboxMessages)
+         {
+            profile = "WhiteMLTextProfile";
+            position = "0 0";
+            extent = mCeil(getResolutionX() * 0.3) SPC "500";
+            allowColorChars = "1";
+            lineSpacing = "10";
+            maxChars = "-1";
+            visible = "1";
+            text = "<color:00FF00>Welcome to Blockland, Robbin.\n<color:FFFF00>Robbin: <color:FFFFFF>Eventide";
+         };
+      };
+
+      //
+      // Health counter.
+      //
+
+      new GuiMLTextCtrl(eventideGuiHealthCounter) 
+      {
+         profile = "WhiteTextProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = "0" SPC mCeil(getResolutionY() * 0.045);
+         extent = mCeil(getResolutionX() * 0.88) SPC mCeil(getResolutionY() * 0.2);
+         visible = "1";
+         lineSpacing = "1";
+         allowColorChars = "1";
+         maxChars = "-1";
+         text = scaledHeightFont("Georgia Bold", 48) @ "<just:right>100";
+      };
+
+      new GuiAnimatedBitmapCtrl(eventideGuiFaceStatus) 
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = (getResolutionX() - (getResolutionY() * 0.2)) SPC "0";
+         extent = mCeil(getResolutionY() * 0.2) SPC mCeil(getResolutionY() * 0.2);
+         minExtent = "96 96";
+         enabled = "1";
+         visible = "1";
+         bitmap = "Add-Ons/Gamemode_Eventide/modules/guis/textures/head/look/frame";
+         wrap = "0";
+         lockAspectRatio = "1";
+         alignLeft = "0";
+         alignTop = "0";
+         overflowImage = "0";
+         keepCached = "0";
+         mColor = "255 255 255 255";
+         mMultiply = "0";
+         framesPerSecond = "24";
+         numFrames = "49";
+         skipFrames = "0";
+         noCursor = "1";
+      };
+
+      //
+      // Item display.
+      //
+
+      //1st slot.
+      new GuiSwatchCtrl(eventideGuiItemSlot1Background)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = mCeil(getResolutionX() * 0.05) SPC mCeil(getResolutionY() * 0.05);
+         extent = mCeil(getResolutionY() * 0.075) SPC mCeil(getResolutionY() * 0.075);
+         minExtent = "36 36";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiBitmapCtrl(eventideGuiItemSlot1)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/btnDecalA_h.png";
+            horizSizing = "width";
+            vertSizing = "relative";
+            position = "0 0";
+            extent = mCeil(getResolutionY() * 0.075) SPC mCeil(getResolutionY() * 0.075);
+            minExtent = "36 36";
+            enabled = 1;
+            visible = 1;
+         };
+
+         new GuiBitmapCtrl(eventideGuiItemSlot1Picture)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/itemIcons/Wrench.png";
+            horizSizing = "left";
+            vertSizing = "top";
+            position = ((mCeil(getResolutionY() * 0.075) - mCeil(getResolutionY() * 0.055)) / 2) SPC ((mCeil(getResolutionY() * 0.075) - mCeil(getResolutionY() * 0.055)) / 2);
+            extent = mCeil(getResolutionY() * 0.055) SPC mCeil(getResolutionY() * 0.055);
+            minExtent = "36 36";
+            enabled = 1;
+            visible = 1;
+         };
+      };
+
+      //2nd slot.
+      new GuiSwatchCtrl(eventideGuiItemSlot2Background)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = calculateInventoryBoxPosition(eventideGuiItemSlot1Background.position, eventideGuiItemSlot1Background.extent);
+         extent = eventideGuiItemSlot1Background.extent;
+         minExtent = "36 36";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiBitmapCtrl(eventideGuiItemSlot2)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/btnDecalA_d.png";
+            horizSizing = "width";
+            vertSizing = "relative";
+            position = "0 0";
+            extent = eventideGuiItemSlot1Background.extent;
+            minExtent = "36 36";
+            enabled = 1;
+            visible = 1;
+         };
+      };
+
+      new GuiSwatchCtrl(eventideGuiItemSlot3Background)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = calculateInventoryBoxPosition(eventideGuiItemSlot2Background.position, eventideGuiItemSlot1Background.extent);
+         extent = eventideGuiItemSlot1Background.extent;
+         minExtent = "36 36";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiBitmapCtrl(eventideGuiItemSlot3)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/btnDecalA_d.png";
+            horizSizing = "width";
+            vertSizing = "relative";
+            position = "0 0";
+            extent = eventideGuiItemSlot1Background.extent;
+            minExtent = "36 36";
+            enabled = 1;
+            visible = 1;
+         };
+      };
+
+      new GuiSwatchCtrl(eventideGuiItemSlot4Background)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = calculateInventoryBoxPosition(eventideGuiItemSlot3Background.position, eventideGuiItemSlot1Background.extent);
+         extent = eventideGuiItemSlot1Background.extent;
+         minExtent = "36 36";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiBitmapCtrl(eventideGuiItemSlot4)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/btnDecalA_d.png";
+            horizSizing = "width";
+            vertSizing = "relative";
+            position = "0 0";
+            extent = eventideGuiItemSlot1Background.extent;
+            minExtent = "48 48";
+            enabled = 1;
+            visible = 1;
+         };
+      };
+
+      new GuiSwatchCtrl(eventideGuiItemSlot5Background)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = calculateInventoryBoxPosition(eventideGuiItemSlot4Background.position, eventideGuiItemSlot1Background.extent);
+         extent = eventideGuiItemSlot1Background.extent;
+         minExtent = "48 48";
+         color = "0 0 0 180";
+         swatchColor = "0 0 0 180";
+         layer = "0";
+
+         new GuiBitmapCtrl(eventideGuiItemSlot5)
+         {
+            profile = "GuiDefaultProfile";
+            bitmap = "base/client/ui/btnDecalA_d.png";
+            horizSizing = "width";
+            vertSizing = "relative";
+            position = "0 0";
+            extent = eventideGuiItemSlot1Background.extent;
+            minExtent = "48 48";
+            enabled = 1;
+            visible = 1;
+         };
+      };
+
+      //
+      // Energy counter.
+      //
+
+      new GuiHealthBarHud(eventideGuiEnergyBar)
+      {
+         profile = "GuiDefaultProfile";
+         horizSizing = "width";
+         vertSizing = "relative";
+         position = mCeil(getResolutionX() * 0.05) SPC mCeil(getResolutionY() * 0.15);
+         extent = mCeil(((getResolutionX() * 0.0075) * 4) + getWord(eventideGuiItemSlot1Background.extent, 0) * 5) SPC (getResolutionY() * 0.025);
+         minExtent = "8 2";
+         enabled = 1;
+         visible = 1;
+         clipToParent = 1;
+         fillColor = "0.000000 0.000000 0.000000 0.500000";
+         frameColor = "0.000000 0.000000 0.000000 1.000000";
+         damageFillColor = "0.000000 0.000000 1.000000 1.000000";
+         pulseRate = 0;
+         pulseThreshold = 0.3;
+         flipped = 0;
+         showFill = 1;
+         showFrame = 1;
+         displayEnergy = 1;
+      };
+   };
+};
+//--- OBJECT WRITE END ---
