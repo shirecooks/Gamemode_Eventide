@@ -22,10 +22,10 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	
 	killerweapon = "corruptedswordImage";
 	killerweaponsound = "blockhead_weapon";
-	killerweaponsoundamount = 4;
+	killerweaponsoundamount = 1;
 
-	killermeleehitsound = "melee_tanto";
-	killermeleehitsoundamount = 3;
+	killermeleehitsound = "blockhead_weaponhit";
+	killermeleehitsoundamount = 1;
 	
     killernearsound = "";
 	killernearsoundamount = 1;
@@ -60,7 +60,7 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	killerlight = "NoFlareRLight";
 	
 	leftclickicon = "color_melee";
-	rightclickicon = "color_random_item";
+	rightclickicon = "color_spike";
 
 	isKiller = true;
 	rechargeRate = 0.3;
@@ -77,10 +77,51 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 function PlayerBlockhead666::onTrigger(%this, %obj, %trig, %press) 
 {		
 	Parent::onTrigger(%this, %obj, %trig, %press);
-		
-	if(%press && !%trig && %obj.getEnergyLevel() >= 25)
+	
+	switch(%trig)
 	{
-		%this.killerMelee(%obj,4);
+		case 0: if(%obj.getEnergyLevel() >= 25 && %press)
+		{
+			%this.killerMelee(%obj,4);
+			%obj.faceConfigShowFace("Attack");
+			return;
+		}
+		
+		case 4: if(%obj.getEnergyLevel() >= %this.maxEnergy/1)
+				if(%press)
+				{				
+					%obj.casttime = getSimTime();
+					%obj.channelcasthandimage = %obj.schedule(750,mountImage,GlitchAmbientImage,2);
+					serverPlay3d("GlitchSpikeCharge_sound", %obj.getEyePoint());
+					%obj.setTempSpeed(0.4);
+					%obj.playthread(2,"armReadyLeft");
+				}
+				else
+				{
+					%obj.unmountImage(2);
+					%obj.setTempSpeed(1);
+					cancel(%obj.channelcasthandimage);
+					%obj.playthread(2,"root");
+			
+					if(%obj.casttime+750 < getSimTime())
+					{
+						%obj.setEnergyLevel(%obj.getEnergyLevel()-%this.maxEnergy/1);
+						%obj.playthread(2,"leftrecoil");
+						%obj.setTempSpeed(1);
+						serverPlay3d("GlitchSpikeThrow_sound", %obj.getEyePoint());
+			
+						%p = new projectile()
+						{
+							dataBlock = "GlitchProjectile";
+							initialVelocity = vectorScale(%obj.getEyeVector(),50);
+							initialPosition = vectorAdd(%obj.getEyePoint(),"0 0 0.45");
+							sourceObject = %obj;
+							client = %obj.client;
+						};
+						MissionCleanup.add(%p);
+					}		
+				}
+		default:
 	}
 }
 

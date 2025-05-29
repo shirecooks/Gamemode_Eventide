@@ -951,6 +951,12 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 				%obj.delete();
 			}
+			
+			if (%obj.markedforGlitchDeath) 
+			{
+				serverPlay3d("Blockhead666Kill_sound", %obj.getEyePoint());
+				%obj.setNodeColor("ALL","1 1 1 0");
+			}
 
 			if (%obj.shireZombify)
 			{
