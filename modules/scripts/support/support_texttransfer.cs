@@ -30,12 +30,12 @@ function textTransfer_combineArgsToString(%a, %b, %c, %d, %e, %f, %g, %h, %i, %j
 
 function serverCmdCanSendText(%client)
 {
-    return $TextTransfer_awaitingResponse;
+    return !$TextTransfer_awaitingResponse;
 }
 
 function clientCmdCanSendText()
 {
-    return $TextTransfer_awaitingResponse;
+    return !$TextTransfer_awaitingResponse;
 }
 
 //
