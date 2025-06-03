@@ -704,13 +704,13 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
     {   
 		if(!%obj.wasDowned)
 		{
-			// Add the downed billboard to the player
-			//$Eventide::BillboardMounts.AVBillboard(%obj,"downedAVBillboard","Downed");
-
 			// Reset the player's health, and set the player to be downed
 			%obj.wasDowned = true;
 			%obj.setHealth(%this.maxDamage);
 			%obj.setDatablock("EventidePlayerDowned");
+
+			//Add a downed billboard to the player.
+			%obj.broadcastDownedBillboard();
 		
 			if(%killerDatablock.isKiller)
 			{
@@ -735,7 +735,8 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 				%killerDatablock.onIncapacitateVictim(%killerSourceObject, %obj, true);
 			}
 
-			//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+			//They are dead, remove the downed billboard.
+			%obj.retractDownedBillboard();
 		}
     }
 
@@ -896,7 +897,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	%obj.playThread(1, "Death1");
 
 	// Remove the downed billboard
-	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	%obj.retractDownedBillboard();
 
 	if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
 	{
@@ -996,7 +997,7 @@ function EventidePlayerDowned::onRemove(%this, %obj)
 	Parent::onRemove(%this, %obj);
 	
 	// Remove the downed billboard if it still exists
-	//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
+	%obj.retractDownedBillboard();
 
 	%minigame = getMinigameFromObject(%client);
 

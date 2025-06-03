@@ -7,7 +7,6 @@ package Eventide_Medical_Package
 		if(%obj.zombieMedpackUse >= 3.3)
 		{
 			%obj.pseudoHealth = (%obj.survivorclass $= "fighter") ? 75 : 0;
-			//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 			%obj.wasDowned = false;
 		}
     }
@@ -19,7 +18,6 @@ package Eventide_Medical_Package
 		if(%obj.GauzeUse >= 2.3)
 		{
 			%obj.pseudoHealth = (%obj.survivorclass $= "fighter") ? 75 : 0;
-			//$Eventide::BillboardMounts.clearAVBillboards(%obj,"Downed");
 			%obj.wasDowned = false;
 		}
     }

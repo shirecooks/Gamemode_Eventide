@@ -809,7 +809,7 @@ function Player::SkyCaptainGaze(%obj)
         else
         {
             //If the victim isn't looking at us, are we looking at them?
-            //First, check if we already have them as a tracking target. Then, this math is pointless.
+            //First, check if we already have them as a tracking target. Then, these math is pointless.
             if(isObject(%obj.trackingCandidate) && %obj.trackingCandidate.getId() == %foundPlayer.getId())
             {
                 continue;
