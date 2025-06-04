@@ -357,6 +357,7 @@ datablock ShapeBaseImageData(GlowFaceImage)
 	shapeFile			= "base/data/shapes/empty.dts";
 	mountPoint			= 5;
 	offset 				= "-0.09 -0.03 0.033";
+	eyeOffset = "0 0 -1000";
 	correctMuzzleVector	= false;
 	stateName[0]				= "Glow";
 	stateEmitter[0]				= GlowFaceEmitter;

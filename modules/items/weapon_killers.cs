@@ -222,7 +222,6 @@ datablock ShapeBaseImageData(kidsHammerImage : meleeTantoImage)
 	doColorShift = true;
 	colorShiftColor = "1 0 0 1";
 	mountPoint = $RightHandSlot;
-	eyeOffset = "0 0 -1000";
 
 	stateName[0] = "Activate";
 	stateTimeoutValue[0] = 0.15;

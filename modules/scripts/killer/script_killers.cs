@@ -323,13 +323,13 @@ function GameConnection::playAmbiance(%client)
 	{
 		if($Eventide_currentAltAmbiance $= "")
 		{
-			$Eventide_currentAltAmbiance = "musicData_altAmbiance" @ getRandom(1, 12);
+			$Eventide_currentAltAmbiance = "musicData_Ambiance" @ getRandom(1, 9);
 		}
 		%musicDatablock = $Eventide_currentAltAmbiance;
 	}
 	else
 	{
-		%musicDatablock = "musicData_ambiance" @ getRandom(9, 9);
+		%musicDatablock = "musicData_altambiance" @ getRandom(1, 12);
 	}
 
 	%client.SetChaseMusic(%musicDatablock, false, false);

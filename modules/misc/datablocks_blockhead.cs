@@ -145,6 +145,7 @@ shapeFile = "base/data/shapes/empty.dts";
 	stateEmitter[0]            = GlitchAmbientEmitter;
 	stateEmitterTime[0]        = 5000;
 	stateEmitterTime[0]        = 5;
+	stateSound[0]			   = "eventide_spike_ambience_loop_sound";
 	stateTransitionOnTimeout[0]= "Wait";
 };
 
@@ -331,7 +332,7 @@ function GlitchProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
 	}
 	if(%col.getType() & $TypeMasks::InteriorObjectType || %col.getType() & $TypeMasks::FxBrickObjectType || %col.getType() & $TypeMasks::TerrainObjectType)
 	{
-		%scale = %obj.getScale();
+		%scale = "1.5 1.5 1.5";
 		%spike = new TSstatic()
 		{
 			datablock = GlitchSpikeData;
@@ -355,29 +356,29 @@ function GlitchSpikeData::doDamage(%data, %spike, %obj, %pos, %scale)
 {
 	%scale = getWord(%scale, 2);
 	%typemasks = $Typemasks::PlayerObjectType | $Typemasks::VehicleObjectType;
-	InitContainerRadiusSearch(%pos, 3 * %scale, %typemasks);
+	InitContainerRadiusSearch(%pos, 2 * %scale, %typemasks);
 	while(isObject(%hit = ContainerSearchNext()))
 	{
 		if(minigameCanDamage(%obj, %hit) && getMinigameFromObject(%hit).weaponDamage)
 		{
-			%hit.damage(%obj, %pos, 10 * %scale, $DamageType::GlitchSpike);
+			%hit.damage(%obj, %pos, 3 * %scale, $DamageType::GlitchSpike);
 			%add = vectorScale(vectorAdd("0 0 1", getRandom(-2, 2) SPC getRandom(-2, 2) SPC getRandom(0, 5)), %scale);
 			%hit.setVelocity(vectorAdd(%hit.getVelocity(), %add));
 			%hit.lastPusher = %obj.sourceObject;
 			%hit.lastPushTime = getSimTime();
 		}
 	}
-	%boxpos = vectorAdd(%pos, "0 0 " @ %scale * 3);
+	%boxpos = vectorAdd(%pos, "0 0 " @ %scale * 1);
 	%boxsize = vectorScale("3 3 7", %scale);
 	InitContainerBoxSearch(%boxpos, %boxsize, %typemasks);
 	while(isObject(%hit = ContainerSearchNext()))
 	{
 		if(minigameCanDamage(%obj, %hit) && getMinigameFromObject(%hit).weaponDamage)
 		{
-			%hit.damage(%obj, %pos, 15 * %scale, $DamageType::GlitchSpike);
+			%hit.damage(%obj, %pos, 7 * %scale, $DamageType::GlitchSpike);
 			%hit.lastPusher = %obj.sourceObject;
 			%hit.lastPushTime = getSimTime();
-			%add = vectorScale(vectorAdd("0 0 5", getRandom(-5, 5) SPC getRandom(-5, 5) SPC getRandom(0, 5)), %scale);
+			%add = vectorScale(vectorAdd("0 0 4", getRandom(-2, 2) SPC getRandom(-2, 2) SPC getRandom(0, 2)), %scale);
 			%hit.setVelocity(vectorAdd(%hit.getVelocity(), %add));
 		}
 	}

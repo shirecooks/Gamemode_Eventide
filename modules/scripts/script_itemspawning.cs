@@ -29,7 +29,7 @@ function MiniGameSO::randomizeEventideItems(%minigame)
                                 case 1: %brick.setItem($MinigameLocalChat ? "RadioItem" : "ShotgunSlugItem");
                                 case 2: %brick.setItem("ZombieMedpackItem");
                                 case 3: %brick.setItem("SodaItem");
-                                case 4: %brick.setItem("FlareItem");
+                                case 4: %brick.setItem("epoxyImage");
 								case 5: %brick.setItem("GauzeItem");
 								case 6: %brick.setItem("AirhornItem");
                                 case 7: %brick.setItem("ZombiePillsItem");

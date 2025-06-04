@@ -63,12 +63,12 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 	rightclickicon = "color_spike";
 
 	isKiller = true;
-	rechargeRate = 0.3;
+	rechargeRate = 0.35;
 	maxTools = 1;
 	maxWeapons = 1;
-	maxForwardSpeed = 7.35;
-	maxBackwardSpeed = 4.2;
-	maxSideSpeed = 6.3;
+	maxForwardSpeed = 7.55;
+	maxBackwardSpeed = 4.35;
+	maxSideSpeed = 6.5;
 	jumpForce = 0;
 
     gazeTickRate = 50;
