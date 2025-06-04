@@ -95,6 +95,7 @@ function EventidePlayer::onNewDatablock(%this,%obj)
 		%obj.client.playAmbiance();
 	}
 
+	%obj.retractDownedBillboard();
 	%obj.schedule(33,setEnergyLevel,0);
 	%obj.schedule(33,setActionThread,"root");
 	%obj.setScale("1 1 1");
@@ -377,7 +378,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			}
 			
 			%victim.setDatablock("EventidePlayer");
-			%victim.playthread(0,"root");				
+			%victim.playthread(0,"root");
 			return;
 		}					
 	}
