@@ -191,7 +191,7 @@ function Armor::killerContainerRadiusSearch(%this, %obj)
     }
 
     %chasingVictims = 0;
-    %searchDistance = 40; //80 studs, should be a decent balance for both small and large maps.
+    %searchDistance = 25; //80 studs, should be a decent balance for both small and large maps.
     initContainerRadiusSearch(%obj.getMuzzlePoint(0), %searchDistance, $TypeMasks::PlayerObjectType);
 
     while(%victim = containerSearchNext())

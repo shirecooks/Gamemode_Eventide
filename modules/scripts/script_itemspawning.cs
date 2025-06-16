@@ -24,15 +24,15 @@ function MiniGameSO::randomizeEventideItems(%minigame)
                             // if we try to randomize ritual spawns, only add it to the simset for the next loop
                             %ritualBrickSet.add(%brick);
 
-            case "_item":   switch(getRandom(1,12)) // Randomly pick an item to spawn, anything greater than 6 will be none
+            case "_item":   switch(getRandom(1,10)) // Randomly pick an item to spawn, anything greater than 6 will be none
                             {
-                                case 1: %brick.setItem($MinigameLocalChat ? "RadioItem" : "ShotgunSlugItem");
+                                //case 1: %brick.setItem($MinigameLocalChat ? "RadioItem" : "ShotgunSlugItem");
                                 case 2: %brick.setItem("ZombieMedpackItem");
                                 case 3: %brick.setItem("SodaItem");
-                                case 4: %brick.setItem("epoxyImage");
+                                case 4: %brick.setItem("epoxyItem");
 								case 5: %brick.setItem("GauzeItem");
 								case 6: %brick.setItem("AirhornItem");
-                                case 7: %brick.setItem("ZombiePillsItem");
+                                //case 7: %brick.setItem("ZombiePillsItem");
                                 default: %brick.setItem("none");
                             }
 

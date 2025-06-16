@@ -90,7 +90,7 @@ datablock ShapeBaseImageData(sm_frailswordImage)
 function sm_frailswordImage::onSwing(%this, %obj, %slot)
 {	
 	%obj.playthread(2, "shiftAway");
-	%obj.schedule(75,spawnKillerTrail,PlayerRenowned.meleetrailskin,"0.4 1.2 0.375","0 -90 0","3 2.5 1");
+	%obj.schedule(75,spawnKillerTrail,PlayerRenowned.meleetrailskin,"0.42 0.87 0.375","0 -90 0","3 2.7 1");
 }
 function sm_frailswordImage::onReady(%this, %obj, %slot)
 {

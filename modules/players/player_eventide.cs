@@ -956,6 +956,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 			
 			if (%obj.markedforGlitchDeath) 
 			{
+				%minigame.playSound("fallen_survivor_sound");
 				serverPlay3d("Blockhead666Kill_sound", %obj.getEyePoint());
 				%obj.setNodeColor("ALL","1 1 1 0");
 			}
@@ -974,10 +975,16 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 				%bot.setTransform(%obj.getTransform());
 				%obj.spawnExplosion("PlayerSootProjectile","1.5 1.5 1.5");
 				%obj.delete();
+				%minigame.playSound("fallen_survivor_sound");
 
 				%obj.client.schedule(1000,setControlObject,%bot);
 				%obj.client.camera.schedule(1000,setMode,"Observer");
-			}			
+			}
+			
+			else
+			{
+				%minigame.playSound("fallen_survivor_sound");
+			}
 		}
 	}	
 }

@@ -17,6 +17,7 @@ exec("./bot_puppetmasterpuppet.cs");
 exec("./player_render.cs");
 exec("./player_shire.cs");
 exec("./bot_shirezombie.cs");
+exec("./bot_gemzombie.cs");
 exec("./player_skinwalker.cs");
 exec("./player_skullwolf.cs");
 
