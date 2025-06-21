@@ -115,7 +115,7 @@ datablock explosionData(flareGunExplosionMain)
 datablock ProjectileData(flareGunProjectile : gunProjectile)
 {
 	projectileShapeName 	= "base/data/shapes/empty.dts";
-	directDamage        	= 35;
+	directDamage        	= 25;
 	explodeOnDeath = 1;
 	explosion 				= "flareGunExplosionMain";
 	directDamageType    	= $DamageType::FlareGun;

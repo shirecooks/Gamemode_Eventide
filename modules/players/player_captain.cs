@@ -62,6 +62,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
 	killerlight = "NoFlareRLight";
 
 	rechargeRate = 0.3;
+	maxDamage = 600;
 	maxTools = 1;
 	maxWeapons = 1;
 	maxForwardSpeed = 7.35;

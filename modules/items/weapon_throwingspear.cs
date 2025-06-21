@@ -215,7 +215,7 @@ datablock ProjectileData(ThrowingspearProjectile)
 {
    projectileShapeName = "./models/throwingspear/spearProjectile.dts";
 
-   directDamage        = 50;
+   directDamage        = 75;
    directDamageType    = $DamageType::ThrowingSpearDirect;
 
    radiusDamage        = 0;

@@ -125,7 +125,7 @@ AddDamageType("BreakActionShotgun",'<bitmap:Add-Ons/Gamemode_Eventide/modules/it
 datablock ProjectileData(BreakActionShotgunProjectile : gunProjectile)
 {
 	projectileShapeName 	= "base/data/shapes/empty.dts";
-	directDamage        	= 35;
+	directDamage        	= 50;
 	explosion 				= SlugExplosion;
 	directDamageType    	= $DamageType::BreakActionShotgun;
 	radiusDamageType    	= $DamageType::BreakActionShotgun;

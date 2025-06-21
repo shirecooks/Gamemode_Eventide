@@ -42,6 +42,7 @@ datablock PlayerData(PlayerPuppetMaster : PlayerRenowned)
 	showEnergyBar = true;
 	renderFirstPerson = false;
 	rechargeRate = 0.3;
+	maxDamage = 1043;
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 6.25;

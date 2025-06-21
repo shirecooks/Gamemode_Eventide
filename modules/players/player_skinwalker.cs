@@ -63,7 +63,7 @@ datablock PlayerData(PlayerSkinwalker : PlayerStandardArmor)
 	jumpForce = 0;
 	
 	rechargeRate = 0.375;	
-	maxDamage = 9999;
+	maxDamage = 1250;
 	maxForwardSpeed = 6.16;
 	maxBackwardSpeed = 3.52;
 	maxSideSpeed = 5.28;

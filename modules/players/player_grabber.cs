@@ -31,6 +31,7 @@ datablock PlayerData(PlayerGrabber : PlayerRenowned)
 
 	firstpersononly = false;
 	rechargeRate = 0.5;
+	maxDamage = 1043;
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 6.55;

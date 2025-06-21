@@ -51,6 +51,7 @@ datablock PlayerData(PlayerShire : PlayerRenowned)
 	killerlight = "NoFlarePLight";
 
 	rechargeRate = 0.3;
+	maxDamage = 696;
 	maxForwardSpeed = 6.55;
 	maxBackwardSpeed = 3.74;
 	maxSideSpeed = 5.61;

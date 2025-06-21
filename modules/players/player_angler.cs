@@ -10,6 +10,7 @@ datablock PlayerData(PlayerAngler : PlayerRenowned)
 	shapeFile = AnglerDTS.baseShape;
 
 	rechargeRate = 0.33;
+	maxDamage = 1000;
 	maxTools = 0;
 	maxWeapons = 0;
 	jumpForce = 0;

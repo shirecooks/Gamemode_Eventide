@@ -66,6 +66,7 @@ datablock PlayerData(PlayerMastermind : PlayerRenowned)
 	rightclickicon = "color_slowmo";
 
 	rechargeRate = 0.32;
+	maxDamage = 1000;
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 7.35;

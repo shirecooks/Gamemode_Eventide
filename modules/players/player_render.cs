@@ -32,6 +32,7 @@ datablock PlayerData(PlayerRender : PlayerRenowned)
 	leftclickspecialicon = "color_headache";
 
 	rechargeRate = 0.3;
+	maxDamage = 500;
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 4;

@@ -64,6 +64,7 @@ datablock PlayerData(PlayerBlockhead666 : PlayerRenowned)
 
 	isKiller = true;
 	rechargeRate = 0.35;
+	maxDamage = 666;
 	maxTools = 1;
 	maxWeapons = 1;
 	maxForwardSpeed = 7.55;
