@@ -1,6 +1,6 @@
 function Armor::killerMelee(%this,%obj,%radius)
 {
-	if(%obj.getState() $= "Dead" || %obj.isInvisible || %obj.getEnergyLevel() < %this.maxEnergy/8 || %obj.lastMeleeTime+1250 > getSimTime()) 
+	if(%obj.getState() $= "Dead" || %obj.isInvisible || %obj.getEnergyLevel() < %this.maxEnergy/8 || %obj.lastMeleeTime+1750 > getSimTime()) 
 	{
 		return;
 	}
@@ -116,10 +116,10 @@ function killerMelee_playHitActions(%this,%obj,%hit)
 	}
 	
 	%hit.setvelocity(vectorscale(VectorNormalize(vectorAdd(%obj.getForwardVector(),"0" SPC "0" SPC "0.15")),15));								
-	%hit.damage(%obj, %hit.getHackPosition(), 50*getWord(%obj.getScale(),2), $DamageType::Default);
+	%hit.damage(%obj, %hit.getHackPosition(), 25*getWord(%obj.getScale(),2), $DamageType::Default);
 	
 	%obj.setTempSpeed(0.3);	
-	%obj.schedule(2500,setTempSpeed,1);
+	%obj.schedule(1500,setTempSpeed,1);
 }
 
 function Player::spawnKillerTrail(%this, %skin, %offset, %angle, %scale)

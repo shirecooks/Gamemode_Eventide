@@ -42,10 +42,10 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
         if(%victimDistance < %searchDistance/2.5)
         {
 			// Play a thread to have them talk, but it makes it look like they're nervous when the killer is near
-            if(%victim.playerClass $= "" || %victim.playerClass.title !$= "Staller")
-            {
-               %victim.playthread(2, "talk"); 
-            }
+            //if(%victim.playerClass $= "" || %victim.playerClass.title !$= "Staller")
+            //{
+            //   %victim.playthread(2, "talk"); 
+            //}
             
             if(%victimDistance < %searchDistance/4)
             {
@@ -99,7 +99,7 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
         
         if(%victimChaseExpired)
         {
-            %victim.playthread(2, "root");
+            //%victim.playthread(2, "root");
             // Reset victim's face back to neutral when chase ends
             if(isObject(%victim.faceConfig) && %victim.faceConfig.face["Neutral"].faceName $= "Scared") 
             {                        

@@ -64,26 +64,26 @@ datablock PlayerData(EventidePlayerDowned : EventidePlayer)
 // Everything else.
 //
 
-function EventidePlayer::pulsingScreen(%this,%obj)
-{
+//function EventidePlayer::pulsingScreen(%this,%obj)
+//{
 	// If any of these are met, do not continue
-	if ((!isObject(%obj) || %obj.getclassname() !$= "Player" || %obj.getState() $= "Dead") || %obj.getDamageLevel() < %this.maxDamage/4) return;
+//	if ((!isObject(%obj) || %obj.getclassname() !$= "Player" || %obj.getState() $= "Dead") || %obj.getDamageLevel() < %this.maxDamage/4) return;
 
-	if (isObject(%obj.client)) 
-	{		
-		%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/5) ? 2 : 1;
-		%flashamount = (%obj.getDamageLevel() >= %this.maxDamage/4) ? 0.5 : 0.1;
-		%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
-		%obj.setdamageflash(%flashamount);
-	}
+//	if (isObject(%obj.client)) 
+//	{		
+//		%heartbeatvariant = (%obj.getDamageLevel() >= %this.maxDamage/5) ? 2 : 1;
+//		%flashamount = (%obj.getDamageLevel() >= %this.maxDamage/4) ? 0.5 : 0.1;
+//		%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
+//		%obj.setdamageflash(%flashamount);
+//	}
 
-	%obj.startDrippingBlood(100);
+//	%obj.startDrippingBlood(100);
 
 	// Prevent multiple schedules
-	cancel(%obj.pulsingScreenSched);
-	%pulseTime = mClampF((100-(%obj.getDamageLevel()/1.25)) * 15,250,850);
-	%obj.pulsingScreenSched = %this.schedule(%pulseTime,pulsingScreen,%obj);
-}
+//	cancel(%obj.pulsingScreenSched);
+//	%pulseTime = mClampF((100-(%obj.getDamageLevel()/1.25)) * 15,250,850);
+//	%obj.pulsingScreenSched = %this.schedule(%pulseTime,pulsingScreen,%obj);
+//}
 
 function EventidePlayer::onNewDatablock(%this,%obj)
 {
@@ -99,6 +99,7 @@ function EventidePlayer::onNewDatablock(%this,%obj)
 	%obj.schedule(33,setEnergyLevel,0);
 	%obj.schedule(33,setActionThread,"root");
 	%obj.setScale("1 1 1");
+	%obj.wasDowned = true;
 }
 
 function EventidePlayer::onImpact(%this, %obj, %col, %vec, %force)
@@ -857,8 +858,8 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 		%obj.startDrippingBlood(1000);
 		
 		%obj.addHealth(-1);
-		%pulse = 0.1 + ((%obj.getDamageLevel() / 100) * 0.75);
-		%obj.setDamageFlash(%pulse);
+		//%pulse = 0.1 + ((%obj.getDamageLevel() / 100) * 0.75);
+		//%obj.setDamageFlash(%pulse);
 	}
 
 	// Keep the loop going unless the first condition is met
