@@ -323,7 +323,7 @@ function GameConnection::playAmbiance(%client)
 	{
 		if($Eventide_currentAltAmbiance $= "")
 		{
-			$Eventide_currentAltAmbiance = "musicData_Ambiance" @ getRandom(1, 7);
+			$Eventide_currentAltAmbiance = "musicData_Ambiance" @ getRandom(1, 8);
 		}
 		%musicDatablock = $Eventide_currentAltAmbiance;
 	}

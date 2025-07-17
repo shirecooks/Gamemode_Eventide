@@ -985,6 +985,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 			else
 			{
 				%minigame.playSound("fallen_survivor_sound");
+				%minigame.setDamageFlash(0.3);
 			}
 		}
 	}	
