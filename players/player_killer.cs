@@ -156,20 +156,6 @@ function PlayerKiller::killerGUI(%this, %obj, %client)
 	%client.bottomPrint(%leftClickText @ %rightClickText @ "<br>" @ %leftClickIcon @ %rightClickIcon, 0, false);
 }
 
-// function PlayerKiller::onTrigger(%this, %obj, %trig, %press)
-// {
-// 	Parent::onTrigger(%this, %obj, %trig, %press);
-
-// 	if(%trig == 0 && %press)
-// 	{
-// 		if(%obj.getEnergyLevel() <= 25)
-// 		{
-// 			return;
-// 		}
-// 		%this.killerMelee(%obj);
-// 	}
-// }
-
 function PlayerKiller::killerLoop(%this, %obj)
 {
     if(!isObject(%obj) || %obj.getState() $= "Dead")
