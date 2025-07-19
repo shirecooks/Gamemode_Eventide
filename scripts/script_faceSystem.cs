@@ -356,6 +356,43 @@ function Player::createFaceConfig(%player, %facePack)
     %player.beginFaceConfigBlinkSchedule();
 }
 
+function Player::createSubfaceConfig(%player, %subFacePackName)
+{
+    //This is basically the initilization function for the face system on a player.
+    if(isEventPending(%player.faceConfigBlinkSchedule))
+    {
+        cancel(%player.faceConfigBlinkSchedule);
+    }
+
+    //This can only work if the player already has a main face config present.
+    if(!isObject(%player.faceConfig))
+    {
+        return;
+    }
+    
+    //If the subcategory of the main face pack doesn't exist, we can't do anything.
+    %subFacePack = $Eventide_FacePacks[%player.faceConfig.category, %subFacePackName];
+    if(%subFacePack $= "")
+    {
+        return;
+    }
+
+    %player.faceConfig.delete();
+    %player.faceConfig = createFaceConfig(%subFacePack);
+    %player.beginFaceConfigBlinkSchedule();
+}
+
+function Player::revertSubfaceConfig(%player)
+{
+    //This can only work if the player already has a main face config present.
+    if(!isObject(%player.faceConfig))
+    {
+        return;
+    }
+    
+    %player.createFaceConfig($Eventide_FacePacks[%player.faceConfig.category]);
+}
+
 function Player::createEmptyFaceConfig(%player, %facePack)
 {
     //This is basically the initilization function for the face system on a player.

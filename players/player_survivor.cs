@@ -18,8 +18,6 @@ function PlayerSurvivor::onNewDatablock(%this, %obj)
 {
 	%this.super("onNewDatablock", %this, %obj);
 
-	talk("Are we cooking?");
-	
 	%client = %obj.client;
 	%clientExists = isObject(%client);
 
@@ -31,26 +29,58 @@ function PlayerSurvivor::onNewDatablock(%this, %obj)
 	//Voice Pack initialization.
 	%voicePack = (%clientExists && %client.chest) ? $Eventide_VoicePacks["female"] : $Eventide_VoicePacks["male"];
 	%obj.createVoiceConfig(%voicePack);
+
+	//Store some information used for voice-lines and chase management.
+	%obj.chasingKillers = new SimSet();
+	%obj.nearbyKillers = new SimSet();
+}
+
+function PlayerSurvivor::onRemove(%this, %obj)
+{
+	%obj.chasingKillers.delete();
+	%obj.nearbyKillers.delete();
+
+	Parent::onRemove(%this, %obj);
 }
 
 function PlayerSurvivor::onKillerEnterRange(%this, %obj, %target)
 {
-
+	%obj.nearbyKillers.add(%target);
+	//If the survivor has a killer near them, change the survivor's face to scared.
+	if(%obj.nearbyKillers.getCount() == 1)
+	{
+		%obj.createSubfaceConfig("Scared");
+	}
 }
 
 function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
 {
-
+	%obj.nearbyKillers.remove(%target);
+	//The survivor no longer has any killers near them, reset their face back to normal.
+	if(%obj.nearbyKillers.getCount() == 0)
+	{
+		%obj.revertSubfaceConfig();
+	}
 }
 
 function PlayerSurvivor::onKillerChaseStart(%this, %obj, %target)
 {
-
+	%obj.chasingKillers.add(%target);
+	//If the survivor has started being chased, play a talking animation that emulates shaking in fear.
+	if(%obj.chasingKillers.getCount() == 1)
+	{
+		%obj.playThread(2, "talk");
+	}
 }
 
 function PlayerSurvivor::onKillerChaseEnd(%this, %obj, %target)
 {
-
+	%obj.chasingKillers.remove(%target);
+	//The survivor is no longer being chased, stop the fearful shaking.
+	if(%obj.chasingKillers.getCount() == 0)
+	{
+		%obj.playThread(2, "root");
+	}
 }
 
 //
@@ -100,31 +130,21 @@ function PlayerSurvivor::Damage(%this, %obj, %sourceObject, %position, %damage, 
 	{
 		//Face system functionality: play a pained facial expression when the player is hurt, and switch to hurt facial expression afterward 
 		//if enough damage has been received.
-		if (isObject(%obj.faceConfig))
+		if(isObject(%obj.faceConfig))
 		{
-			if (%obj.getDamagePercent() > 0.33 && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "") 
+			if(%obj.getDamagePercent() > 0.33 && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "") 
 			{
-				%obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+				%obj.createSubfaceConfig("Hurt");
 			}
 
-			if (%obj.faceConfig.isFace("Pain")) 
+			if(%obj.faceConfig.isFace("Pain")) 
 			{
-				%obj.schedule(33, "faceConfigShowFace", "Pain"); //This needs to be delayed for whatever reason. Blinking doesn't start otherwise.
+				%obj.schedule(1, "faceConfigShowFace", "Pain"); //This needs to be delayed for whatever reason. Blinking doesn't start otherwise.
 			}		
 		}
 
 		//Play a pained grunt from the player.
 		%obj.playVoiceLine("Pain", true);
-
-		if(%obj.getState() !$= "Dead" && %obj.lastDamageCall < getSimTime())
-		{
-			if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
-			{
-				%obj.playaudio(0, %sound);
-			}
-			
-			%obj.lastDamageCall = (getSimTime() + getRandom(250, 750));
-		}
 	}
 }
 
@@ -177,7 +197,7 @@ function PlayerSurvivor::shove(%this, %obj)
 		}
 		
 		//Play the shoving animation.
-		%obj.playthread(2, "activate2");
+		%obj.playThread(2, "activate2");
 
 		//Play the shoving sound, with a randomized pitch.
 		%oldTimescale = getTimescale();
@@ -186,8 +206,8 @@ function PlayerSurvivor::shove(%this, %obj)
 		setTimescale(%oldTimescale);
 		
 		%pos = %obj.getEyePoint();
-		%eyeVector = %obj.getEyeVector();
-		%radius = 0.25;		
+		%eyeVector = %obj.getLookVector();
+		%radius = 0.25;
 		%mask = $TypeMasks::PlayerObjectType;
 
 		initContainerRadiusSearch(%pos, %radius, %mask);
@@ -213,11 +233,11 @@ function PlayerSurvivor::shove(%this, %obj)
 			//Determine the shove force based on player class and exhaustion.
 			%shoveForce = (%hit.getDatablock().getName() $= "PuppetMasterPuppet") ? 2 : %this.shoveForce;
 			%reductionDivider = (%obj.staminaCount >= 5) ? 1.25 : 1;	
-			%forwardimpulse = (((%obj.survivorclass $= "fighter") ? 12 : 8) / %reductionDivider) * %shoveForce;
-			%zimpulse = (((%obj.survivorclass $= "fighter") ? 8 : 4) / %reductionDivider) * %shoveForce;
+			%forwardImpulse = (((%obj.survivorclass $= "fighter") ? 12 : 8) / %reductionDivider) * %shoveForce;
+			%upwardImpulse = (((%obj.survivorclass $= "fighter") ? 8 : 4) / %reductionDivider) * %shoveForce;
 
 			//Finally, apply the shove force to the victim.
-			%hit.setVelocity(VectorAdd(VectorScale(%eyeVector, %forwardimpulse), "0 0 " @ %zimpulse));
-		}												
+			%hit.setVelocity(VectorAdd(VectorScale(%eyeVector, %forwardImpulse), "0 0 " @ %upwardImpulse));
+		}			
 	}
 }
