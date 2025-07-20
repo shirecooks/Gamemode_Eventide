@@ -18,5 +18,7 @@ exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
 
 exec("./scripts/script_ambiantMusic.cs");
-exec("./scripts/script_faceSystem.cs"); parseFacePacks("Add-Ons/Gamemode_Eventide2/players/faces");
-exec("./scripts/script_voiceSystem.cs"); parseVoicePacks("Add-Ons/Gamemode_Eventide2/sounds/voicePacks");
+
+%currentWorkingDirectory = filePath($Con::File);
+exec("./scripts/script_faceSystem.cs"); parseFacePacks(%currentWorkingDirectory @ "/players/faces");
+exec("./scripts/script_voiceSystem.cs"); parseVoicePacks(%currentWorkingDirectory @ "/sounds/voicePacks");
