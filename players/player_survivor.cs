@@ -6,6 +6,8 @@ datablock PlayerData(PlayerSurvivor : PlayerEventide)
     uiName = "Eventide Player";
     maxTools = 3;
 	maxWeapons = 3;
+
+	shoveForce = 1;
 };
 //Inherits functions from `PlayerEventide`.
 PlayerSurvivor.inheritFunctionsFromSuperClass();
@@ -224,12 +226,6 @@ function PlayerSurvivor::shove(%this, %obj)
 				continue;
 			}
 
-			//Play a blunt hit sound on the shove victim.
-			serverPlay3D("melee_shove_sound", %victimPosition);
-
-			//Play an animation on the shove victim.
-			%hit.playThread(2, "jump");
-
 			//Determine the shove force based on player class and exhaustion.
 			%shoveForce = (%hit.getDatablock().getName() $= "PuppetMasterPuppet") ? 2 : %this.shoveForce;
 			%reductionDivider = (%obj.staminaCount >= 5) ? 1.25 : 1;	
@@ -237,7 +233,8 @@ function PlayerSurvivor::shove(%this, %obj)
 			%upwardImpulse = (((%obj.survivorclass $= "fighter") ? 8 : 4) / %reductionDivider) * %shoveForce;
 
 			//Finally, apply the shove force to the victim.
-			%hit.setVelocity(VectorAdd(VectorScale(%eyeVector, %forwardImpulse), "0 0 " @ %upwardImpulse));
+			%finalVelocity = VectorAdd(VectorScale(%eyeVector, %forwardImpulse), "0 0 " @ %upwardImpulse);
+			%hit.getDataBlock().onShoved(%hit, %finalVelocity);
 		}			
 	}
 }

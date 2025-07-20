@@ -28,8 +28,7 @@ datablock PlayerData(PlayerEventide : PlayerStandardArmor)
 	DeathSound = "";
 
 	jumpForce = 0;
-	shoveForce = 1;
-	
+		
 	cameramaxdist = 2.25;
     cameratilt = 0.1;
 	maxfreelookangle = 2.5;
@@ -80,6 +79,18 @@ function PlayerEventide::onImpact(%this, %obj, %col, %vec, %force)
 	{
 		%obj.playthread(3, "plant");
 	}
+}
+
+function PlayerEventide::onShoved(%this, %obj, %velocity)
+{
+	//Play a blunt hit sound on the shove victim.
+	serverPlay3D("melee_shove_sound", %obj.getHackPosition());
+
+	//Play an animation on the shove victim.
+	%obj.playThread(2, "jump");
+
+	//Make the victim get pushed by the shove.
+	%obj.setVelocity(%velocity);
 }
 
 function PlayerEventide::eventideBodyParts(%this, %obj)

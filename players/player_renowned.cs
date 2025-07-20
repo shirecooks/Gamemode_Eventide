@@ -105,7 +105,7 @@ datablock PlayerData(PlayerRenowned : PlayerKiller)
 	uiName = "Renowned Player";	
 	
 	// Weapon: Katana
-	meleeProp = MeleeTantoImage;
+	meleeWeaponImage = MeleeTantoImage;
 
 	facePack = "renowned";
 	voicePack = "renowned";

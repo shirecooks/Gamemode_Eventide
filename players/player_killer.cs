@@ -7,7 +7,7 @@ datablock PlayerData(PlayerKiller : PlayerEventide)
     isKiller = true;
     firstPersonOnly = true;
 	
-	meleeProp = KillerMeleeImage;
+	meleeWeaponImage = KillerMeleeImage;
 
 	facePack = "";
 	voicePack = "";
@@ -57,9 +57,9 @@ function PlayerKiller::onNewDatablock(%this, %obj)
 	}
 
 	//Mount the melee weapon.
-	if(%this.meleeProp !$= "")
+	if(%this.meleeWeaponImage !$= "")
 	{
-		%obj.mountImage(%this.meleeProp, 0);
+		%obj.mountImage(%this.meleeWeaponImage, 0);
 	}
 
 	//Face and voice config setup, if specified.
