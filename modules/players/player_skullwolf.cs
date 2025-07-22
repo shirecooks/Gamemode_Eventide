@@ -47,7 +47,7 @@ datablock PlayerData(PlayerSkullWolf : PlayerRenowned)
 	renderFirstPerson = false;
 
 	rechargeRate = 0.25;
-	maxDamage = 696;
+	maxDamage = 696; //800
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 6.84;

@@ -29,6 +29,7 @@ datablock PlayerData(PlayerCannibal : PlayerRenowned)
 	rightclickicon = "color_dash";
 	leftclickicon = "color_melee";	
 
+	//maxdamage of 800
 	rechargeRate = 0.3;
 	maxTools = 0;
 	maxWeapons = 0;

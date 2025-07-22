@@ -31,7 +31,7 @@ datablock PlayerData(PlayerNightmare : PlayerRenowned)
 	leftclickicon = "color_melee";	
 
 	rechargeRate = 0.3;
-	maxDamage = 1000;
+	maxDamage = 1000; //1000
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 7.35;

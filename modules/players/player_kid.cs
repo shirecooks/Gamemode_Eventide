@@ -58,7 +58,7 @@ datablock PlayerData(PlayerKid : PlayerRenowned)
 	leftclickicon = "color_melee";	
 
 	rechargeRate = 0.3;
-	maxDamage = 800;
+	maxDamage = 800; //800
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 7.35;

@@ -14,7 +14,7 @@ datablock PlayerData(PlayerRenowned : EventidePlayer)
 	meleetrailscale = "4 4 2";
 
 	rechargeRate = 0.26;
-	maxDamage = 762;
+	maxDamage = 762; //800
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 7.32;

@@ -27,8 +27,8 @@ datablock PlayerData(PlayerHuntress : PlayerRenowned)
 	rightclickicon = "color_handaxe";
 	leftclickicon = "color_melee";
 
-	rechargeRate = 0.3;
-	maxDamage = 870;
+	rechargeRate = 0.35;
+	maxDamage = 870; //1000
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 6.25;
@@ -45,7 +45,7 @@ function PlayerHuntress::onTrigger(%this, %obj, %trig, %press, %client)
 	{
 		case 0: if(%obj.getEnergyLevel() >= 25) return %this.killerMelee(%obj,4);
 		
-		case 4: if(%obj.getEnergyLevel() >= %this.maxEnergy/2)
+		case 4: if(%obj.getEnergyLevel() >= %this.maxEnergy)
 				{
 					%obj.setEnergyLevel(0);
 					%obj.playThread(2,"armReadyRight");

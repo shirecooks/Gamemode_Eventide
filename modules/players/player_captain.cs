@@ -62,7 +62,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
 	killerlight = "NoFlareRLight";
 
 	rechargeRate = 0.3;
-	maxDamage = 600;
+	maxDamage = 600; //600
 	maxTools = 1;
 	maxWeapons = 1;
 	maxForwardSpeed = 7.35;
@@ -86,7 +86,7 @@ datablock PlayerData(PlayerCaptain : PlayerRenowned)
 	maxBackwardCrouchSpeed = 5.88;
 	maxSideCrouchSpeed = 5.88;
 
-    nonStealthDamage = 25;
+    nonStealthDamage = 20;
     gazeTickRate = 50;
     gazeMinimumTime = 3000;
     gazeMaximumTime = 6000;
@@ -596,7 +596,7 @@ function PlayerCaptain::killerMelee(%this, %obj, %radius)
             if(isObject(%obj.trackingCandidate) && (%obj.trackingCandidate.getId() == %hit.getId()))
             {
                 //The victim is unaware and has been gazed at for over the threshold, insta-down/kill.
-                %hit.damage(%obj, %hit.getHackPosition(), %hit.getDataBlock().maxDamage, $DamageType::Default);
+                %hit.damage(%obj, %hit.getHackPosition(), %hit.getDataBlock().maxDamage / 1.5, $DamageType::Default);
             }
             else
             {

@@ -254,7 +254,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			class = "EventidePlayerClass";
 			title = "Mender";
 			canStack = false;
-			spawnMessage = "You acquired a medical item and can revive survivors faster!";
+			spawnMessage = "You acquired medical items, can revive one survivor and heal survivors!";
 		};
 
 		new ScriptObject()
@@ -262,7 +262,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			class = "EventidePlayerClass";
 			title = "Runner";
 			canStack = false;
-			spawnMessage = "You acquired a soda and can run slightly faster!";
+			spawnMessage = "You acquired a blue soda and can run slightly faster!";
 		};
 
 		new ScriptObject()
@@ -280,7 +280,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			title = "Fighter";
 			pseudoHealth = 75;
 			canStack = false;
-			spawnMessage = "You acquired a pool cue, can shove further and can take 1 hit before getting damaged!";
+			spawnMessage = "You acquired a bat, can shove further and can take one hit before getting damaged!";
 		};
 
 		new ScriptObject()
@@ -288,7 +288,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			class = "EventidePlayerClass";
 			title = "Tinkerer";
 			canStack = false;
-			spawnMessage = "You acquired a monkey wrench and stungun. Use the wrench to repair generators faster!";
+			spawnMessage = "You acquired a monkey wrench and sentry spawner. Use the wrench to repair generators faster!";
 		};
 
 		new ScriptObject()
@@ -298,7 +298,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 			canStack = false;
 			clearNodes = true;
 			callback = "StallerCallback";
-			spawnMessage = "You are deathly quiet and you can crouch to become invisible! Only lasts 10 seconds.";
+			spawnMessage = "You are deathly quiet and you can crouch to become invisible! Only lasts seven seconds.";
 		};
 	};
 
@@ -316,7 +316,12 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%menderClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = (getRandom(0, 1) ? GauzeItem.getID() : ZombieMedpackItem.getID());
+		itemData = medi_stimpackItem.getID();
+	});
+	%menderClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = DefibrillatorItem.getID();
 	});
 	%menderClass.appearance.add(new ScriptObject()
 	{
@@ -331,7 +336,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%runnerClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = SodaItem.getID();
+		itemData = blueSodaItem.getID();
 	});
 	%runnerClass.appearance.add(new ScriptObject()
 	{
@@ -361,7 +366,7 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%fighterClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = sm_frailswordItem.getID();
+		itemData = batItem.getID();
 	});
 	%fighterClass.appearance.add(new ScriptObject()
 	{
@@ -376,12 +381,12 @@ function EventideClassGroupTemplates::onAdd(%this)
 	%tinkererClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = StunGun.getID();
+		itemData = MonkeyWrench.getID();
 	});
 	%tinkererClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = MonkeyWrench.getID();
+		itemData = PlaceSentryRifleItem.getID();
 	});
 	%tinkererClass.appearance.add(new ScriptObject()
 	{

@@ -9,11 +9,11 @@ datablock ItemData(MonkeyWrench)
 	emap = false;
 	
 	uiName = "Monkey Wrench";
-	iconName = "base/client/ui/itemIcons/Wrench.png";
+	iconName = "./icons/icon_monkeywrench";
 	doColorShift = false;
 	
 	image = MonkeyWrenchImage;
-	canDrop = false;
+	canDrop = true;
 };
 
 datablock ShapeBaseImageData(MonkeyWrenchImage)
@@ -24,6 +24,7 @@ datablock ShapeBaseImageData(MonkeyWrenchImage)
 	offset = "0.0 0.0 0.0";
 	eyeOffset = 0;
 	rotation = eulerToMatrix("0 0 0");
+	isSpecial = true;
 	
 	className = "WeaponImage";
 	item = MonkeyWrench;

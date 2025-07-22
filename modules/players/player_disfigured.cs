@@ -102,7 +102,7 @@ datablock PlayerData(PlayerDisfigured : PlayerRenowned)
 
 	rechargeRate = 0.3;
 	runForce = 950;
-	maxDamage = 818;
+	maxDamage = 818; //1000
 	maxTools = 0;
 	maxWeapons = 0;
 	maxForwardSpeed = 7.7;

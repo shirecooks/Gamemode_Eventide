@@ -45,6 +45,11 @@ function itemEmitterLoop(%obj, %emitterNode)
 	{
 		%ItemEmitterDatablock = "brickDeployExplosionEmitter";
 	}
+	
+	if(%obj.getDataBlock().image.isSpecial)
+	{
+		%ItemEmitterDatablock = "rainbowPaintExplosionEmitter";
+	}
 
 	if (!isObject(%emitterNode))
 	{

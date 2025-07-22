@@ -39,7 +39,7 @@ datablock ExplosionData(homingRocketLauncherExplosion : rocketExplosion)
 datablock ProjectileData(homingRocketLauncherProjectile)
 {
 	projectileShapeName = "Add-Ons/Projectile_GravityRocket/RocketGravityProjectile.dts";
-	directDamage        = 100;
+	directDamage        = 66;
 	directDamageType 	= $DamageType::RocketDirect;
 	radiusDamageType 	= $DamageType::RocketRadius;
 	impactImpulse	   	= 1000;

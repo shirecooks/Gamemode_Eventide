@@ -62,7 +62,7 @@ datablock PlayerData(PlayerShadow : PlayerRenowned)
 	rightclickicon = "color_random_item";
 
 	rechargeRate = 0.3;
-	maxDamage = 900;
+	maxDamage = 900; //900
 	maxTools = 1;
 	maxWeapons = 1;
 	maxForwardSpeed = 7.35;
