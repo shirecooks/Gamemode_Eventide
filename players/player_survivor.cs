@@ -238,3 +238,15 @@ function PlayerSurvivor::shove(%this, %obj)
 		}			
 	}
 }
+
+function PlayerEventide::onShoved(%this, %obj, %velocity)
+{
+	//Play a blunt hit sound on the shove victim.
+	serverPlay3D("melee_shove_sound", %obj.getHackPosition());
+
+	//Play an animation on the shove victim.
+	%obj.playThread(2, "jump");
+
+	//Make the victim get pushed by the shove.
+	%obj.setVelocity(%velocity);
+}

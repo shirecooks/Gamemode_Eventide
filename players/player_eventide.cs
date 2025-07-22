@@ -27,8 +27,7 @@ datablock PlayerData(PlayerEventide : PlayerStandardArmor)
 	PainSound = "";
 	DeathSound = "";
 
-	jumpForce = 0;
-		
+	jumpForce = 0;	
 	cameramaxdist = 2.25;
     cameratilt = 0.1;
 	maxfreelookangle = 2.5;
@@ -56,7 +55,6 @@ function PlayerEventide::onNewDatablock(%this, %obj)
 	}
 
 	//I doubt this is needed, but we'll leave it in anyway.
-	%obj.setEnergyLevel(0);
 	%obj.setActionThread("root");
 	%obj.setScale("1 1 1");
 }
