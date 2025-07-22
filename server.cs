@@ -14,6 +14,7 @@ exec("./players/datablock_killerMeleeProp.cs");
 
 exec("./players/player_eventide.cs");
 exec("./players/player_survivor.cs");
+exec("./players/player_staller.cs");
 exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
 
