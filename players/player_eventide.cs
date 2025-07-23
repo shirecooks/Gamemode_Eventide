@@ -47,12 +47,6 @@ datablock PlayerData(PlayerEventide : PlayerStandardArmor)
 function PlayerEventide::onNewDatablock(%this, %obj)
 {
 	Parent::onNewDatablock(%this, %obj);
-	
-	//Play an ambiant track.
-	if(isObject(%obj.client))
-	{
-		%obj.client.playAmbiance();
-	}
 
 	//I doubt this is needed, but we'll leave it in anyway.
 	%obj.setActionThread("root");
@@ -391,12 +385,12 @@ function PlayerEventide::SetTempSpeed(%this, %obj, %speedMultiplier)
 // Some stub functions that both survivors and killers use, but don't have shared functionality.
 //
 
-function PlayerSurvivor::onKillerEnterRange(%this, %obj, %target)
+function PlayerEventide::onKillerEnterRange(%this, %obj, %target)
 {
 
 }
 
-function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
+function PlayerEventide::onKillerExitRange(%this, %obj, %target)
 {
 	
 }
