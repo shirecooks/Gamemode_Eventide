@@ -32,9 +32,9 @@ datablock ParticleData(stallerCloakSmokeParticle)
    textureName = "base/data/particles/cloud";
    useInvAlpha = true;
 
-   colors[0] = "0.2 0.2 0.2 1";
-   colors[1] = "0.1 0.1 0.1 0.5";
-   colors[2] = "0 0 0 0";
+   colors[0] = "0 0 0 0.5";
+   colors[1] = "0.1 0.1 0.1 1";
+   colors[2] = "0.15 0.15 0.15 0";
 
    sizes[0] = 3.0;
    sizes[1] = 2.0;
@@ -49,13 +49,16 @@ datablock ParticleData(stallerCloakInvertedStarParticle : stallerCloakSmokeParti
 {
 	textureName = "Add-Ons/Gamemode_Eventide/players/icons/invertedStar";
 
-	colors[0] = "1 0 0 1";      // Red at start
-	colors[1] = "1 0 0 1";  // Darker red mid-life
-	colors[2] = "1 0 0 0";      // Black and invisible at end
+	lifetimeMS = 800;
+	gravityCoefficient = -0.5;
 
-	sizes[0] = 1.0;
-	sizes[1] = 1.0;
-	sizes[2] = 1.0;
+	colors[0] = "1 0 0 1";
+	colors[1] = "1 0 0 1";
+	colors[2] = "1 0 0 0";
+
+	sizes[0] = 0.75;
+	sizes[1] = 0.75;
+	sizes[2] = 0.75;
 };
 
 datablock ParticleEmitterData(stallerCloakSmokeEmitter)
@@ -70,7 +73,7 @@ datablock ParticleEmitterData(stallerCloakSmokeEmitter)
 	ejectionOffset = 2.0; //How far away from the origin point particles can spawn.
 
 	thetaMin = 0; //Particles spawn up.
-	thetaMax = 180; //Particles spawn down.
+	thetaMax = 90; //Particles spawn down.
 
 	//Make the particles spawn around the origin point, never on.
 	phiReferenceVel = 720;
@@ -84,8 +87,8 @@ datablock ParticleEmitterData(stallerCloakSmokeEmitter)
 
 datablock ParticleEmitterData(stallerCloakInvertedStarEmitter : stallerCloakSmokeEmitter)
 {
-	ejectionPeriodMS = 50;
-	ejectionOffset = 4.0; //How far away from the origin point particles can spawn.
+	ejectionPeriodMS = 45;
+	ejectionOffset = 3.5; //How far away from the origin point particles can spawn.
 	particles = "stallerCloakInvertedStarParticle";
 };
 
