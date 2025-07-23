@@ -15,6 +15,125 @@ datablock ShapeBaseImageData(stallerHoodImage)
 };
 
 //
+// Cloak/decloak emitter effects.
+//
+
+datablock ParticleData(stallerCloakSmokeParticle)
+{
+   dragCoefficient = 1.0;
+   constantAcceleration = 0.0;
+   gravityCoefficient = -3.0;
+   inheritedVelFactor = 1.0;
+   spinSpeed = 0;
+
+   lifetimeMS = 400;
+   lifetimeVarianceMS = 100;
+
+   textureName = "base/data/particles/cloud";
+   useInvAlpha = true;
+
+   colors[0] = "0.2 0.2 0.2 1";
+   colors[1] = "0.1 0.1 0.1 0.5";
+   colors[2] = "0 0 0 0";
+
+   sizes[0] = 3.0;
+   sizes[1] = 2.0;
+   sizes[2] = 1.5;
+
+   times[0] = 0.0;
+   times[1] = 0.5;
+   times[2] = 1.0;
+};
+
+datablock ParticleData(stallerCloakInvertedStarParticle : stallerCloakSmokeParticle)
+{
+	textureName = "Add-Ons/Gamemode_Eventide/players/icons/invertedStar";
+
+	colors[0] = "1 0 0 1";      // Red at start
+	colors[1] = "1 0 0 1";  // Darker red mid-life
+	colors[2] = "1 0 0 0";      // Black and invisible at end
+
+	sizes[0] = 1.0;
+	sizes[1] = 1.0;
+	sizes[2] = 1.0;
+};
+
+datablock ParticleEmitterData(stallerCloakSmokeEmitter)
+{
+	lifeTimeMS = 300;
+	ejectionPeriodMS = 1;
+	periodVarianceMS = 0;
+
+	ejectionVelocity = 1.0;
+	velocityVariance = 0.0;
+
+	ejectionOffset = 2.0; //How far away from the origin point particles can spawn.
+
+	thetaMin = 0; //Particles spawn up.
+	thetaMax = 180; //Particles spawn down.
+
+	//Make the particles spawn around the origin point, never on.
+	phiReferenceVel = 720;
+	phiVariance = 360;
+
+	overrideAdvance = false;
+	useEmitterColors = false;
+	orientParticles = false;
+	particles = "stallerCloakSmokeParticle";
+};
+
+datablock ParticleEmitterData(stallerCloakInvertedStarEmitter : stallerCloakSmokeEmitter)
+{
+	ejectionPeriodMS = 50;
+	ejectionOffset = 4.0; //How far away from the origin point particles can spawn.
+	particles = "stallerCloakInvertedStarParticle";
+};
+
+datablock ExplosionData(stallerCloakExplosion)
+{
+	lifeTimeMS = 800;
+	particleDensity = 100;
+	particleRadius = 1.0;
+	emitter[0] = stallerCloakSmokeEmitter;
+	emitter[1] = stallerCloakInvertedStarEmitter;
+
+	damageRadius = 0; 
+	radiusDamage = 0;
+	impulseRadius = 0;
+	impulseForce = 0;
+	playerBurnTime = 0;
+
+	shakeCamera = false;
+	explosionShape = "base/data/shapes/empty.dts";
+};
+
+datablock ProjectileData(stallerCloakProjectile)
+{
+	directDamage = 0;
+	directDamageType = $DamageType::Default;
+	radiusDamageType = $DamageType::Default;
+	impactImpulse = 0;
+	verticalImpulse = 0;
+
+	explosion = stallerCloakExplosion;
+	waterExplosion = stallerCloakExplosion;
+	particleEmitter = "";
+	particleWaterEmitter = "";
+	splash = "";
+
+	armingDelay = 0;
+	lifeTime = 1;
+	isBallistic = false;
+	explodeOnDeath = true;
+	
+	muzzleVelocity = 0;
+	velInheritFactor = 1.0;
+
+	hasLight = false;
+	projectileShapeName = "base/data/shapes/empty.dts";
+};
+
+//
 // Core and appearance.
 //
 
@@ -96,6 +215,20 @@ function PlayerStaller::eventideBodyColors(%this, %obj)
 // Cloaking mechanic and datablock.
 //
 
+function PlayerStaller::spawnCloakEffect(%this, %obj)
+{
+	%effectProjectile = new Projectile()
+	{
+		dataBlock = stallerCloakProjectile;
+		initialVelocity = VectorAdd(%obj.getVelocity(), "0 0 0.1"); //Particle positioning messes up if velocity is exactly 0. Let's fix it!
+		initialPosition = %obj.getTransform();
+		sourceObject = %obj;
+		sourceSlot = 3;
+		client = %obj.client;
+	};
+	%effectProjectile.explode();
+}
+
 datablock PlayerData(PlayerStallerCloaked : PlayerStaller)
 {
     class = "PlayerStallerCloaked";
@@ -128,7 +261,10 @@ function PlayerStallerCloaked::eventideBodyColors(%this, %obj)
 	//Invisible, so nothing is needed here.
 }
 
-//Cloaking.
+//
+// Cloaking.
+
+//Triggering a cloak.
 function PlayerStaller::onTrigger(%this, %obj, %trigger, %state)
 {
 	%returnValue = %this.super("onTrigger", %this, %obj, %trigger, %state);
@@ -139,6 +275,7 @@ function PlayerStaller::onTrigger(%this, %obj, %trigger, %state)
 	return %returnValue;
 }
 
+//Cloak effects.
 function PlayerStaller::cloak(%this, %obj)
 {
 	//Energy needs to be full to cloak, for balance reasons.
@@ -155,12 +292,15 @@ function PlayerStaller::cloak(%this, %obj)
 	//Store last cloaking time.
 	%obj.lastCloakTime = getSimTime();
 
-	//Play the cloaking sound effect.
-	serverPlay3D("staller_cloak_sound", %obj.getHackPosition());
-
 	//Change the player to the cloaked datablock, so all the nodes will be hidden and the crouching speed will be increased.
 	%targetDatablock = PlayerStallerCloaked;
 	%obj.setDataBlock(%targetDatablock);
+
+	//Make a cloud of smoke and inverted stars.
+	%this.spawnCloakEffect(%obj);
+
+	//Play the cloaking sound effect.
+	serverPlay3D("staller_cloak_sound", %obj.getHackPosition());
 
 	//Start the tick loop, to determine when the player has run out of energy.
 	cancel(%obj.cloakTickSchedule);
@@ -195,7 +335,10 @@ function PlayerStallerCloaked::cloakTick(%this, %obj)
 	%obj.cloakTickSchedule = %this.schedule(33, cloakTick, %obj);
 }
 
-//Decloak.
+//
+// Decloak.
+
+//Triggering a cloak.
 function PlayerStallerCloaked::onTrigger(%this, %obj, %trigger, %state)
 {
 	%returnValue = %this.super("onTrigger", %this, %obj, %trigger, %state);
@@ -210,6 +353,9 @@ function PlayerStallerCloaked::uncloak(%this, %obj)
 {
 	//Cancel the looping check for energy, if it exists.
 	cancel(%obj.cloakTickSchedule);
+
+	//Make a cloud of smoke and inverted stars.
+	%this.spawnCloakEffect(%obj);
 
 	//Play the decloaking sound effect.
 	serverPlay3D("staller_uncloak_sound", %obj.getHackPosition());
