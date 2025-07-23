@@ -115,7 +115,7 @@ function Player::playRandomAmbiantTrack(%obj, %override)
     }
 }
 
-package(Gamemode_Eventide_AmbiantMusic)
+package Gamemode_Eventide_AmbiantMusic
 {
     function PlayerEventide::onRemove(%this, %obj)
     {
@@ -131,7 +131,7 @@ package(Gamemode_Eventide_AmbiantMusic)
     function PlayerEventide::onNewDatablock(%this, %obj)
     {
         Parent::onNewDatablock(%this, %obj);
-        
+
         //Play an ambiant track.
         %client = %obj.client;
         if(isObject(%client))
