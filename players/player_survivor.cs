@@ -53,6 +53,9 @@ function PlayerSurvivor::onKillerEnterRange(%this, %obj, %target)
 	{
 		%obj.createSubfaceConfig("Scared");
 	}
+
+	//Play the killer's nearby music.
+	%obj.playAmbiantMusic(%target.killerNearMusic, 1, 1.0);
 }
 
 function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
@@ -62,6 +65,12 @@ function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
 	if(%obj.nearbyKillers.getCount() == 0)
 	{
 		%obj.revertSubfaceConfig();
+	}
+
+	//No killers are chasing or nearby, resume the ambiant music track.
+	if(%obj.nearbyKillers.getCount() == 0 && %obj.chasingKillers.getCount() == 0)
+	{
+		%obj.playRandomAmbiantTrack(true);
 	}
 }
 
@@ -73,6 +82,9 @@ function PlayerSurvivor::onKillerChaseStart(%this, %obj, %target)
 	{
 		%obj.playThread(2, "talk");
 	}
+
+	//Play the killer's chase music.
+	%obj.playAmbiantMusic(%target.killerChaseMusic, 2, 1.0);
 }
 
 function PlayerSurvivor::onKillerChaseEnd(%this, %obj, %target)
@@ -82,6 +94,24 @@ function PlayerSurvivor::onKillerChaseEnd(%this, %obj, %target)
 	if(%obj.chasingKillers.getCount() == 0)
 	{
 		%obj.playThread(2, "root");
+	}
+
+	//Depending on the circumstances, play a killer's nearby music, or just some ambiant tracks.
+	%amountChasingKillers = %obj.chasingKillers.getCount();
+	%amountNearbyKillers = %obj.nearbyKillers.getCount();
+	if(%amountChasingKillers > 0)
+	{
+		%chosenKiller = %obj.chasingKillers.getObject(getRandom(0, %amountChasingKillers));
+		%obj.playAmbiantMusic(%chosenKiller.killerChaseMusic, 2, 1.0, true);
+	}
+	else if(%amountNearbyKillers > 0)
+	{
+		%chosenKiller = %obj.nearbyKillers.getObject(getRandom(0, %amountNearbyKillers));
+		%obj.playAmbiantMusic(%chosenKiller.killerNearMusic, 1, 1.0, true);
+	}
+	else
+	{
+		%obj.playRandomAmbiantTrack(true);
 	}
 }
 

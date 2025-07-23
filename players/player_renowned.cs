@@ -121,8 +121,8 @@ datablock PlayerData(PlayerRenowned : PlayerKiller)
 	rightclickspecialicon = "";
 	leftclickspecialicon = "";
 
-	killerChaseLvl1Music = musicData_Eventide_RenownedNear;
-	killerChaseLvl2Music = musicData_Eventide_RenownedChase;
+	killerNearMusic = musicData_Eventide_RenownedNear;
+	killerChaseMusic = musicData_Eventide_RenownedChase;
 };
 PlayerRenowned.inheritFunctionsFromSuperClass();
 
