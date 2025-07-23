@@ -276,7 +276,7 @@ function PlayerSkullWolf::EventideAppearance(%this,%obj,%client)
 
 function PlayerSkullWolf::onKillerHit(%this,%obj,%hit)
 {
-	if(%hit.getDamagePercent() > 0.25 && %hit.getdataBlock().isDowned)
+	if(%hit.getDamagePercent() >= 0.7125)
 	{		
 		%obj.mountobject(%hit,9);
 		%obj.playthread(1,"eat");

@@ -241,7 +241,7 @@ function PlayerSkinwalker::Transform(%this,%obj,%bool,%count)
 
 function PlayerSkinWalker::onKillerHit(%this,%obj,%hit)
 {
-	if(isObject(%obj.victim) || !%hit.getdataBlock().isDowned || %hit.getDamagePercent() < 0.05)
+	if(isObject(%obj.victim) || %hit.getDamagePercent() <= 0.7)
 	{
 		return true;
 	}

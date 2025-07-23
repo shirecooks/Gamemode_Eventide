@@ -1,4 +1,5 @@
-//findClientByName("Robbin").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Fighter"));
+findClientByName("Lane").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
 
 //
 // Resources that must go in this file.
