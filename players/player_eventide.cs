@@ -22,6 +22,9 @@ datablock PlayerData(PlayerEventide : PlayerStandardArmor)
 	showEnergyBar = true;
 	rechargeRate = 0.375;
 
+	maxWeapons = 3;
+	maxTools = 3;
+
 	useCustomPainEffects = true;
 	jumpSound = "";
 	PainSound = "";
