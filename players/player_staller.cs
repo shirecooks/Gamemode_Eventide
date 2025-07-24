@@ -207,7 +207,7 @@ function PlayerStaller::eventideBodyColors(%this, %obj)
 	%obj.setNodeColor("Lhand", %skinColor);
 
     //Set blood node colors, only shown upon taking damage.
-	%bloodColor = "0.7 0 0 1";
+	%bloodColor = "0.4 0 0 1";
 	%obj.setNodeColor("lhand_blood", %bloodColor);
 	%obj.setNodeColor("rhand_blood", %bloodColor);
 	%obj.setNodeColor("chest_blood_front", %bloodColor);
