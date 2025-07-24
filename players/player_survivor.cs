@@ -3,7 +3,7 @@ datablock PlayerData(PlayerSurvivor : PlayerEventide)
     class = "PlayerSurvivor";
     superClass = "PlayerEventide";
 
-    uiName = "Eventide Player";
+    uiName = "Basic Survivor";
     maxTools = 3;
 	maxWeapons = 3;
 
