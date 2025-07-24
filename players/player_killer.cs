@@ -252,7 +252,7 @@ function PlayerKiller::killerLoop(%this, %obj)
     {
         //Skip invalid conditions
         %victimDatablock = %victim.getDataBlock();
-        if(%victimDatablock.isKiller || %victim.isInvisible || %victim.getState() $= "Dead" || !MinigameCanDamage(%obj, %victim))
+        if(!%victimDatablock.isEventideClass || %victimDatablock.isKiller || %victim.isInvisible || %victim.getState() $= "Dead" || !MinigameCanDamage(%obj, %victim))
         {
             continue;
         }
@@ -262,15 +262,8 @@ function PlayerKiller::killerLoop(%this, %obj)
         
         %typemasks = $TypeMasks::FxBrickObjectType | $TypeMasks::VehicleObjectType | %TypeMasks::TerrainObjectType;
         %dot = VectorDot(%obj.getLookVector(), VectorNormalize(VectorSub(%victimPosition, %killerPosition)));
-        %victim = containerRayCast(%killerPosition, %victimPosition, %typemasks, %obj);
+        %victimObstructed = containerRayCast(%killerPosition, %victimPosition, %typemasks, %obj);
         %victimDistance = containerSearchCurrDist();
-
-		//If the victim is close enough to melee, mark as such for the UI.
-		if(%victimDistance <= %this.meleeRange && !%closeRangeFlag)
-		{
-			%closeRangeFlag = true;
-			%obj.gazingPlayer = true;
-		}
 
 		//Before anything else, mark the victim as near the killer if they aren't already.
 		if(!%victim.isKillerNear)
@@ -284,8 +277,15 @@ function PlayerKiller::killerLoop(%this, %obj)
 		}
 
 		//If the victim is in view of the killer, start some music, do some facial expressions, etc.
-        if(%dot > 0.45)
+        if(%dot > 0.45 && !%victimObstructed)
         {
+			//If the victim is close enough to melee, mark as such for the UI.
+			if(%victimDistance <= %this.meleeRange && !%closeRangeFlag)
+			{
+				%closeRangeFlag = true;
+				%obj.gazingPlayer = true;
+			}
+
 			%victim.timeSinceChased = %currentTime;
 
 			//If the victim wasn't being chased previously, do some actions.
@@ -323,20 +323,23 @@ function PlayerKiller::postKillerLoop(%this, %obj)
 	{
 		//The killer is actively chasing someone.
 		%obj.playVoiceLine("Chase");
+		%obj.playAmbiantMusic(%this.killerChaseMusic, 2, 1.0, true);
 	}
 	else if(%obj.nearVictims.getCount() > 0)
 	{
 		//The killer isn't in a chase, but people are nearby.
 		%obj.playVoiceLine("Near");
+		%obj.playAmbiantMusic(%this.killerNearMusic, 1, 1.0, true);
 	}
 	else
 	{
 		//The killer has no action at all.
 		%obj.playVoiceLine("Idle");
+		%obj.playRandomAmbiantTrack(true);
 	}
 }
 
-function PlayerEventide::onKillerChaseStart(%this, %obj, %target)
+function PlayerKiller::onKillerChaseStart(%this, %obj, %target)
 {
 	//The chase is initially starting.
 	if(%obj.chasingVictims.getCount() == 1)
@@ -349,7 +352,7 @@ function PlayerEventide::onKillerChaseStart(%this, %obj, %target)
 	}
 }
 
-function PlayerEventide::onKillerChaseEnd(%this, %obj, %target)
+function PlayerKiller::onKillerChaseEnd(%this, %obj, %target)
 {
 	//Remove them from the threat list, so they can threaten the killer again next chase.
 	%obj.threatenedBy.remove(%target);

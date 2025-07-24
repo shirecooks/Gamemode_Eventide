@@ -13,6 +13,12 @@ function GameConnection::playAmbiantMusic(%this, %musicDatablock, %priority, %vo
     %eventideMusicEmitter = %this.eventideMusicEmitter;
     if(isObject(%eventideMusicEmitter))
     {
+        //If this music is already playing, skip.
+        if(%eventideMusicEmitter.profile == %musicDatablock)
+        {
+            return;
+        }
+
         //The music currently playing is more important than the music to be played.
         //For example, round end tension music has higher priority than chase music.
         //If that is the case, do nothing.
