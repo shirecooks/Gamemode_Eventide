@@ -201,28 +201,28 @@ function PlayerSurvivor::shove(%this, %obj)
 	%minEnergy = (%this.maxEnergy / 4);
 	%energyCost = 20;
 
-	if((%triggerTime - %obj.staminaTime) > 3500)//Reset the delay if the player waits long enough, 3.5 seconds
+	if((%triggerTime - %obj.shoveCooldown) > 3500)//Reset the delay if the player waits long enough, 3.5 seconds
 	{
-		%obj.staminaCount = 0;
-		%obj.staminaTime = 0;
+		%obj.shoveFatigue = 0;
+		%obj.shoveCooldown = 0;
 	}
 
 	//If we have enough energy, we can shove.
-	if(%obj.staminaTime < %triggerTime && %obj.getEnergyLevel() >= %minEnergy)
+	if(%obj.shoveCooldown < %triggerTime && %obj.getEnergyLevel() >= %minEnergy)
 	{
 		%obj.setEnergyLevel(%obj.getEnergyLevel() - %energyCost);
-		%obj.staminaCount++;
-		%obj.staminaTime = (%triggerTime + 400) + (40 * %obj.staminaCount);
+		%obj.shoveFatigue++;
+		%obj.shoveCooldown = (%triggerTime + 400) + (40 * %obj.shoveFatigue);
 		%soundpitch = getRandom(50, 125);
 
 		//Shoving five times consecutively causing exhaustion.
-		if(%obj.staminaCount >= 5)
+		if(%obj.shoveFatigue >= 5)
 		{
 			cancel(%obj.resetStamina);
 			%soundpitch = getRandom(50,80);
 			%obj.resetStamina = %this.schedule(4000, resetStamina, %obj);
 
-			if(%obj.staminaCount == 5)
+			if(%obj.shoveFatigue == 5)
 			{							
 				%obj.resetStamina = %this.schedule(4000, resetStamina, %obj);
 			}								
@@ -257,10 +257,10 @@ function PlayerSurvivor::shove(%this, %obj)
 			}
 
 			//Determine the shove force based on player class and exhaustion.
-			%shoveForce = (%hit.getDatablock().getName() $= "PuppetMasterPuppet") ? 2 : %this.shoveForce;
-			%reductionDivider = (%obj.staminaCount >= 5) ? 1.25 : 1;	
-			%forwardImpulse = (((%obj.survivorclass $= "fighter") ? 12 : 8) / %reductionDivider) * %shoveForce;
-			%upwardImpulse = (((%obj.survivorclass $= "fighter") ? 8 : 4) / %reductionDivider) * %shoveForce;
+			%shoveForce = %this.shoveForce;
+			%reductionDivider = (%obj.shoveFatigue >= 5) ? 1.25 : 1;
+			%forwardImpulse = %shoveForce * ((8 + %shoveForce) / %reductionDivider);
+			%upwardImpulse = %shoveForce * (4 / %reductionDivider);
 
 			//Finally, apply the shove force to the victim.
 			%finalVelocity = VectorAdd(VectorScale(%eyeVector, %forwardImpulse), "0 0 " @ %upwardImpulse);
