@@ -145,7 +145,7 @@ datablock PlayerData(PlayerStaller : PlayerSurvivor)
     class = "PlayerStaller";
     superClass = "PlayerSurvivor";
 
-    uiName = "Staller Player";
+    uiName = "Staller";
 	hoodMountPoint = 3;
 };
 //Inherits functions from `PlayerSurvivor`.
