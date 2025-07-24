@@ -151,12 +151,6 @@ function PlayerSurvivor::Damage(%this, %obj, %sourceObject, %position, %damage, 
 
 	//Let the damage actually occur.
     Parent::Damage(%this, %obj, %sourceObject, %position, %damage, %damageType);
-	
-	//The player died, let's do a check to see how many survivors are left.
-	if(%fatalDamage && isObject(%minigame))
-	{
-		%minigame.checkDownedSurvivors();
-	}
 		
 	if(%damage > 5 && !%fatalDamage) 
 	{
