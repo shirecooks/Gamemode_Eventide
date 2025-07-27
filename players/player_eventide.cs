@@ -102,7 +102,7 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 
 	//Get rid of the Hatmod hat if the player isn't supposed to have it.
 	%hatModHat = %obj.getMountedImage(2);
-	if(%this.noHatmod && isObject(%hatModHat))
+	if(%this.noHatmod && isObject(%hatModHat) && isFunction(isHat) && isHat(%hatModHat))
 	{
 		%obj.unmountImage(2);
 	}
