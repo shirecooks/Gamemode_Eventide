@@ -369,3 +369,48 @@ function PlayerStallerCloaked::uncloak(%this, %obj)
 	//Resume the normal datablock and appearance code.
 	%obj.setDataBlock(PlayerStaller);
 }
+
+//
+// Package to mute Staller and clean up the hood when switch datablocks.
+//
+
+package Player_Staller
+{
+	//Unmount the Staller hood if the player has it equipped and is no longer a Staller.
+	function GameConnection::applyBodyParts(%this)
+	{
+		%player = %this.player;
+		%playerDatablock = %player.getDatablock();
+		%hoodMountPoint = PlayerStaller.hoodMountPoint;
+		%thirdMountedImage = %player.getMountedImage(%hoodMountPoint);
+
+		if(%player && %playerDatablock.getName() !$= "PlayerStaller" && %thirdMountedImage && %thirdMountedImage.getName() $= "stallerHoodImage")
+		{
+			%player.unmountImage(%hoodMountPoint);
+		}
+
+		//Continue on with expected appearance functionality.
+		return Parent::applyBodyParts(%this);
+	}
+
+	//Make the Staller more cold and emotionless by preventing them from emoting.
+	function Player::emote(%player, %data, %skipSpam)
+	{
+		if(%player.getDataBlock().getName() $= "PlayerStaller")
+		{
+			%client = %player.client;
+			if(%client)
+			{
+				%client.centerPrint("<color:ffffff>...", 3);
+			}
+
+			return;
+		}
+		Parent::emote(%player, %data, %skipSpam);
+	}
+};
+if(isPackage(Player_Staller))
+{
+	deactivatePackage(Player_Staller);
+}
+activatePackage(Player_Staller);
