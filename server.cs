@@ -19,6 +19,7 @@ exec("./players/player_tinkerer.cs");
 exec("./players/player_hoarder.cs");
 exec("./players/player_fighter.cs");
 exec("./players/player_mender.cs");
+exec("./players/player_runner.cs");
 exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
 
