@@ -380,6 +380,11 @@ package Player_Staller
 	function GameConnection::applyBodyParts(%this)
 	{
 		%player = %this.player;
+		if(!%player)
+		{
+			return;
+		}
+		
 		%playerDatablock = %player.getDatablock();
 		%hoodMountPoint = PlayerStaller.hoodMountPoint;
 		%thirdMountedImage = %player.getMountedImage(%hoodMountPoint);
