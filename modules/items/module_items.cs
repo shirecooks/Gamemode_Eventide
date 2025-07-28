@@ -28,3 +28,4 @@ exec("./weapon_homingrocket.cs");
 exec("./weapon_throwingspear.cs");
 exec("./weapon_frailsword.cs");
 exec("./weapon_bat.cs");
+exec("./weapon_revolver.cs");

@@ -58,7 +58,6 @@ datablock PlayerData(PlayerSkullWolf : PlayerRenowned)
 	maxForwardCrouchSpeed = 4.84;
 	maxBackwardCrouchSpeed = 1.91;
 	maxSideCrouchSpeed = 2.87;
-	crouchBoundingBox = PlayerStandardArmor.boundingBox;
 	jumpForce = 0;
 };
 

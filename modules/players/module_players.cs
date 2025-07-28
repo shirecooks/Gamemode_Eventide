@@ -26,6 +26,7 @@ exec("./player_mastermind.cs");
 exec("./player_kid.cs");
 exec("./player_diver.cs");
 exec("./player_redherring.cs");
+exec("./player_yourself.cs");
 exec("./player_shadow.cs");
 exec("./player_blockhead.cs");
 exec("./player_badspot.cs");

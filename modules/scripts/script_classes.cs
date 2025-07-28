@@ -1,5 +1,5 @@
-//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Fighter"));
-findClientByName("Lane").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Sheriff"));
+//findClientByName("Lane").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
 
 //
 // Resources that must go in this file.
@@ -291,6 +291,14 @@ function EventideClassGroupTemplates::onAdd(%this)
 			canStack = false;
 			spawnMessage = "You acquired a monkey wrench and sentry spawner. Use the wrench to repair generators faster!";
 		};
+		
+		new ScriptObject()
+		{
+			class = "EventidePlayerClass";
+			title = "Sheriff";
+			canStack = false;
+			spawnMessage = "You acquired a revolver!";
+		};
 
 		new ScriptObject()
 		{
@@ -393,6 +401,21 @@ function EventideClassGroupTemplates::onAdd(%this)
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "civilian";
+	});
+	
+	
+	%sheriffClass = %this.index["Classic"].getClass("Sheriff");
+	%sheriffClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%sheriffClass.appearance.facePack["male"] = $Eventide_FacePacks["sheriffM"];
+	%sheriffClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = RevolverItem.getID();
+	});
+	%sheriffClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "police";
 	});
 
 
