@@ -88,7 +88,11 @@ function stunImage::onMount(%this, %obj)
 		case "Player": 	
             %obj.client.setControlObject(%obj.client.camera);
 			%obj.client.camera.setMode("Corpse",%obj);
-			%obj.getDatablock().onEnterStun(%obj);
+            %playerDatablock = %obj.getDatablock();
+			if(isFunction(%playerDatablock, onEnterStun))
+            {
+                %playerDatablock.onEnterStun(%obj);
+            }
 		case "AIPlayer": 
             %obj.stopholeloop();
 	}
@@ -109,7 +113,11 @@ function stunImage::onUnMount(%this, %obj)
 		case "Player": 	
             %obj.client.setControlObject(%obj);
 			%obj.client.camera.setMode("Observer");
-			%obj.getDatablock().onExitStun(%obj);
+            %playerDatablock = %obj.getDatablock();
+            if(isFunction(%playerDatablock, onExitStun))
+            {
+                %playerDatablock.onExitStun(%obj);
+            }
 		case "AIPlayer": 
             %obj.startHoleLoop();
 	}
