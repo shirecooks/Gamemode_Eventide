@@ -2,8 +2,8 @@
 // Damage types.
 //
 
-AddDamageType("ButterflyKnifeWeak", '<bitmap:Add-Ons/Gamemode_Eventide/modules/items/icons/ci_butterflyknife> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/modules/items/icons/ci_butterflyknife> %1', 1, 1);
-AddDamageType("ButterflyKnifeBackstab", '<bitmap:Add-Ons/Gamemode_Eventide/modules/items/icons/ci_butterflyknife> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/modules/items/icons/ci_butterflyknife> %1', 1, 1);
+AddDamageType("ButterflyKnifeWeak", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_butterflyknife> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_butterflyknife> %1', 1, 1);
+AddDamageType("ButterflyKnifeBackstab", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_butterflyknife> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_butterflyknife> %1', 1, 1);
 
 //
 // Projectiles datablocks.
@@ -36,10 +36,28 @@ datablock ProjectileData(butterflyKnifeWeakProjectile)
 
 datablock ProjectileData(butterflyKnifeChargedProjectile : butterflyKnifeWeakProjectile)
 {
-    directDamage = 0; //Damge must be determined by a function.
+    directDamage = 0; //Damage must be determined by a function.
     directDamageType = $DamageType::ButterflyKnifeBackstab;
     criticalHitDamage = 75;
 };
+
+function butterflyKnifeWeakProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity)
+{
+    if(%col.getType() & $TypeMasks::PlayerObjectType)
+    {
+        //Integral for cooldown checking upon knife re-equip.
+        %attacker = %obj.sourceObject;
+        %attacker.lastKnifeTime = getSimTime();
+
+        %slot = %obj.sourceSlot;
+        %cooldown = mCeil(butterflyKnifeImage.cooldown / 1000);
+
+        //Put the player on cooldown after using the knife.
+        //Triggers `stateTransitionOnAmmo[1]`.
+        %attacker.butterflyKnifeCooldown(%slot, "The blade was bent, and cannot be fixed for another " @ %cooldown @ " seconds.", "The knife is fixed and ready for combat!", 6);
+    }
+    return Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
+}
 
 function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, %position, %normal, %velocity)
 {
@@ -48,6 +66,10 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     {
         return Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
     }
+
+    //Integral for cooldown checking upon knife re-equip.
+    %attacker = %obj.sourceObject;
+    %attacker.lastKnifeTime = getSimTime();
 
     %victimForwardVector = %col.getForwardVector(); //Already normalized.
     %collisionNormal = VectorNormalize(VectorScale(%velocity, -1));
@@ -65,10 +87,10 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
         //Critical hit!
         %col.Damage(%obj, %position, %criticalHitDamage, butterflyKnifeChargedProjectile.directDamageType);
 
-        //Stun the victim.
+        //Stun the victim, if the attack didn't kill them.
         if(%col.getState() !$= "Dead")
         {
-            %col.mountImage("sm_stun", 3);
+            %col.mountImage("sm_stunImage", 3);
         }
 
         //Fancy slice sound.
@@ -92,6 +114,13 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
         //Weak hit... :(
         %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
     }
+
+    %slot = %obj.sourceSlot;
+    %cooldown = mCeil(butterflyKnifeImage.cooldown / 1000);
+
+    //Put the player on cooldown after using the knife.
+    //Triggers `stateTransitionOnAmmo[1]`.
+    %attacker.butterflyKnifeCooldown(%slot, "The blade was bent, and cannot be fixed for another " @ %cooldown @ " seconds.", "The knife is fixed and ready for combat!", 6);
 
     return Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 }
@@ -118,11 +147,11 @@ datablock ItemData(butterflyKnifeItem)
     uiName = "Butterfly Knife";
     iconName = "./icons/icon_butterflyknife";
 
-    image = butterflyknifeImage;
+    image = butterflyKnifeImage;
     canDrop = true;
 };
 
-datablock ShapeBaseImageData(butterflyknifeImage)
+datablock ShapeBaseImageData(butterflyKnifeImage)
 {
     className = "WeaponImage";
 
@@ -134,8 +163,9 @@ datablock ShapeBaseImageData(butterflyknifeImage)
     offset = "0 0 0";
 
     item = ButterflyKnifeItem;
-    ammo = " ";
-    projectile = butterflyknifekillProjectile;
+    ammo = false;
+    projectile = "";
+    cooldown = 32000;
 
     melee = false;
     correctMuzzleVector = true;
@@ -145,73 +175,129 @@ datablock ShapeBaseImageData(butterflyknifeImage)
 
     //The knife has been equipped.
     stateName[0] = "Activate";
-    stateTimeoutValue[0] = 0.5;
-    stateTransitionOnTimeout[0]	= "Ready";
     stateSequence[0] = "activate";
     stateSound[0] = butterflyknife_equip_sound;
+    stateTimeoutValue[0] = 0.5;
+    stateTransitionOnTimeout[0]	= "CooldownCheck";
+
+    //Check if the knife is on cooldown. If not, proceed to "Ready".
+    stateName[1] = "CooldownCheck";
+    stateScript[1] = "onCooldownCheck";
+    stateAllowImageChange[1] = false;
+    stateWaitForTimeout[1] = true;
+    stateTimeOutValue[1] = 0.01;
+    stateTransitionOnTimeout[1] = "CooldownRedirect";
+
+    //Redirect to another state based on what was set in the previous "CooldownCheck" state.
+    stateName[2] = "CooldownRedirect";
+    stateAllowImageChange[2] = false;
+    stateTransitionOnAmmo[2] = "Cooldown";
+    stateTransitionOnNoAmmo[2] = "Ready";
+
+    //The knife is on cooldown and cannot be used.
+    stateName[3] = "Cooldown";
+    stateSequence[3] = "ready";
+    stateScript[3] = "onCooldown";
+    stateAllowImageChange[3] = true;
+    ////The cooldown ended while the knife was equipped, transition to the "Ready" state.
+    stateTransitionOnNoAmmo[3] = "CooldownRevert";
+
+    //The knife is transitioning from "Cooldown" to "Ready", we need to raise the arm back up.
+    stateName[4] = "CooldownRevert";
+    stateScript[4] = "onCooldownRevert";
+    stateAllowImageChange[4] = false;
+    stateWaitForTimeout[4] = true;
+    stateTimeOutValue[4] = 0.01;
+    stateTransitionOnTimeout[4] = "Ready";
 
     //The knife is inactive, simply being held.
-    stateName[1] = "Ready";
-    stateSequence[1] = "ready";
-    stateScript[1] = "onReady";
-    stateTransitionOnTriggerDown[1]	= "Raising";
-    stateAllowImageChange[1] = true;
+    stateName[5] = "Ready";
+    stateSequence[5] = "ready";
+    stateScript[5] = "onReady";
+    stateTransitionOnTriggerDown[5]	= "Raising";
+    stateAllowImageChange[5] = true;
 
     //The knife is being raised...
-    stateName[2] = "Raising";
-    stateSequence[2]= "ready";
-    stateScript[2] = "onRaising";
-    stateAllowImageChange[2] = true;
+    stateName[6] = "Raising";
+    stateScript[6] = "onRaising";
+    stateAllowImageChange[6] = true;
     //Timeout before the knife is fully raised.
-    stateTransitionOnTimeout[2]	= "Raised";
-    stateTimeoutValue[2] = 0.7;
-    ////The knife was released before it was fully raised. Deliver a weak, 10 damage stab.
-    stateWaitForTimeout[2] = false;
-    stateTransitionOnTriggerUp[2] = "unchargedStab";
+    stateTransitionOnTimeout[6]	= "Raised";
+    stateTimeoutValue[6] = 0.7;
+    ////The knife was released before it was fully raised. Weak stab.
+    stateWaitForTimeout[6] = false;
+    stateTransitionOnTriggerUp[6] = "unchargedStab";
 
     //The knife was released prematurely.
-    stateName[3] = "unchargedStab";
-    stateSequence[3] = "ready";
-    stateScript[3] = "unchargedStab";
-    stateAllowImageChange[3] = false;
+    stateName[7] = "unchargedStab";
+    stateScript[7] = "unchargedStab";
+    stateAllowImageChange[7] = false;
     ////Return it to the inactive state after a short delay.
-    stateTransitionOnTimeout[3]	= "Ready";
-    stateTimeoutValue[3] = 0.2;
+    stateTransitionOnTimeout[7]	= "CooldownCheck";
+    stateTimeoutValue[7] = 0.2;
 
     //Knife is fully raised, ready to release.
-    stateName[4] = "Raised";
-    stateTransitionOnTriggerUp[4] = "Fire";
-    stateAllowImageChange[4] = true;
-    stateWaitForTimeout[4] = false;
+    stateName[8] = "Raised";
+    stateTransitionOnTriggerUp[8] = "Fire";
+    stateAllowImageChange[8] = true;
+    stateWaitForTimeout[8] = false;
 
     //The knife was raised and released.
-    stateName[5] = "Fire";
-    stateSequence[5] = "ready";
-    stateFire[5] = true; //Fire the weapon.
-    stateScript[5] = "onFire";
-    stateAllowImageChange[5]	= false;
+    stateName[9] = "Fire";
+    stateFire[9] = true; //Fire the weapon.
+    stateScript[9] = "onFire";
+    stateAllowImageChange[9] = false;
     ////Return it to the inactive state after a short delay.
-    stateTransitionOnTimeout[5]	= "Ready";
-    stateTimeoutValue[5] = 0.2;
+    stateTransitionOnTimeout[9]	= "CooldownCheck";
+    stateWaitForTimeout[9] = true;
+    stateTimeoutValue[9] = 0.2;
 };
 
 //
 // Animations and damage logic.
 //
 
-function butterflyknifeImage::onReady(%this, %obj, %slot)
+function butterflyKnifeImage::onCooldownCheck(%this, %obj, %slot)
 {
-    //Play the idle animation.
-	%obj.playthread(2, root);
+    //The knife's animation always needs to be reset at this point.
+    %obj.playThread(2, root);
+
+    //If the knife has not passed it's cooldown time limit, transition to the "Cooldown" state.
+    //Otherwise, transition to the "Ready" state.
+    if((%obj.lastKnifeTime + %this.cooldown) > getSimTime())
+    {
+        %obj.setImageAmmo(%slot, 1);
+    }
+    else
+    {
+        %obj.setImageAmmo(%slot, 0);
+    }
 }
 
-function butterflyknifeImage::onRaising(%this, %obj, %slot)
+function butterflyKnifeImage::onCooldown(%this, %obj, %slot)
+{
+    //Lower the knife, it cannot be used.
+    %obj.playThread(1, root);
+}
+
+function butterflyKnifeImage::onCooldownRevert(%this, %obj, %slot)
+{
+    //Raise the arm back up after being lowered.
+    fixArmReady(%obj);
+}
+
+function butterflyKnifeImage::onReady(%this, %obj, %slot)
+{
+
+}
+
+function butterflyKnifeImage::onRaising(%this, %obj, %slot)
 {
     //Play the raising animation.
 	%obj.playthread(2, spearReady);
 }
 
-function butterflyknifeImage::unchargedStab(%this, %obj, %slot)
+function butterflyKnifeImage::unchargedStab(%this, %obj, %slot)
 {
     //Play the weak jabbing animation.
 	%obj.playthread(2, armattack);
@@ -236,7 +322,7 @@ function butterflyknifeImage::unchargedStab(%this, %obj, %slot)
     };
 }
 
-function butterflyknifeImage::onFire(%this, %obj, %slot)
+function butterflyKnifeImage::onFire(%this, %obj, %slot)
 {
     //Play the overhand stabbing animation.
 	%obj.playthread(2, spearThrow);
@@ -259,4 +345,56 @@ function butterflyknifeImage::onFire(%this, %obj, %slot)
         sourceSlot = %slot;
         client = %obj.client;
     };
+}
+
+//
+// Cooldown player functions.
+//
+
+function Player::butterflyKnifeCooldown(%obj, %slot, %startMessage, %endMessage, %time)
+{
+    //Default time to 6 seconds, if a custom one is not provided.
+    if(!%time)
+    {
+        %time = 6;
+    }
+
+    //Send a message to the client letting them know the weapon cannot be used.
+    %client = %obj.client;
+    if(%client)
+    {
+        %client.centerPrint("<font:arial:13><color:ff7744>" @ %startMessage, %time);
+    }
+
+    //No weapon equipped, no cooldown can be done.
+    %weapon = %obj.getMountedImage(%slot);
+    if(!isObject(%weapon))
+    {
+        return;
+    }
+
+    //Trigger the Cooldown state if the item is currently equipped.
+    %obj.setImageAmmo(%slot, 1);
+    
+    //Set the cooldown to end in the time specified by the weapon itself.
+    %obj.schedule(%weapon.cooldown, "_butterflyKnifeCooldownEnd", %slot, %weapon.getName(), %endMessage, %time);
+}
+
+function Player::_butterflyKnifeCooldownEnd(%obj, %slot, %imageName, %message, %time)
+{
+    //Send a message to the client letting them know the weapon is now usable.
+    %client = %obj.client;
+    if(%client)
+    {
+        %client.centerPrint("<font:arial:13><color:ff7744>" @ %message, %time);
+    }
+
+    %weapon = %obj.getMountedImage(%slot);
+    if(!isObject(%weapon) || %weapon.getName() !$= %imageName)
+    {
+        return;
+    }
+
+    //Revert the Cooldown state if the item is currently equipped.
+    %obj.setImageAmmo(%slot, 0);
 }
