@@ -14,6 +14,8 @@ exec("./players/datablock_killerTrails.cs");
 exec("./players/datablock_killerBlood.cs");
 exec("./players/datablock_killerMeleeProp.cs");
 
+exec("./items/weapon_butterflyKnife.cs");
+
 exec("./players/player_eventide.cs");
 exec("./players/player_survivor.cs");
 exec("./players/player_staller.cs");
