@@ -6,6 +6,7 @@ exec("./scripts/support_ghostingUtils.cs");
 exec("./scripts/support_client.cs");
 exec("./scripts/support_stun.cs");
 exec("./scripts/support_weaponCooldown.cs");
+exec("./scripts/support_statusEffects.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
