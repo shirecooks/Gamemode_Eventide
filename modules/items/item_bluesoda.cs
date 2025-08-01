@@ -76,7 +76,7 @@ function blueSodaImage::onMount(%this, %obj, %slot)
 
 function SpeedEffect::Spawn(%e,%obj)
 {
-	%obj.setTempSpeed(1.25);
+	%obj.setTempSpeed(1.5);
 }
 
 function SpeedEffect::Despawn(%e,%obj)
@@ -90,8 +90,8 @@ function blueSodaImage::OnDrink(%data,%obj,%slot)
 	%obj.playThread(2,"jump");
 	%obj.lastDrinkTime = getSimTime();
 
-	if(%e = %obj.StatusEffect_FindName("SodaBoost")) %e.duration(%e.getDuration() + 6000);	
-	else %obj.StatusEffect("SpeedEffect","SodaBoost","mod=0.25;").duration(6000);
+	if(%e = %obj.StatusEffect_FindName("SodaBoost")) %e.duration(%e.getDuration() + 4000);	
+	else %obj.StatusEffect("SpeedEffect","SodaBoost","mod=0.25;").duration(4000);
 	
 	%obj.schedule(%data.cooldown,notifyDrinkReady);
 	serverCmdUnUseTool(%obj.client);

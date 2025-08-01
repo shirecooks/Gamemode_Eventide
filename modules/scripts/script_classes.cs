@@ -1,5 +1,12 @@
-//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Sheriff"));
-//findClientByName("Lane").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Staller"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Inheritor"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("VCE Specialist"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Eventer"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Builder"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Copper"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Karter"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Knifer"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Freekiller"));
+//findClientByName("Muna").player.assignClass($Eventide_ClassGroupTemplates.index["Classic"].getClass("Hoarder"));
 
 //
 // Resources that must go in this file.
@@ -8,7 +15,7 @@
 //
 /// Class hats.
 
-datablock ShapeBaseImageData(menderMaskImage) 
+datablock ShapeBaseImageData(inheritorMaskImage) 
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/SurgicalMask.dts";
 	mountPoint = $HeadSlot;
@@ -20,9 +27,21 @@ datablock ShapeBaseImageData(menderMaskImage)
 	emap = 0;
 };
 
-datablock ShapeBaseImageData(stallerHoodImage)
+datablock ShapeBaseImageData(vcespecHoodImage)
 {
 	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/grimhood.dts";
+	mountPoint = $HeadSlot;
+
+	eyeOffset = "0 0 -1000";
+	emap = 0;
+	
+	doColorShift = true;
+	colorShiftColor = "0.1 0.1 0.1 1";
+};
+
+datablock ShapeBaseImageData(karterHelmetImage)
+{
+	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/Racer/Racer.dts";
 	mountPoint = $HeadSlot;
 
 	eyeOffset = "0 0 -1000";
@@ -35,13 +54,13 @@ datablock ShapeBaseImageData(stallerHoodImage)
 //
 /// Class playertypes.
 
-function EventidePlayer::StallerCallback(%this, %obj)
+function EventidePlayer::VCESpecCallback(%this, %obj)
 {
 	%obj.noFootsteps = true;
 	%obj.lastFadeTime = 0;
 }
 
-function EventidePlayer::StallerFadeOut(%this, %obj)
+function EventidePlayer::VCESpecFadeOut(%this, %obj)
 {
 	//Delete the player's flashlight, if they have it enabled.
 	if(isObject(%obj.light))
@@ -85,7 +104,7 @@ function EventidePlayer::invisibilityTick(%this, %obj)
 	//The player ran out of energy, reveal them.
 	if(%obj.getEnergyLevel() <= 1)
 	{
-		%this.StallerFadeIn(%obj);
+		%this.VCESpecFadeIn(%obj);
 		return;
 	}
 	else
@@ -98,7 +117,7 @@ function EventidePlayer::invisibilityTick(%this, %obj)
 	%obj.invisibilitySched = %this.schedule(31, invisibilityTick, %obj);
 }
 
-function EventidePlayer::StallerFadeIn(%this, %obj)
+function EventidePlayer::VCESpecFadeIn(%this, %obj)
 {
 	if(!isObject(%obj))
 	{
@@ -117,33 +136,33 @@ function EventidePlayer::StallerFadeIn(%this, %obj)
 	//Re-enable the player's flashlight.
 	%obj.flashlightDisabled = false;
 
-	//Restore the Staller appearance.
+	//Restore the VCESpec appearance.
 	%this.EventideAppearance(%obj, %obj.client);	
 }
 
 //
 /// Class packages/overrides.
 
-package Gamemode_Eventide_Player_Staller
+package Gamemode_Eventide_Player_VCESpec
 {
 	function EventidePlayer::onTrigger(%this, %obj, %trig, %press)
 	{
 		Parent::onTrigger(%this, %obj, %trig, %press);
 
-		if(%obj.playerClass !$= "" && %obj.playerClass.title $= "Staller")
+		if(%obj.playerClass !$= "" && %obj.playerClass.title $= "VCE Specialist")
 		{
 			if(%trig == 3 && %press)
 			{
 				if(%obj.getEnergyLevel() >= 100 && (getSimTime() - %obj.lastFadeTime) > 5000 && !%obj.getDataBlock().isDowned)
 				{
-					%this.StallerFadeOut(%obj, 1);
+					%this.VCESpecFadeOut(%obj, 1);
 				}
 			}
 			else if(%trig == 3 && !%press)
 			{
 				if(%obj.isInvisible)
 				{
-					%this.StallerFadeIn(%obj, 0);
+					%this.VCESpecFadeIn(%obj, 0);
 				}
 			}
 		}
@@ -151,7 +170,7 @@ package Gamemode_Eventide_Player_Staller
 
     function ServerCmdStartTalking(%client)
 	{
-		if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller")
+		if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist")
 		{
 			return;
 		}
@@ -161,7 +180,7 @@ package Gamemode_Eventide_Player_Staller
     function serverCmdMessageSent(%client, %message)
 	{
 		%PortEvalBypass = (%client.canEval || ($Pref::Server::ChatEval::SuperAdmin && %client.isSuperAdmin)) && getSubStr(%message, 0, 1) $= "\\";
-        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller" && !%PortEvalBypass)
+        if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist" && !%PortEvalBypass)
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
@@ -171,7 +190,7 @@ package Gamemode_Eventide_Player_Staller
 
 	function ServerCmdTeamMessageSent(%client, %message)
 	{
-		if(isObject(%client.playerClass) && %client.playerClass.title $= "Staller" && !%PortEvalBypass)
+		if(isObject(%client.playerClass) && %client.playerClass.title $= "VCE Specialist" && !%PortEvalBypass)
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
@@ -182,7 +201,7 @@ package Gamemode_Eventide_Player_Staller
 	function Player::emote(%player, %data, %skipSpam)
 	{
 		%client = %player.client;
-		if(isObject(%player.playerClass) && %player.playerClass.title $= "Staller")
+		if(isObject(%player.playerClass) && %player.playerClass.title $= "VCE Specialist")
 		{
 			%client.centerPrint("<color:ffffff>...", 3);
 			return;
@@ -192,18 +211,18 @@ package Gamemode_Eventide_Player_Staller
 
 	function ServerCmdUseTool(%client, %slot)
     {
-        if(%client.playerClass !$= "" && %client.playerClass.title $= "Staller" && isObject(%client.player) && %client.player.isInvisible)
+        if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist" && isObject(%client.player) && %client.player.isInvisible)
 		{
 			return;
 		}
 		parent::ServerCmdUseTool(%client, %slot);
     }
 };
-if(isPackage("Gamemode_Eventide_Player_Staller"))
+if(isPackage("Gamemode_Eventide_Player_VCESpec"))
 {
-	deactivatePackage("Gamemode_Eventide_Player_Staller");
+	deactivatePackage("Gamemode_Eventide_Player_VCESpec");
 }
-activatePackage("Gamemode_Eventide_Player_Staller");
+activatePackage("Gamemode_Eventide_Player_VCESpec");
 
 package Gamemode_Eventide_Server_Hatmod
 {
@@ -253,15 +272,15 @@ function EventideClassGroupTemplates::onAdd(%this)
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Mender";
+			title = "Inheritor";
 			canStack = false;
-			spawnMessage = "You acquired medical items, can revive one survivor and heal survivors!";
+			spawnMessage = "You acquired the Golden Wrench!";
 		};
 
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Runner";
+			title = "Karter";
 			canStack = false;
 			spawnMessage = "You acquired a blue soda and can run slightly faster!";
 		};
@@ -278,7 +297,15 @@ function EventideClassGroupTemplates::onAdd(%this)
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Fighter";
+			title = "Knifer";
+			canStack = false;
+			spawnMessage = "You acquired a knife. Use it to backstab the Hunter!";
+		};
+
+		new ScriptObject()
+		{
+			class = "EventidePlayerClass";
+			title = "Freekiller";
 			pseudoHealth = 75;
 			canStack = false;
 			spawnMessage = "You acquired a bat, can shove further and can take one hit before getting damaged!";
@@ -287,70 +314,79 @@ function EventideClassGroupTemplates::onAdd(%this)
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Tinkerer";
+			title = "Builder";
 			canStack = false;
-			spawnMessage = "You acquired a monkey wrench and sentry spawner. Use the wrench to repair generators faster!";
+			spawnMessage = "You acquired a sentry spawner.";
 		};
 		
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Sheriff";
+			title = "Copper";
 			canStack = false;
 			spawnMessage = "You acquired a revolver!";
+		};
+		
+		new ScriptObject()
+		{
+			class = "EventidePlayerClass";
+			title = "Eventer";
+			canStack = false;
+			spawnMessage = "You acquired a wrench. Use it to wrench traps!";
 		};
 
 		new ScriptObject()
 		{
 			class = "EventidePlayerClass";
-			title = "Staller";
+			title = "VCE Specialist";
 			canStack = false;
 			clearNodes = true;
-			callback = "StallerCallback";
+			callback = "VCESpecCallback";
 			spawnMessage = "You are deathly quiet and you can crouch to become invisible! Only lasts seven seconds.";
 		};
 	};
 
 
 	//Can't store datablocks directly in a ScriptGroup. How inconvenient.
-	%menderClass = %this.index["Classic"].getClass("Mender");
-	%menderClass.appearance.facePack["female"] = $Eventide_FacePacks["menderF"];
-	%menderClass.appearance.facePack["male"] = $Eventide_FacePacks["menderM"];
-	%menderClass.appearance.add(new ScriptObject()
-	{
-		class = "EventideClassCustomNode";
-		targetSlot = 2;
-		mountableObject = menderMaskImage;
-	});
-	%menderClass.items.add(new ScriptObject()
-	{
-		class = "EventideClassItem";
-		itemData = medi_stimpackItem.getID();
-	});
-	%menderClass.items.add(new ScriptObject()
+	%inheritorClass = %this.index["Classic"].getClass("Inheritor");
+	%inheritorClass.appearance.facePack["female"] = $Eventide_FacePacks["menderF"];
+	%inheritorClass.appearance.facePack["male"] = $Eventide_FacePacks["menderM"];
+	//%inheritorClass.appearance.add(new ScriptObject()
+	//{
+	//	class = "EventideClassCustomNode";
+	//	targetSlot = 2;
+	//	mountableObject = inheritorMaskImage;
+	//});
+	%inheritorClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
-		itemData = DefibrillatorItem.getID();
+		itemData = medi_GWItem.getID();
 	});
-	%menderClass.appearance.add(new ScriptObject()
+	%inheritorClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "sweater";
 	});
 
 
-	%runnerClass = %this.index["Classic"].getClass("Runner");
-	%runnerClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
-	%runnerClass.appearance.facePack["male"] = $Eventide_FacePacks["RunnerM"];
-	%runnerClass.items.add(new ScriptObject()
+	%karterClass = %this.index["Classic"].getClass("Karter");
+	%karterClass.appearance.facePack["female"] = $Eventide_FacePacks["RunnerF"];
+	%karterClass.appearance.facePack["male"] = $Eventide_FacePacks["RunnerM"];
+	%karterClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomNode";
+		mountableObject = karterHelmetImage;
+		targetSlot = 2;
+	});
+	%karterClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
 		itemData = blueSodaItem.getID();
 	});
-	%runnerClass.appearance.add(new ScriptObject()
+	%karterClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
-		decalName = "scout";
+		decalName = "brickadiashirt25";
 	});
 
 
@@ -367,110 +403,140 @@ function EventideClassGroupTemplates::onAdd(%this)
 		class = "EventideClassCustomDecal";
 		decalName = "hawaiianshirt";
 	});
+	
+	
+	%eventerClass = %this.index["Classic"].getClass("Eventer");
+	%eventerClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%eventerClass.appearance.facePack["male"] = $Eventide_FacePacks["male"];
+	%eventerClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = MonkeyWrench.getID();
+	});
+	%eventerClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "ellis";
+	});
+	
+	
+	%kniferClass = %this.index["Classic"].getClass("Knifer");
+	%kniferClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%kniferClass.appearance.facePack["male"] = $Eventide_FacePacks["male"];
+	%kniferClass.items.add(new ScriptObject()
+	{
+		class = "EventideClassItem";
+		itemData = butterflyKnifeItem.getID();
+	});
+	%kniferClass.appearance.add(new ScriptObject()
+	{
+		class = "EventideClassCustomDecal";
+		decalName = "brickadiashirt23";
+	});
 
 
-	%fighterClass = %this.index["Classic"].getClass("Fighter");
-	%fighterClass.appearance.facePack["female"] = $Eventide_FacePacks["fighterF"];
-	%fighterClass.appearance.facePack["male"] = $Eventide_FacePacks["fighterM"];
-	%fighterClass.items.add(new ScriptObject()
+	%freekillerClass = %this.index["Classic"].getClass("Freekiller");
+	%freekillerClass.appearance.facePack["female"] = $Eventide_FacePacks["fighterF"];
+	%freekillerClass.appearance.facePack["male"] = $Eventide_FacePacks["fighterM"];
+	%freekillerClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
 		itemData = batItem.getID();
 	});
-	%fighterClass.appearance.add(new ScriptObject()
+	%freekillerClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "francis";
 	});
 
 
-	%tinkererClass = %this.index["Classic"].getClass("Tinkerer");
-	%tinkererClass.appearance.facePack["female"] = $Eventide_FacePacks["tinkererF"];
-	%tinkererClass.appearance.facePack["male"] = $Eventide_FacePacks["tinkererM"];
-	%tinkererClass.items.add(new ScriptObject()
+	%builderClass = %this.index["Classic"].getClass("Builder");
+	%builderClass.appearance.facePack["female"] = $Eventide_FacePacks["tinkererF"];
+	%builderClass.appearance.facePack["male"] = $Eventide_FacePacks["tinkererM"];
+	%builderClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
 		itemData = MonkeyWrench.getID();
 	});
-	%tinkererClass.items.add(new ScriptObject()
+	%builderClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
 		itemData = PlaceSentryRifleItem.getID();
 	});
-	%tinkererClass.appearance.add(new ScriptObject()
+	%builderClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "civilian";
 	});
 	
 	
-	%sheriffClass = %this.index["Classic"].getClass("Sheriff");
-	%sheriffClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
-	%sheriffClass.appearance.facePack["male"] = $Eventide_FacePacks["sheriffM"];
-	%sheriffClass.items.add(new ScriptObject()
+	%copperClass = %this.index["Classic"].getClass("Copper");
+	%copperClass.appearance.facePack["female"] = $Eventide_FacePacks["female"];
+	%copperClass.appearance.facePack["male"] = $Eventide_FacePacks["sheriffM"];
+	%copperClass.items.add(new ScriptObject()
 	{
 		class = "EventideClassItem";
 		itemData = RevolverItem.getID();
 	});
-	%sheriffClass.appearance.add(new ScriptObject()
+	%copperClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "police";
 	});
 
 
-	%stallerClass = %this.index["Classic"].getClass("Staller");
-	%stallerClass.appearance.facePack["female"] = 0;
-	%stallerClass.appearance.facePack["male"] = 0;
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass = %this.index["Classic"].getClass("VCE Specialist");
+	%vcespecClass.appearance.facePack["female"] = 0;
+	%vcespecClass.appearance.facePack["male"] = 0;
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomNode";
-		mountableObject = stallerHoodImage;
+		mountableObject = vcespecHoodImage;
 		targetSlot = 2;
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "headSkin";
 		nodeColor = "0 0 0 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "chest";
 		nodeColor = "0.1 0.1 0.1 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "LArm";
 		nodeColor = "0.1 0.1 0.1 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "RArm";
 		nodeColor = "0.1 0.1 0.1 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "LHand";
 		nodeColor = "0.5 0.5 0.5 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "RHand";
 		nodeColor = "0.5 0.5 0.5 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassNodeColor";
 		targetNode = "skirt";
 		nodeColor = "0.1 0.1 0.1 1";
 	});
-	%stallerClass.appearance.add(new ScriptObject()
+	%vcespecClass.appearance.add(new ScriptObject()
 	{
 		class = "EventideClassCustomDecal";
 		decalName = "robe";

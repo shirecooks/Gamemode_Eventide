@@ -95,6 +95,7 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
 
         //Fancy slice sound.
         serverPlay3D("melee_tanto" @ getRandom(1, 3) @ "_sound", %position);
+		serverPlay3D(rewardSound, %position);
 
         //Bloody explosion.
         %bloodExplosion = new Projectile()
@@ -113,6 +114,8 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     {
         //Weak hit... :(
         %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
+		%col.setTempSpeed(0.5);
+		%col.schedule(1500,setTempSpeed,1);
     }
 
     %slot = %obj.sourceSlot;
@@ -168,6 +171,7 @@ datablock ShapeBaseImageData(butterflyKnifeImage)
     cooldown = 32000;
 
     melee = false;
+	isSpecial = true;
     correctMuzzleVector = true;
 
     doColorShift = true;
@@ -386,9 +390,8 @@ function Player::_butterflyKnifeCooldownEnd(%obj, %slot, %imageName, %message, %
     %client = %obj.client;
     if(%client)
     {
-        %client.centerPrint("<font:arial:13><color:ff7744>" @ %message, %time);
+        %client.centerPrint("<font:arial:13><color:ff7744>" @ %message, %time);	
     }
-
     %weapon = %obj.getMountedImage(%slot);
     if(!isObject(%weapon) || %weapon.getName() !$= %imageName)
     {
@@ -397,4 +400,5 @@ function Player::_butterflyKnifeCooldownEnd(%obj, %slot, %imageName, %message, %
 
     //Revert the Cooldown state if the item is currently equipped.
     %obj.setImageAmmo(%slot, 0);
+	%obj.playaudio(3,"puzzleChime_sound");
 }

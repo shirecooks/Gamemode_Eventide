@@ -243,8 +243,8 @@ function EventidePlayer::Shove(%this,%obj)
 			%shoveForce = (%hit.getDatablock().getName() $= "PuppetMasterPuppet") ? 2 : %obj.shoveForce;
 			%exhausted = (%obj.staminaCount >= 5) ? 1.25 : 1;
 						
-			%forwardimpulse = (((%obj.survivorclass $= "fighter") ? 12 : 8) / %exhausted) * %shoveForce;
-			%zimpulse = (((%obj.survivorclass $= "fighter") ? 8 : 4) / %exhausted) * %shoveForce;
+			%forwardimpulse = (((%obj.survivorclass $= "freekiller") ? 12 : 8) / %exhausted) * %shoveForce;
+			%zimpulse = (((%obj.survivorclass $= "freekiller") ? 8 : 4) / %exhausted) * %shoveForce;
 			%hit.setVelocity(VectorAdd(VectorScale(%obj.getEyeVector(),%forwardimpulse),"0 0 " @ %zimpulse));
 		}												
 	}
@@ -365,7 +365,7 @@ function EventidePlayer::reviveDowned(%this,%obj,%victim,%bool)
 			// Clear the billboard
 			//$Eventide::BillboardMounts.clearAVBillboards(%victim,"Downed");
 			%victim.setHealth(%victim.getdatablock().maxDamage/1.3333);
-			%victim.pseudoHealth = (%victim.survivorclass $= "fighter" || %obj.survivorClass $= "mender") ? 75 : 0;
+			%victim.pseudoHealth = (%victim.survivorclass $= "freekiller" || %obj.survivorClass $= "mender") ? 75 : 0;
 			
 			if(%obj.survivorClass $= "mender")
 			{
@@ -648,7 +648,7 @@ function EventidePlayer::skinwalkerDamageCheck(%this,%obj,%damage)
 			createBloodSplatterExplosion(%position, %position, "1 1 1");			
 		}
 		
-		if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
+		if(%obj.playerClass $= "" || %obj.playerClass.title !$= "VCE Specialist")
 		{
 			%genderSound = (!%obj.client.chest) ? "male" : "female";
 			%genderSoundAmount = (!%obj.client.chest) ? 3 : 6;
@@ -765,7 +765,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 		}		
 	}
 
-	// Pseudo health for the fighter class, gives the player a temporary health boost until they are hurt again
+	// Pseudo health for the freekiller class, gives the player a temporary health boost until they are hurt again
 	if (%obj.pseudoHealth > 0)
 	{
 		%obj.pseudoHealth -= %damage;
@@ -787,7 +787,7 @@ function EventidePlayer::Damage(%this,%obj,%sourceObject,%position,%damage,%dama
 
 		if (%obj.getState() !$= "Dead" && %obj.lastDamageCall < getSimTime())
 		{
-			if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
+			if(%obj.playerClass $= "" || %obj.playerClass.title !$= "VCE Specialist")
 			{
 				%obj.playaudio(0,%sound);
 			}
@@ -841,7 +841,7 @@ function EventidePlayerDowned::DownLoop(%this,%obj)
 			%obj.client.play2D("survivor_heartbeat" @ %heartbeatvariant @ "_sound");
 		}
 
-		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime() && (%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller"))
+		if($Pref::Server::Eventide::victimScreamsEnabled && %obj.lastDownedCall < getSimTime() && (%obj.playerClass $= "" || %obj.playerClass.title !$= "VCE Specialist"))
 		{
 			%genderSound = (!%obj.client.chest) ? "male" : "female";
 			%genderSoundAmount = (!%obj.client.chest) ? 3 : 5;
@@ -901,7 +901,7 @@ function EventidePlayerDowned::onDisabled(%this,%obj)
 	// Remove the downed billboard
 	%obj.retractDownedBillboard();
 
-	if(%obj.playerClass $= "" || %obj.playerClass.title !$= "Staller")
+	if(%obj.playerClass $= "" || %obj.playerClass.title !$= "VCE Specialist")
 	{
 		%genderSound = (!%obj.client.chest) ? "male" : "female";
 		%genderSoundAmount = (!%obj.client.chest) ? 4 : 2;

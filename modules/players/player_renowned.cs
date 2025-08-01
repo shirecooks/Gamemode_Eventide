@@ -255,54 +255,75 @@ function Player::ClearRenownedEffect(%obj)
 	}
 }
 
-package Eventide_RenownedSpectate
+package Player_Renowned_Spy
 {
-	function serverCmdLight(%client)
-	{
-		if (%client.player.getDataBlock().getName() $= "PlayerRenowned") 
-		{
-			if(!isObject(%client.player) || %client.player.getEnergyLevel() != %client.player.getdatablock().maxEnergy) return;
+    function ServerCmdPlantBrick(%client)
+    {
+        %player = %client.player;
+        if(%player && %player.getDatablock().getName() $= "PlayerRenowned")
+        {
+            //If the hunter isn't in a minigame, they're probably trying to actually build.
+            %minigame = getMinigameFromObject(%player);
+            if(!isObject(%minigame))
+            {
+                return Parent::ServerCmdPlantBrick(%client);
+            }
 
-			%client.player.setEnergyLevel(0);
-			
-			// Ensure the player is valid and is the Puppet Master
-			if (isObject(Eventide_MinigameGroup))
-			{			
-				if(isObject(%client.player.getMountedImage(3)) && %client.player.getMountedImage(3).getName() $= "sm_stunImage")
-				return;			
+            %currentTime = getSimTime();
 
-				// Populate the survivor list
-				for (%i = 0; %i < ClientGroup.getCount(); %i++)
-				{			
-					if (isObject(%survivor = ClientGroup.getObject(%i)))
-					{
-						// Skip the client
-						if(%survivor == %client)
-						{
-							continue;
-						}
+            //The hunter is still on their cooldown timer.
+            %spyCooldown = 30000;
+            %cooldownEndTime = %player.lastSpyTime + %spyCooldown;
+            if((%cooldownEndTime) > %currentTIme)
+            {
+                return %client.centerprint("<color:ffffff>You can't spy again yet! Wait another " @ mCeil((%cooldownEndTime - %currentTime) / 1000) @ " seconds.", 3);
+            }
 
-						if(isObject(getMiniGameFromObject(%survivor)) && isObject(%survivor.player) && !%survivor.player.getDataBlock().isKiller)
-						{
-							%survivorList[%survivorCount++] = %survivor;
-						}					
-					}
-				}
+            //No survivors to spy on if the team doesn't exist.
+            %survivorTeam = %minigame.teams.getTeamFromName("Survivors");
+            if(!isObject(%survivorTeam))
+            {
+                return %client.centerprint("<color:ffffff>There are no survivors to spy on!", 6);
+            }
+            
+            //Determine which survivors aren't dead.
+            %livingSurvivors = new SimSet();
+            for(%i = 0; %i < %survivorTeam.numMembers; %i++)
+            {
+                %victimClient = %survivorTeam.member[%i];
+                %victimPlayer = %victimClient.player;
+                if(isObject(%victimPlayer) && %victimPlayer.getState() !$= "Dead")
+                {
+                    %livingSurvivors.add(%victimPlayer);
+                }
+            }
 
-				%currentSurvivor = %survivorList[getRandom(1,%survivorCount)];
-				if(isObject(%currentSurvivor))
-				{
-					%currentSurvivor.player.mountImage("RenownedPossessedImage",3);
-					%currentSurvivor.player.schedule(4000,unmountImage,3);
-					serverCmdSpy(%client,%currentSurvivor.name);					
-				}			
+            //No living survivors, let's just stop.
+            if(%livingSurvivors.getCount() == 0)
+            {
+                return %client.centerprint("<color:ffffff>Nobody is alive to spy on!", 6);
+            }
 
-				return;
-			}
-		}
+            //Pick a random living survivor.
+            %randomSurvivorIndex = getRandom(0, (%livingSurvivors.getCount() - 1));
+            %targetPlayer = %livingSurvivors.getObject(%randomSurvivorIndex);
 
-		Parent::serverCmdLight(%client);		
-	}
+            %player.lastSpyTime = %currentTime;
+
+            //Finally, spy the player. For a time.
+            %client.Camera.setMode("Corpse", %targetPlayer);
+			%client.setControlObject(%client.Camera);
+			%targetPlayer.playaudio(0,"observant_sound");
+			%client.playaudio(0,"observant_sound");
+
+            //Let them view the player for three seconds, then reset the camera to normal.
+            %spyTime = 3000;
+            %client.schedule(%spyTime, setControlObject, %player);
+        }
+        else
+        {
+            return Parent::ServerCmdPlantBrick(%client);
+        }
+    }
 };
-if(isPackage("Eventide_RenownedSpectate")) deactivatePackage("Eventide_RenownedSpectate");
-activatePackage("Eventide_RenownedSpectate");
+activatePackage(Player_Renowned_Spy);

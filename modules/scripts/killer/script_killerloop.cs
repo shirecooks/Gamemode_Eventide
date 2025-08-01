@@ -34,10 +34,10 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
 	if(%isActiveChase)
     {
 		// Start the tunnel vision effect
-		if(isObject(%victim.client) && !%victim.tunnelvision && %victimDatablock.isEventideModel)
-		{
-			%this.TunnelVision(%victim,true);
-		}
+		//if(isObject(%victim.client) && !%victim.tunnelvision && %victimDatablock.isEventideModel)
+		//{
+			//%this.TunnelVision(%victim,true);
+		//}
 
         if(%victimDistance < %searchDistance/2.5)
         {
@@ -110,10 +110,10 @@ function Armor::handleVictimChaseState(%this, %victim, %obj, %canSeeKiller, %vic
             if($Pref::Server::Eventide::chaseMusicEnabled && isObject(%victim.client))
             {
 				// Clear the tunnel vision effect
-				if(%victim.tunnelvision)
-				{
-					%this.TunnelVision(%victim,false);
-				}
+				//if(%victim.tunnelvision)
+				//{
+				//	%this.TunnelVision(%victim,false);
+				//}
 				
 				if(%victim.chaseLevel != 1)
                 {
