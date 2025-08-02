@@ -17,6 +17,7 @@ exec("./players/datablock_killerMeleeProp.cs");
 
 exec("./items/weapon_butterflyKnife.cs");
 exec("./items/item_blueSoda.cs");
+exec("./items/item_redSoda.cs");
 
 exec("./players/player_eventide.cs");
 exec("./players/player_survivor.cs");
