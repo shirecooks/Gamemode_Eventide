@@ -50,3 +50,9 @@ function pushServerPackageToBack(%package)
 		}
 	}
 }
+
+//Seconds to milliseconds.
+function sFromMs(%milliseconds)
+{
+    return mCeil(%milliseconds / 1000);
+}
