@@ -29,7 +29,7 @@ datablock ItemData(blueSodaItem)
 	category = "Tools";
 	className = "Weapon";
 
-	shapeFile = "./models/blueSoda.dts";
+	shapeFile = "./models/blueSoda/blueSoda.dts";
 	doColorShift = false;
 
 	mass = 1;
@@ -50,16 +50,15 @@ datablock ShapeBaseImageData(blueSodaImage)
 {
 	className = "WeaponImage";
 
-	shapeFile = "./models/blueSoda.dts";
+	shapeFile = "./models/blueSoda/blueSoda.dts";
 	emap = false;
 	isSpecial = 1;
 
 	mountPoint = 0;
 	offset = "-0.01 0.1 0";
-
 	armReady = false;
-	doColorShift = FlareGunItem.doColorShift;
-	colorShiftColor = FlareGunItem.colorShiftColor;
+	
+	doColorShift = false;
 
 	item = blueSodaItem;
 	ammo = false;
