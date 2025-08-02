@@ -51,3 +51,21 @@ function SimObject::clearStatusEffect(%obj, %class, %category)
         %statusEffect.delete();
     }
 }
+
+//Automatic status effect cleanup for players in particular.
+package Gamemode_Eventide_Status_Effects
+{
+    function Armor::onRemove(%this, %obj)
+    {
+        if(isObject(%obj.statusEffects))
+        {
+            %obj.statusEffects.delete();
+        }
+        Parent::onRemove(%this, %obj);
+    }
+};
+if(isPackage(Gamemode_Eventide_Status_Effects))
+{
+    deactivatePackage(Gamemode_Eventide_Status_Effects);
+}
+activatePackage(Gamemode_Eventide_Status_Effects);
