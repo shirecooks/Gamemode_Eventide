@@ -85,7 +85,10 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     if(%dot <= -0.5)
     {
         //Critical hit!
-        %col.Damage(%obj, %position, %criticalHitDamage, butterflyKnifeChargedProjectile.directDamageType);
+        if(miniGameCanDamage(%obj, %col))
+        {
+            %col.Damage(%obj, %position, %criticalHitDamage, butterflyKnifeChargedProjectile.directDamageType);
+        }
 
         //Stun the victim, if the attack didn't kill them.
         if(%col.getState() !$= "Dead")
@@ -112,7 +115,10 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     else
     {
         //Weak hit... :(
-        %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
+        if(miniGameCanDamage(%obj, %col))
+        {
+            %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
+        }
     }
 
     %slot = %obj.sourceSlot;
