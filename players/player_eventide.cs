@@ -365,7 +365,7 @@ function PlayerEventide::SetTempSpeed(%this, %obj, %speedMultiplier)
 
 	if(%speedMultiplier $= "") 
 	{
-		return;
+		%speedMultiplier = 1.0;
 	}
 	
 	//Standing speed.
