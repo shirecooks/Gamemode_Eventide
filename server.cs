@@ -16,6 +16,9 @@ exec("./players/datablock_killerBlood.cs");
 exec("./players/datablock_killerMeleeProp.cs");
 
 exec("./items/weapon_butterflyKnife.cs");
+
+//Both "blueSoda" and "redSoda" share the status effect code in "datablock_speedSoda.cs"
+exec("./items/datablock_speedSoda.cs");
 exec("./items/item_blueSoda.cs");
 exec("./items/item_redSoda.cs");
 
