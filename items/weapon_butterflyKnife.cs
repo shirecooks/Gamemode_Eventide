@@ -66,9 +66,15 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     {
         return Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
     }
-
-    //Integral for cooldown checking upon knife re-equip.
+    
+    //Be forgiving, don't waste the knife attack if the target was a teammate.
     %attacker = %obj.sourceObject;
+    if(!miniGameCanDamage(%attacker, %col))
+    {
+        return Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
+    }
+
+    //Essential for cooldown checking upon knife re-equip.
     %attacker.lastKnifeTime = getSimTime();
 
     %victimForwardVector = %col.getForwardVector(); //Already normalized.
@@ -85,10 +91,7 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     if(%dot <= -0.5)
     {
         //Critical hit!
-        if(miniGameCanDamage(%obj, %col))
-        {
-            %col.Damage(%obj, %position, %criticalHitDamage, butterflyKnifeChargedProjectile.directDamageType);
-        }
+        %col.Damage(%obj, %position, %criticalHitDamage, butterflyKnifeChargedProjectile.directDamageType);
 
         //Stun the victim, if the attack didn't kill them.
         if(%col.getState() !$= "Dead")
@@ -115,10 +118,7 @@ function butterflyKnifeChargedProjectile::onCollision(%this, %obj, %col, %fade, 
     else
     {
         //Weak hit... :(
-        if(miniGameCanDamage(%obj, %col))
-        {
-            %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
-        }
+        %col.Damage(%obj, %position, %failstabDamage, butterflyKnifeWeakProjectile.directDamageType);
     }
 
     %slot = %obj.sourceSlot;
