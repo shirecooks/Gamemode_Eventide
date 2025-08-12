@@ -2,7 +2,7 @@
 // Particle and debris data.
 //
 
-datablock DebrisData(sm_chairSeat1Debris)
+datablock DebrisData(chairSeat1Debris)
 {
 	shapeFile 			= "./models/chair/chairDebrisSeat1.dts";
 	lifetime 			= 2.8;
@@ -18,17 +18,17 @@ datablock DebrisData(sm_chairSeat1Debris)
 	gravModifier 		= 4;
 };
 
-datablock DebrisData(sm_chairSeat2Debris : sm_chairSeat1Debris)
+datablock DebrisData(chairSeat2Debris : chairSeat1Debris)
 {
 	shapeFile 			= "./models/chair/chairDebrisSeat2.dts";
 };
 
-datablock DebrisData(sm_chairSeat3Debris : sm_chairSeat1Debris)
+datablock DebrisData(chairSeat3Debris : chairSeat1Debris)
 {
 	shapeFile 			= "./models/chair/chairDebrisSeat3.dts";
 };
 
-datablock DebrisData(sm_chairRestDebris : sm_chairSeat1Debris)
+datablock DebrisData(chairRestDebris : chairSeat1Debris)
 {
 	shapeFile 			= "./models/chair/chairDebrisRest.dts";
 	spinSpeed			= 300.0;
@@ -36,14 +36,14 @@ datablock DebrisData(sm_chairRestDebris : sm_chairSeat1Debris)
 	maxSpinSpeed 		= 1200.0;
 };
 
-datablock DebrisData(sm_chairLegDebris : sm_chairRestDebris)
+datablock DebrisData(chairLegDebris : chairRestDebris)
 {
 	shapeFile 			= "./models/chair/chairDebrisLeg.dts";
 };
 
-datablock ExplosionData(sm_chairSeat1Explosion)
+datablock ExplosionData(chairSeat1Explosion)
 {
-	debris 					= sm_chairSeat1Debris;
+	debris 					= chairSeat1Debris;
 	debrisNum 				= 3;
 	debrisNumVariance 		= 1;
 	debrisPhiMin 			= 0;
@@ -54,35 +54,35 @@ datablock ExplosionData(sm_chairSeat1Explosion)
 	debrisVelocityVariance 	= 6;
 };
 
-datablock ExplosionData(sm_chairSeat2Explosion : sm_chairSeat1Explosion)
+datablock ExplosionData(chairSeat2Explosion : chairSeat1Explosion)
 {
-	debris 					= sm_chairSeat2Debris;
+	debris 					= chairSeat2Debris;
 };
 
-datablock ExplosionData(sm_chairSeat3Explosion : sm_chairSeat1Explosion)
+datablock ExplosionData(chairSeat3Explosion : chairSeat1Explosion)
 {
-	debris 					= sm_chairSeat2Debris;
+	debris 					= chairSeat2Debris;
 	debrisNum 				= 4;
 	debrisNumVariance 		= 2;
 };
 
-datablock ExplosionData(sm_chairRestExplosion : sm_chairSeat1Explosion)
+datablock ExplosionData(chairRestExplosion : chairSeat1Explosion)
 {
-	debris 					= sm_chairRestDebris;
+	debris 					= chairRestDebris;
 	debrisNum 				= 6;
 	debrisNumVariance 		= 4;
 };
 
-datablock ExplosionData(sm_chairLegExplosion : sm_chairSeat1Explosion)
+datablock ExplosionData(chairLegExplosion : chairSeat1Explosion)
 {
-	debris 					= sm_chairLegDebris;
+	debris 					= chairLegDebris;
 	debrisNum 				= 6;
 	debrisNumVariance 		= 4;
 };
 
-datablock ExplosionData(sm_chairSmashExplosion)
+datablock ExplosionData(chairSmashExplosion)
 {
-	debris 					= sm_woodFragDebris;
+	debris 					= woodFragDebris;
 	debrisNum 				= 12;
 	debrisNumVariance 		= 8;
 	debrisPhiMin 			= 0;
@@ -93,11 +93,11 @@ datablock ExplosionData(sm_chairSmashExplosion)
 	debrisVelocityVariance 	= 6;
 	explosionShape 			= "";
 	lifeTimeMS 				= 150;
-	subExplosion[0] 		= sm_chairSeat1Explosion;
-	subExplosion[1] 		= sm_chairSeat2Explosion;
-	subExplosion[2] 		= sm_chairSeat3Explosion;
-	subExplosion[3] 		= sm_chairRestExplosion;
-	subExplosion[4] 		= sm_chairLegExplosion;
+	subExplosion[0] 		= chairSeat1Explosion;
+	subExplosion[1] 		= chairSeat2Explosion;
+	subExplosion[2] 		= chairSeat3Explosion;
+	subExplosion[3] 		= chairRestExplosion;
+	subExplosion[4] 		= chairLegExplosion;
 	faceViewer     			= true;
 	explosionScale 			= "1 1 1";
 	shakeCamera 			= true;
@@ -107,12 +107,12 @@ datablock ExplosionData(sm_chairSmashExplosion)
 	camShakeRadius 			= 20.0;
 };
 
-datablock ProjectileData(sm_chairSmashProjectile)
+datablock ProjectileData(chairSmashProjectile)
 {
-	explosion = sm_chairSmashExplosion;
+	explosion = chairSmashExplosion;
 };
 
-datablock ParticleData(sm_chairExplosionParticle)
+datablock ParticleData(chairExplosionParticle)
 {
 	dragCoefficient      = 1;
 	gravityCoefficient   = 0.4;
@@ -131,7 +131,7 @@ datablock ParticleData(sm_chairExplosionParticle)
 	useInvAlpha 		= true;
 };
 
-datablock ParticleEmitterData(sm_chairExplosionEmitter)
+datablock ParticleEmitterData(chairExplosionEmitter)
 {
 	ejectionPeriodMS	= 1;
 	periodVarianceMS	= 0;
@@ -143,12 +143,12 @@ datablock ParticleEmitterData(sm_chairExplosionEmitter)
 	phiReferenceVel		= 0;
 	phiVariance			= 360;
 	overrideAdvance		= false;
-	particles			= sm_chairExplosionParticle;
+	particles			= chairExplosionParticle;
 };
 
-datablock ExplosionData(sm_chairHitExplosion)
+datablock ExplosionData(chairHitExplosion)
 {
-	debris 					= sm_woodFragDebris;
+	debris 					= woodFragDebris;
 	debrisNum 				= 12;
 	debrisNumVariance 		= 8;
 	debrisPhiMin 			= 0;
@@ -158,7 +158,7 @@ datablock ExplosionData(sm_chairHitExplosion)
 	debrisVelocity 			= 12;
 	debrisVelocityVariance 	= 6;
 	explosionShape 			= "";
-	particleEmitter 		= sm_chairExplosionEmitter;
+	particleEmitter 		= chairExplosionEmitter;
 	particleDensity 		= 10;
 	particleRadius 			= 0.2;
 	lifeTimeMS 				= 150;
@@ -171,9 +171,9 @@ datablock ExplosionData(sm_chairHitExplosion)
 	camShakeRadius 			= 20.0;
 };
 
-datablock ProjectileData(sm_chairHitProjectile)
+datablock ProjectileData(chairHitProjectile)
 {
-	explosion = sm_chairHitExplosion;
+	explosion = chairHitExplosion;
 };
 
 //
@@ -182,7 +182,7 @@ datablock ProjectileData(sm_chairHitProjectile)
 
 AddDamageType("Chair", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_chair> %1','%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_chair> %1', 1, 1); 
 
-datablock ItemData(sm_chairItem)
+datablock ItemData(chairItem)
 {
 	category 			= "Weapon";
 	className 			= "Weapon";
@@ -200,13 +200,13 @@ datablock ItemData(sm_chairItem)
 	doColorShift 		= true;
 	colorShiftColor 	= "0.56 0.4 0.2 1";
 
-	image 				= sm_chairImage;
+	image 				= chairImage;
 	canDrop 			= true;
 };
 
-datablock ShapeBaseImageData(sm_chairImage)
+datablock ShapeBaseImageData(chairImage)
 {
-	shapeFile 			= sm_chairItem.shapeFile;
+	shapeFile 			= chairItem.shapeFile;
 	emap 				= true;
 
 	mountPoint 			= 0;
@@ -215,10 +215,10 @@ datablock ShapeBaseImageData(sm_chairImage)
 	rotation 			= "0 1 0 180";
 	correctMuzzleVector = false;
 
-	doColorShift 		= sm_chairItem.doColorShift;
-	colorShiftColor 	= sm_chairItem.colorShiftColor;
+	doColorShift 		= chairItem.doColorShift;
+	colorShiftColor 	= chairItem.colorShiftColor;
 	className 			= "WeaponImage";
-	item 				= sm_chairItem;
+	item 				= chairItem;
 	armReady 			= true;
 	melee				= true;
 	
@@ -246,48 +246,70 @@ datablock ShapeBaseImageData(sm_chairImage)
 // Sequence callbacks.
 //
 
-function sm_chairImage::onSwing(%this,%obj,%slot)
+function chairImage::onSwing(%this, %obj, %slot)
 {
-	%obj.playThread(3,shiftDown);
-	serverPlay3D("generic_heavyswing" @ getRandom(1,2) @ "_sound",%obj.getMuzzlePoint(0));
+	%obj.playThread(3, shiftDown);
+	serverPlay3D("generic_heavyswing" @ getRandom(1, 2) @ "_sound", %obj.getMuzzlePoint($RightHandSlot));
 }
 
-function sm_chairImage::onFire(%this,%obj,%slot)
+function chairImage::onFire(%this, %obj, %slot)
 {
-	if(!isObject(%obj) || %obj.getState() $= "Dead") return;
-	%startpos = %obj.getMuzzlePoint(0);
-	%endpos = %obj.getMuzzleVector(0);
+	//Can't swing the chair if we're dead.
+	if(!isObject(%obj) || %obj.getState() $= "Dead") 
+	{
+		return;
+	}
 
+	//Not a clue what this is doing, honestly.
 	for(%i = 0; %i <= %obj.getDataBlock().maxTools; %i++)
-	if(%obj.tool[%i] $= %this.item.getID()) %itemslot = %i;
-	
-	%hit = containerRayCast(%startpos,vectorAdd(%startpos,VectorScale(%endpos,3)),$TypeMasks::PlayerObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType,%obj);
+	{
+		if(%obj.tool[%i] $= %this.item.getID())
+		{
+			%itemslot = %i;
+		}
+	}
+
+	%startpos = %obj.getMuzzlePoint($RightHandSlot);
+	%endpos = %obj.getMuzzleVector($RightHandSlot);
+
+	//Draw a line from the player's hand three units formward, and determine if we hit anything.
+	%hit = containerRayCast(%startpos, VectorAdd(%startpos, VectorScale(%endpos, 3)), $TypeMasks::PlayerObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType, %obj);
 	if(isObject(%hit))
 	{
 		%hitpos = posFromRaycast(%hit);
 		%obj.chairhit++;
 
+		//If the struck object is a player or bot, and we're both in the same minigame...
 		if(%hit.getType() & $TypeMasks::PlayerObjectType)
 		{
-			if(minigameCanDamage(%obj,%hit) == 1)
+			if(minigameCanDamage(%obj, %hit) == 1)
 			{
-				if(%obj.chairhit < 3) %hit.Damage(%obj, %hit.getPosition(), 25, $DamageType::barStool);
+				if(%obj.chairhit < 3) 
+				{
+					//The chair isn't damaged enough, simply hurt the victim.
+					%hit.Damage(%obj, %hit.getPosition(), 25, $DamageType::barStool);
+				}
 				else
 				{
-					%hit.mountimage("sm_stunImage",3);
+					//The chair has taken three hits, make the chair explode and stun the victim.
+					%hit.stun(2500);
 					%hit.Damage(%obj, %hit.getPosition(), 50, $DamageType::barStool);
 				}
 				
-				%hit.applyImpulse(%hit.getposition(),vectorAdd(vectorScale(%obj.getMuzzleVector(0),1000),"0 0 1000"));
+				//Knock the victim back.
+				%hit.applyImpulse(%hit.getPosition(), VectorAdd(VectorScale(%obj.getMuzzleVector($RightHandSlot), 1000), "0 0 1000"));
 			}
 		}		
 
 		if(%obj.chairhit < 3)
 		{
-			serverPlay3D("chair_hit" @ getRandom(1,2) @ "_sound",%hitpos);
+			//Play a chair creak sound effect on hit.
+			serverPlay3D("chair_hit" @ getRandom(1,2) @ "_sound", %hitpos);
+
+			//Spawn some splinters from the chair.
 			%p = new Projectile()
 			{
-				dataBlock = "sm_chairHitProjectile";
+				dataBlock = "chairHitProjectile";
 				initialPosition = %hitpos;
 				sourceObject = %obj;
 				client = %obj.client;
@@ -296,34 +318,43 @@ function sm_chairImage::onFire(%this,%obj,%slot)
 		}
 		else
 		{
-			serverPlay3D("chair_smash" @ getRandom(1,2) @ "_sound",%hitpos);
+			//Play chair break sound effect.
+			serverPlay3D("chair_smash" @ getRandom(1, 2) @ "_sound", %hitpos);
+
+			//Spawn chair debris.
 			%p = new Projectile()
 			{
-				dataBlock = "sm_chairSmashProjectile";
+				dataBlock = "chairSmashProjectile";
 				initialPosition = %hitpos;
 				sourceObject = %obj;
 				client = %obj.client;
 			};
 			%p.explode();	
 
+			//Unequip chair from the player's inventory.
 			if(isObject(%obj.client))
 			{
 				%obj.tool[%itemslot] = 0;
-				messageClient(%obj.client,'MsgItemPickup','',%itemslot,0);
+				messageClient(%obj.client,'MsgItemPickup', '', %itemslot, 0);
 			}
-			if(isObject(%obj.getMountedImage(%this.mountPoint))) %obj.unmountImage(%this.mountPoint);
+
+			if(isObject(%obj.getMountedImage(%this.mountPoint))) 
+			{
+				%obj.unmountImage(%this.mountPoint);
+			}
+
 			%obj.chairhit = 0;
 		}
 	}
 }
 
-function sm_chairImage::onMount(%this, %obj ,%slot)
+function chairImage::onMount(%this, %obj ,%slot)
 {
 	parent::onMount(%this, %obj, %slot);
-	%obj.playThread(2,armReadyLeft);
+	%obj.playThread(2, armReadyLeft);
 }
 
-function sm_chairImage::onUnMount(%this, %obj, %slot)
+function chairImage::onUnMount(%this, %obj, %slot)
 {
 	%obj.playThread(2, root);
 	parent::onUnMount(%this, %obj, %slot);
