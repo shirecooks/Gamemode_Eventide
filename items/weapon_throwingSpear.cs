@@ -170,6 +170,8 @@ datablock ExplosionData(throwingSpearExplosion)
 // Projectile data.
 //
 
+AddDamageType("ThrowingSpear", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_throwingSpear> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_throwingSpear> %1', 1, 1);
+
 datablock ProjectileData(throwingSpearProjectile)
 {
     projectileShapeName = "./models/spear/spearProjectile.dts";
@@ -222,8 +224,6 @@ function throwingSpearProjectile::onCollision(%this, %obj, %col, %fade, %pos, %n
 //
 // Item and image data.
 //
-
-AddDamageType("ThrowingSpear", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_throwingSpear> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_throwingSpear> %1', 1, 1);
 
 datablock ItemData(throwingSpearItem)
 {
