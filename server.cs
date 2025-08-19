@@ -23,6 +23,7 @@ exec("./items/weapon_chair.cs");
 exec("./items/weapon_poolCue.cs");
 exec("./items/weapon_barStool.cs");
 exec("./items/weapon_throwingSpear.cs");
+exec("./items/weapon_frailSword.cs");
 
 //Both "blueSoda" and "redSoda" share the status effect code in "datablock_speedSoda.cs"
 exec("./items/datablock_speedSoda.cs");
