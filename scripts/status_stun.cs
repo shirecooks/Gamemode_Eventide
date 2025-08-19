@@ -45,7 +45,7 @@ datablock ParticleEmitterData(stunEmitter)
 };
 
 //
-// Image and stun mechanics.
+// Image and status effect.
 //
 
 datablock ShapeBaseImageData(stunImage)
@@ -74,13 +74,16 @@ datablock ShapeBaseImageData(stunImage)
 	stateTransitionOnTimeout[2]	= "FireA";
 };
 
-function stunImage::onMount(%this, %obj)
+function PlayerStunEffect::beginStatusEffect(%this, %obj)
 {
 	//If the player is dead, do nothing.
 	if(!isObject(%obj) || %obj.getState() $= "Dead")
 	{
 		return;
 	}
+
+	//Create the particle effect.
+	%obj.mountImage(stunImage, stunImage.mountSlot);
 
     //Mark the player as stunned.
     %obj.isStunned = true;
@@ -89,7 +92,7 @@ function stunImage::onMount(%this, %obj)
 	%obj.setActionThread("sit", 1);
 	
     //Take control away from the player while they're stunned.
-	switch$(%obj.getclassName())
+	switch$(%obj.getClassName())
 	{
 		case "Player": 	
             %obj.client.setControlObject(%obj.client.camera);
@@ -104,13 +107,16 @@ function stunImage::onMount(%this, %obj)
 	}
 }
 
-function stunImage::onUnMount(%this, %obj)
+function PlayerStunEffect::finalizeStatusEffect(%this, %obj)
 {
 	//If the player is dead, do nothing.
 	if(!isObject(%obj) || %obj.getState() $= "Dead")
 	{
 		return;
 	}
+
+	//Remove the particle effect.
+	%obj.unmountImage(stunImage.mountSlot);
 
     //Mark the player as no longer being stunned.
 	%obj.isStunned = false;
@@ -147,12 +153,6 @@ function Player::stun(%obj, %time)
         %time = 2500;
     }
 
-    %stunImageSlot = stunImage.mountSlot;
-
     //Have the player enter the stun.
-    %obj.mountImage(stunImage, %stunImageSlot);
-
-    //Schedule the player to exit the stun.
-    cancel(%obj.stunCancelSchedule);
-    %obj.stunCancelSchedule = %obj.schedule(%time, unmountImage, %stunImageSlot);
+    %obj.applyStatusEffect("PlayerStunEffect", "Debuff", %time);
 }
