@@ -76,8 +76,14 @@ datablock ShapeBaseImageData(stunImage)
 
 function stunImage::onMount(%this, %obj)
 {
+	//If the player is dead, do nothing.
+	if(!isObject(%obj) || %obj.getState() $= "Dead")
+	{
+		return;
+	}
+
     //Mark the player as stunned.
-    %obj.stunned = 1;
+    %obj.isStunned = true;
 
     //Play the stun animation.
 	%obj.setActionThread("sit", 1);
@@ -100,8 +106,14 @@ function stunImage::onMount(%this, %obj)
 
 function stunImage::onUnMount(%this, %obj)
 {
+	//If the player is dead, do nothing.
+	if(!isObject(%obj) || %obj.getState() $= "Dead")
+	{
+		return;
+	}
+
     //Mark the player as no longer being stunned.
-	%obj.stunned = 0;
+	%obj.isStunned = false;
 
     //Undo the stun animation.
 	%obj.playThread(3, "undo");
