@@ -8,6 +8,7 @@ exec("./scripts/support_weaponCooldown.cs");
 exec("./scripts/support_statusEffects.cs");
 exec("./scripts/status_stun.cs");
 exec("./scripts/support_inventoryOperations.cs");
+exec("./scripts/support_imageAttributes.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
