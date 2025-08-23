@@ -19,8 +19,9 @@ function Player::removeItemFromInventory(%obj, %slot)
     }
 
     //Remove the item from the player's inventroy.
-    %obj.tool[%slot] = 0;
     %obj.weaponCount--;
+    %obj.decInventory(%obj.tool[%slot], 1);
+    %obj.tool[%slot] = 0;
     %client = %obj.client;
 	if(isObject(%client)) 
     {
@@ -37,8 +38,9 @@ function Player::addItemToInventory(%obj, %image)
         if(%tool == 0)
         {
             //We found an empty slot, add the item there.
-            %obj.tool[%i] = %image;
             %obj.weaponCount++;
+            %obj.incInventory(%obj.tool[%slot], 1);
+            %obj.tool[%i] = %image;
             %client = %obj.client;
             if(isObject(%client))
             {
