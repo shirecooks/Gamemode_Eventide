@@ -10,7 +10,6 @@ exec("./scripts/status_stun.cs");
 exec("./scripts/support_imageAttributes.cs");
 exec("./scripts/support_restoredAmmoSystem.cs");
 exec("./scripts/support_inventoryOperations.cs");
-exec("./scripts/support_imageAttributes.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
@@ -27,6 +26,7 @@ exec("./items/weapon_poolCue.cs");
 exec("./items/weapon_barStool.cs");
 exec("./items/weapon_throwingSpear.cs");
 exec("./items/weapon_frailSword.cs");
+exec("./items/weapon_shotgun.cs");
 
 //Both "blueSoda" and "redSoda" share the status effect code in "datablock_speedSoda.cs"
 exec("./items/status_speedSoda.cs");

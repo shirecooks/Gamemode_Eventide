@@ -8,6 +8,8 @@ datablock PlayerData(PlayerSurvivor : PlayerEventide)
 	maxWeapons = 3;
 
 	shoveForce = 1;
+
+	maxInv["shotgunSlugItem"] = 5;
 };
 //Inherits functions from `PlayerEventide`.
 PlayerSurvivor.inheritFunctionsFromSuperClass();
