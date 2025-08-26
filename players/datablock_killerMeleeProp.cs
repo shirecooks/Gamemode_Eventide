@@ -3,7 +3,7 @@ datablock ShapeBaseImageData(KillerMeleeImage)
     class = "KillerMeleeImage";
     superClass = "";
 
-	meleeRange = 4;
+	meleeRange = 0.5;
 	meleeCooldown = 1750;
 	meleeTrailSkin = $Eventide_MeleeTrails["base.trail"];
 	meleeTrailTime = 1000;
