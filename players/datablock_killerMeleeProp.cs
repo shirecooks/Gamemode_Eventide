@@ -125,9 +125,6 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 		{
 			continue;
 		}
-	
-		//Hit sound effect.
-		ServerPlay3D(%obj.voiceConfig.getUnmanagedSound("Hit"), %victimPosition);
 
 		//Blood splatter or whatever else particle effect upon hitting the target.
 		if(%this.hitProjectile !$= "")
