@@ -88,6 +88,18 @@ function PlayerEventide::onShoved(%this, %obj, %velocity)
 	%obj.setVelocity(%velocity);
 }
 
+function PlayerEventide::clearHatmodHat(%this, %obj)
+{
+	//Get rid of the Hatmod hat if the player isn't supposed to have it.
+	%hatModHat = %obj.getMountedImage(2);
+	if(isObject(%hatModHat) && isFunction(isHat) && isHat(%hatModHat))
+	{
+		%obj.unmountImage(2);
+		return 1;
+	}
+	return -1;
+}
+
 function PlayerEventide::eventideBodyParts(%this, %obj)
 {
 	//We need a client to do anything here.
@@ -121,7 +133,7 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	%hatModHat = %obj.getMountedImage(2);
 	if(%this.noHatmod && isObject(%hatModHat) && isFunction(isHat) && isHat(%hatModHat))
 	{
-		%obj.unmountImage(2);
+		%this.clearHatmodHat(%obj);
 	}
 	
 	//Core body parts.
