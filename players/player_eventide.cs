@@ -94,6 +94,23 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	%client = %obj.client;
 	if(!isObject(%client))
 	{
+		//No client, so substitute with the default Blockhead apparance.
+		%obj.hideNode("ALL");
+		
+		%obj.unHideNode("headskin");
+		%obj.unHideNode("chest");
+		%obj.unHideNode("larm");
+		%obj.unHideNode("rarm");
+		%obj.unHideNode("lhand");
+		%obj.unHideNode("rhand");
+		%obj.unHideNode("pants");
+		%obj.unHideNode("lshoe");
+		%obj.unHideNode("rshoe");
+
+		%obj.setHeadUp(0);
+
+		%obj.setDecalName("AAA-None");
+		%obj.setFaceName("smiley");
 		return;
 	}
 
@@ -213,6 +230,19 @@ function PlayerEventide::eventideBodyColors(%this, %obj)
 	%client = %obj.client;
 	if(!isObject(%client))
 	{
+		%skinColor = "1 0.878 0.611 1";
+		%sleeveColor = "0.9 0 0 1";
+		%pantsColor = "0.2 0 0.8 1";
+
+		%obj.setNodeColor("headskin", %skinColor);
+		%obj.setNodeColor("chest", "1 1 1 1");
+		%obj.setNodeColor("larm", %sleeveColor);
+		%obj.setNodeColor("rarm", %sleeveColor);
+		%obj.setNodeColor("lhand", %skinColor);
+		%obj.setNodeColor("rhand", %skinColor);
+		%obj.setNodeColor("pants", %pantsColor);
+		%obj.setNodeColor("lshoe", %pantsColor);
+		%obj.setNodeColor("rshoe", %pantsColor);
 		return;
 	}
 
