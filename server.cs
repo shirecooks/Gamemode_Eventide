@@ -6,6 +6,7 @@ exec("./scripts/support_ghostingUtils.cs");
 exec("./scripts/support_client.cs");
 exec("./scripts/support_weaponCooldown.cs");
 exec("./scripts/support_statusEffects.cs");
+exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/status_stun.cs");
 exec("./scripts/support_imageAttributes.cs");
 exec("./scripts/support_restoredAmmoSystem.cs");
