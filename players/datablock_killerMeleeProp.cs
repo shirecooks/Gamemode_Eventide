@@ -1,6 +1,6 @@
 datablock ShapeBaseImageData(KillerMeleeImage)
 {
-    class = "KillerMelee";
+    class = "KillerMeleeImage";
     superClass = "";
 
 	meleeRange = 4;
