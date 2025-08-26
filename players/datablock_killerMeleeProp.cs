@@ -75,7 +75,7 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 	%obj.playVoiceLine("Attack"); //Killer grunt.
 	
 	//Air slice sound.
-	%soundEffect = %this.swingSound @ %this.swingSoundAmount;
+	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
 	ServerPlay3D(%soundEffect, %killerWeaponPosition);
 
 	//Melee animation.
