@@ -50,6 +50,8 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
 
 //To be run on datablocks or ScriptObjects. 
 //Take advantage of `eval` and the lax-arity function model of TorqueScript to define a function that calls the equivalent parent function.
+//Optional pref to prevent console spam by clearing it after the function is run. No other way to accomplish that without engine modification.
+$Pref::OOP::Debug = ($Pref::OOP::Debug !$= "") ? $Pref::OOP::Debug : false;
 function SimObject::inheritFunctionsFromSuperClass(%this)
 {
     %superClass = %this.superClass;
@@ -128,6 +130,12 @@ function SimObject::inheritFunctionsFromSuperClass(%this)
     }
     %introspectLog.close();
     %introspectLog.delete();
+
+    //If enabled, clear the console after generating the introspection log to reduce spam.
+    if(!$Pref::OOP::Debug)
+    {
+        cls();
+    }
 
     //For each detected function, use eval to define a stub function illustrated below.
     for(%i = 0; %i < getWordCount(%functionList); %i++)
