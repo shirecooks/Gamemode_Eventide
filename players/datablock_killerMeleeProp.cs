@@ -99,8 +99,10 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 		return;
 	}
 
-	%killerLookVector = %obj.getLookVector();
+	%killerEyePoint = %obj.getEyePoint();
+	%killerLookVector = VectorNormalize(%obj.getLookVector());
 	%killerPosition = %obj.getHackPosition();
+	%killerWeaponPosition = %obj.getMuzzlePoint(0);
 	
 	//Melee cooldown and energy decrease.
 	%obj.lastMeleeTime = %currentTIme;	
@@ -139,7 +141,7 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 
 	//Missing and/or striking the environment with the melee weapon.
 	%typemasks = $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType;
-	%obstruction = ContainerRayCast(%obj.getEyePoint(), VectorScale(%killerLookVector, %this.meleeRange), %typemasks, %obj);
+	%obstruction = ContainerRayCast(%killerEyePoint, VectorAdd(%killerEyePoint, VectorScale(%killerLookVector, %this.meleeRange)), %typemasks, %obj);
 	if(isObject(%obstruction) && %this.hitObscureProjectile !$= "")
 	{								
 		%c = new Projectile()
