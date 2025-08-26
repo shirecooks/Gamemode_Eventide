@@ -5,13 +5,14 @@ datablock ShapeBaseImageData(KillerMeleeImage)
 
 	meleeRange = 4;
 	meleeCooldown = 1750;
-	meleeTrailSkin = "base";
+	meleeTrailSkin = $Eventide_MeleeTrails["base.trail"];
+	meleeTrailTime = 1000;
 	meleeTrailOffset = "0.3 1.4 0.7"; 
 	meleeTrailAngle1 = "0 90 0";
 	meleeTrailAngle2 = "0 -90 0";
 	meleeTrailAngle3 = "0 0 0";
 	meleeTrailAngle4 = "0 180 0";
-	meleeTrailScale = "4 4 2";
+	useCustomMeleeTrail = true;
 
 	hitProjectile = "";
 	hitObscureProjectile = "";
@@ -85,23 +86,7 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 	if(%this.meleeTrailSkin !$= "") 
 	{
 		%meleeTrailAngle = %this.meleeTrailAngle[%meleeAnim];
-
-		%shape = new StaticShape()
-		{
-			dataBlock = KillerTrailShape;
-			scale = %this.meleeTrailScale;
-		};
-		%shape.setSkinName(%this.meleeTrailSkin);
-		
-		%rotation = relativeVectorToRotation(%killerLookVector, %obj.getUpVector());
-		%clamped = mClampF(firstWord(%rotation), -89.9, 89.9) SPC restWords(%rotation);		
-		%local = %killerPosition SPC %clamped;
-		%combined = %this.meleeTrailOffset SPC eulerToQuat(%meleeTrailAngle);
-		%actual = matrixMultiply(%local, %combined);
-		
-		%shape.setTransform(%actual);
-		%shape.playThread(0, "rotate");
-		%shape.schedule(1000, delete);
+		%obj.spawnMeleeTrail(%this.meleeTrailSkin, %this.meleeTrailTime, %this.meleeTrailOffset, %meleeTrailAngle, %this.meleeTrailScale);
 	}
 
 	//Missing and/or striking the environment with the melee weapon.
