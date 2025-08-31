@@ -149,3 +149,26 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 		%killerDatablock.schedule(1500, setTempSpeed, %obj, 1);
 	}	
 }
+
+//
+// Package for playing sound from the hit projectiles.
+//
+
+package Weapon_KillerMelee
+{
+	function ProjectileData::onExplode(%this, %obj, %pos)
+	{
+		%returnValue = Parent::onExplode(%this, %obj, %pos);
+		if(%this.hitSound && %this.hitSoundAmount)
+		{
+			%soundEffect = %this.hitSound @ %this.hitSoundAmount @ "_sound";
+			ServerPlay3D(%soundEffect, %pos);
+		}
+		return %returnValue;
+	}
+};
+if(isPackage(Weapon_KillerMelee))
+{
+	deactivatePackage(Weapon_KillerMelee);
+}
+activatePackage(Weapon_KillerMelee);
