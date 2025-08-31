@@ -18,7 +18,7 @@ function Player::removeItemFromInventory(%obj, %slot)
         %obj.unmountImage(%slot);
     }
 
-    //Remove the item from the player's inventroy.
+    //Remove the item from the player's inventory.
     %obj.weaponCount--;
     %obj.decInventory(%obj.tool[%slot], 1);
     %obj.tool[%slot] = 0;
