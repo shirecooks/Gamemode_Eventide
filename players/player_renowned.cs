@@ -185,20 +185,6 @@ function PlayerRenowned::eventideBodyColors(%this, %obj)
 }
 
 //
-// Voice-line handlers
-//
-
-function PlayerRenowned::onDamage(%this, %obj, %delta)
-{
-	Parent::onDamage(%this, %obj, %delta);
-	if(%obj.getState() !$= "Dead")
-	{
-		%obj.playVoiceLine("Pain");
-		%obj.faceConfigShowFace("Pain");
-	}
-}
-
-//
 // Custom behaviors.
 //
 
