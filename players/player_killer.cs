@@ -311,6 +311,16 @@ function PlayerKiller::killerLoop(%this, %obj)
 // Some universal voice line handlers.
 //
 
+function PlayerKiller::onDamage(%this, %obj, %delta)
+{
+	Parent::onDamage(%this, %obj, %delta);
+	if(%obj.getState() !$= "Dead")
+	{
+		%obj.playVoiceLine("Pain");
+		%obj.faceConfigShowFace("Pain");
+	}
+}
+
 function PlayerKiller::preKillerLoop(%this, %obj)
 {
 	
