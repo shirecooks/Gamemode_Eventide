@@ -3,7 +3,7 @@ package Support_RestoredAmmoSystem
     function ItemData::onPickup(%this, %obj, %user, %amount)
     {
         %pickedUp = Parent::onPickup(%this, %obj, %user, %amount);
-        if(%pickedUp)
+        if(%pickedUp == 1)
         {
             %user.incInventory(%this, 1);
         }
