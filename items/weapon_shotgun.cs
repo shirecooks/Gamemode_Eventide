@@ -197,7 +197,7 @@ datablock ItemData(shotgunSlugItem)
 function shotgunSlugItem::onPickup(%this, %obj, %user, %amount)
 {
 	%pickedUp = Parent::onPickup(%this, %obj, %user, %amount);
-	if(%pickedUp && %user.currTOol == shotgunItem && %user.getImageLoaded(0) == false)
+	if(%pickedUp && (%user.getMountedImage(shotgunImage.mountPoint) == shotgunImage.getID()) && (%user.getImageLoaded(0) == false))
 	{
 		//If the user has the shotgun equipped and it isn't loaded, set a flag so it reloads.
 		%user.setImageAmmo(0, true);
@@ -412,10 +412,8 @@ function shotgunImage::onReloadPhase4(%this, %obj, %slot)
 	serverPlay3D("shotgun_unbreak_sound", %obj.getMuzzlePoint($RightHandSlot));
 
 	//Remove a shotgun slug from the player's inventory.
-	talk("Max tools:" SPC %obj.getDatablock().maxTools);
 	for(%i = 0; %i < %obj.getDatablock().maxTools; %i++)
 	{
-		talk("Inventory slot" SPC %i @ ":" SPC %obj.tool[%i].getName());
 		if(%obj.tool[%i] == ShotgunSlugItem.getID())
 		{
 			%obj.removeItemFromInventory(%i);
