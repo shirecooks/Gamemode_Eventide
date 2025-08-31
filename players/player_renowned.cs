@@ -90,6 +90,10 @@ datablock ShapeBaseImageData(MeleeTantoImage : KillerMeleeImage)
 	
 	hitProjectile = KillerSharpHitProjectile;
 	hitObscureProjectile = KillerKatanaClankProjectile;	
+	meleeTrail = $Eventide_MeleeTrails["base.trail"];
+
+	swingSound = "generic_lightSwing";
+	swingSoundAmount = 5;
 };
 MeleeTantoImage.inheritFunctionsFromSuperClass();
 
