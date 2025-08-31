@@ -372,6 +372,9 @@ datablock ProjectileData(KillerSharpHitProjectile)
 	//-------------//
 	
 	uiName = "Killer's Sharp Hit";
+
+	hitSound = "tanto_hit";
+	hitSoundAmount = 3;
 };
 
 datablock ExplosionData(KillerRoughHitExplosion : KillerSharpHitExplosion)
