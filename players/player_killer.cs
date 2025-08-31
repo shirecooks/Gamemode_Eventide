@@ -136,25 +136,25 @@ function PlayerKiller::onIncapacitateVictim(%this, %obj, %victim, %killed)
 // Custom behaviors.
 //
 
-function PlayerKiller::killerGUI(%this, %obj, %client)
-{	
-	%energyLevel = %obj.getEnergyLevel();
-    %iconPath = filePath($Con::File) @ "/icons/";
+// function PlayerKiller::killerGUI(%this, %obj, %client)
+// {	
+// 	%energyLevel = %obj.getEnergyLevel();
+//     %iconPath = filePath($Con::File) @ "/icons/";
 
-	//Determine if we have enough energy to perform and left or right click action. Then, choose the appropriate icons.
-	%leftClickStatus = (%energyLevel >= 25) ? "hi" : "lo";
-	%rightClickStatus = (%energyLevel == %this.maxEnergy && %obj.gazingPlayer) ? "hi" : "lo";
-	%leftClickText = (%this.leftclickicon !$= "") ? "<just:left>\c6Left click" : "";
-	%rightClickText = (%this.rightclickicon !$= "") ? "<just:right>\c6Right click" : "";		
+// 	//Determine if we have enough energy to perform and left or right click action. Then, choose the appropriate icons.
+// 	%leftClickStatus = (%energyLevel >= 25) ? "hi" : "lo";
+// 	%rightClickStatus = (%energyLevel == %this.maxEnergy && %obj.gazingPlayer) ? "hi" : "lo";
+// 	%leftClickText = (%this.leftclickicon !$= "") ? "<just:left>\c6Left click" : "";
+// 	%rightClickText = (%this.rightclickicon !$= "") ? "<just:right>\c6Right click" : "";		
 
-	//Format the icons into a status message.
-	%leftClickIcon = (%this.leftclickicon !$= "") ? "<just:left><bitmap:" @ %iconPath @ %leftClickStatus @ %this.leftclickicon @ ">" : "";
-	%rightClickIcon = (%this.rightclickicon !$= "") ? "<just:right><bitmap:" @ %iconPath @ %rightClickStatus @ %this.rightclickicon @ ">" : "";
+// 	//Format the icons into a status message.
+// 	%leftClickIcon = (%this.leftclickicon !$= "") ? "<just:left><bitmap:" @ %iconPath @ %leftClickStatus @ %this.leftclickicon @ ">" : "";
+// 	%rightClickIcon = (%this.rightclickicon !$= "") ? "<just:right><bitmap:" @ %iconPath @ %rightClickStatus @ %this.rightclickicon @ ">" : "";
 
-	//Display the status message in the bottom print bar.
-    //Setting the time to 0 causes the bottom print to never automatically clear under normal circumstances.
-	%client.bottomPrint(%leftClickText @ %rightClickText @ "<br>" @ %leftClickIcon @ %rightClickIcon, 0, false);
-}
+// 	//Display the status message in the bottom print bar.
+//     //Setting the time to 0 causes the bottom print to never automatically clear under normal circumstances.
+// 	%client.bottomPrint(%leftClickText @ %rightClickText @ "<br>" @ %leftClickIcon @ %rightClickIcon, 0, false);
+// }
 
 function PlayerKiller::killerLoop(%this, %obj)
 {
@@ -166,10 +166,10 @@ function PlayerKiller::killerLoop(%this, %obj)
 	%this.preKillerLoop(%obj);
 
 	//Update the UI.
-    if(isObject(%obj.client)) 
-	{
-		%this.killerGUI(%obj, %obj.client);
-	}
+    // if(isObject(%obj.client)) 
+	// {
+	// 	%this.killerGUI(%obj, %obj.client);
+	// }
 
 	%searchDistance = 25; //80 studs, should be a decent balance for both small and large maps.
 	%gracePeriod = 4000;
