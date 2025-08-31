@@ -106,7 +106,6 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 	}
 
 	//Perform a container search for victims, and if any are found, determine if we can damage them.
-	%killerWeaponPosition = %obj.getMuzzlePoint($RightHandSlot);
 	%killerScale = %obj.getScale();
 	initContainerRadiusSearch(%killerWeaponPosition, %this.meleeRange, $TypeMasks::PlayerObjectType);		
 	while(%hit = containerSearchNext())
@@ -159,10 +158,10 @@ package Weapon_KillerMelee
 	function ProjectileData::onExplode(%this, %obj, %pos)
 	{
 		%returnValue = Parent::onExplode(%this, %obj, %pos);
-		if(%this.hitSound && %this.hitSoundAmount)
+		if(%this.hitSound !$= "" && %this.hitSoundAmount !$= "")
 		{
-			%soundEffect = %this.hitSound @ %this.hitSoundAmount @ "_sound";
-			ServerPlay3D(%soundEffect, %pos);
+			%soundEffect = %this.hitSound @ getRandom(1, %this.hitSoundAmount) @ "_sound";
+			schedule(33, 0, ServerPlay3D, %soundEffect, %pos); //Won't play immediately for some reason. Oh well, let's fix that.
 		}
 		return %returnValue;
 	}
