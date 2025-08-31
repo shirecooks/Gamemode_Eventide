@@ -152,6 +152,8 @@ function PlayerRenowned::eventideBodyParts(%this, %obj)
 
 	%obj.setHeadUp(0);
 
+	%this.clearHatmodHat(%obj);
+
 	%obj.mountImage("renownedEyesImage", 3);
 
     //Custom player scale.
