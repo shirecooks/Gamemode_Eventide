@@ -431,14 +431,7 @@ package Player_Killer
 	function Armor::onNewDatablock(%this, %obj)
 	{
 		cancel(%obj.killerLoopSchedule);
-
-		%client = %obj.client;
-		if(isObject(%client) && %this.isKiller)
-		{
-			%client.bottomPrint("", 1, true); //Clear the bottom print. This does not happen normally.
-		}
-		
-		Parent::onNewDatablock(%this, %obj);
+		return Parent::onNewDatablock(%this, %obj);
 	}
 };
 if(isPackage(Player_Killer))
