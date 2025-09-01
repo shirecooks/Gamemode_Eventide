@@ -1,5 +1,8 @@
 exec("./scripts/support_oop.cs");
 exec("./scripts/support_common.cs");
+exec("./scripts/support_imageAttributes.cs");
+exec("./scripts/support_restoredAmmoSystem.cs");
+exec("./scripts/support_inventoryOperations.cs");
 exec("./scripts/support_vectorUtilities.cs");
 exec("./scripts/support_extraResources.cs");
 exec("./scripts/support_ghostingUtils.cs");
@@ -8,9 +11,6 @@ exec("./scripts/support_weaponCooldown.cs");
 exec("./scripts/support_statusEffects.cs");
 exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/status_stun.cs");
-exec("./scripts/support_imageAttributes.cs");
-exec("./scripts/support_restoredAmmoSystem.cs");
-exec("./scripts/support_inventoryOperations.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
