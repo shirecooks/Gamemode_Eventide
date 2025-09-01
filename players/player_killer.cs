@@ -177,7 +177,7 @@ function PlayerKiller::onIncapacitateVictim(%this, %obj, %victim, %killed)
 
 function PlayerKiller::killerLoop(%this, %obj)
 {
-    if(!isObject(%obj) || %obj.getState() $= "Dead")
+    if(!isObject(%obj) || !%obj.getDataBlock().isKiller || %obj.getState() $= "Dead")
 	{
 		return;
 	}
