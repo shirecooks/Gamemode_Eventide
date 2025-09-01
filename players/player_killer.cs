@@ -381,19 +381,19 @@ function PlayerKiller::postKillerLoop(%this, %obj)
 	{
 		//The killer is actively chasing someone.
 		%obj.playVoiceLine("Chase");
-		%obj.playAmbiantMusic(%this.killerChaseMusic, 2, 1.0, true);
+		%obj.playAmbiantMusic(%this.killerChaseMusic, 1.0, "Chase");
 	}
 	else if(%obj.nearVictims.getCount() > 0)
 	{
 		//The killer isn't in a chase, but people are nearby.
 		%obj.playVoiceLine("Near");
-		%obj.playAmbiantMusic(%this.killerNearMusic, 1, 1.0, true);
+		%obj.playAmbiantMusic(%this.killerNearMusic, 1.0, "Near");
 	}
 	else
 	{
 		//The killer has no action at all.
 		%obj.playVoiceLine("Idle");
-		%obj.playRandomAmbiantTrack(true);
+		%obj.playRandomAmbiantTrack();
 	}
 }
 

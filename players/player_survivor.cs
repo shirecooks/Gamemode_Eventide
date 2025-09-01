@@ -103,17 +103,17 @@ function PlayerSurvivor::onKillerChaseEnd(%this, %obj, %target)
 	%amountNearbyKillers = %obj.nearbyKillers.getCount();
 	if(%amountChasingKillers > 0)
 	{
-		%chosenKiller = %obj.chasingKillers.getObject(getRandom(0, %amountChasingKillers));
-		%obj.playAmbiantMusic(%chosenKiller.killerChaseMusic, 2, 1.0, true);
+		%chosenKiller = %obj.chasingKillers.getObject(getRandom(0, (%amountChasingKillers - 1)));
+		%obj.playAmbiantMusic(%chosenKiller.killerChaseMusic, 1.0, "Chase");
 	}
 	else if(%amountNearbyKillers > 0)
 	{
-		%chosenKiller = %obj.nearbyKillers.getObject(getRandom(0, %amountNearbyKillers));
-		%obj.playAmbiantMusic(%chosenKiller.killerNearMusic, 1, 1.0, true);
+		%chosenKiller = %obj.nearbyKillers.getObject(getRandom(0, (%amountNearbyKillers - 1)));
+		%obj.playAmbiantMusic(%chosenKiller.killerNearMusic, 1.0, "Near");
 	}
 	else
 	{
-		%obj.playRandomAmbiantTrack(true);
+		%obj.playRandomAmbiantTrack();
 	}
 }
 

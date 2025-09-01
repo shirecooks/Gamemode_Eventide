@@ -1,8 +1,12 @@
-function GameConnection::playAmbiantMusic(%this, %musicDatablock, %priority, %volume, %override)
+//
+// Playing ambiant music tracks.
+//
+
+function GameConnection::playAmbiantMusic(%this, %musicDatablock, %volume, %category)
 {
-    if(%priority $= "")
+    if(%category $= "")
     {
-        %priority = 0;
+        %category = "Ambiant";
     }
 
     if(%volume $= "")
@@ -13,26 +17,24 @@ function GameConnection::playAmbiantMusic(%this, %musicDatablock, %priority, %vo
     %eventideMusicEmitter = %this.eventideMusicEmitter;
     if(isObject(%eventideMusicEmitter))
     {
-        //If this music is already playing, skip.
-        if(%eventideMusicEmitter.profile == %musicDatablock)
+        //Same type of music, skip.
+        if(%eventideMusicEmitter.category $= %category)
         {
             return;
         }
 
-        //The music currently playing is more important than the music to be played.
-        //For example, round end tension music has higher priority than chase music.
-        //If that is the case, do nothing.
-        if(%eventideMusicEmitter.priority > %priority && !%override)
-        {
-            return;
-        }
+        // //If this music is already playing, skip.
+        // if(%eventideMusicEmitter.profile == %musicDatablock)
+        // {
+        //     return;
+        // }
         
         %eventideMusicEmitter.delete();
     }
 
     %eventideMusicEmitter = new AudioEmitter()
     {
-        priority = %priority;
+        category = %category;
         position = "9e9 9e9 9e9";
         profile = %musicDatablock;
         volume = %volume;
@@ -45,16 +47,20 @@ function GameConnection::playAmbiantMusic(%this, %musicDatablock, %priority, %vo
 
     return %eventideMusicEmitter;
 }
-function Player::playAmbiantMusic(%obj, %musicDatablock, %priority, %volume, %override)
+function Player::playAmbiantMusic(%obj, %musicDatablock, %volume, %category)
 {
     %client = %obj.client;
     if(isObject(%client))
     {
-        return %client.playAmbiantMusic(%musicDatablock, %priority, %volume, %override);
+        return %client.playAmbiantMusic(%musicDatablock, %volume, %category);
     }
 }
 
-function GameConnection::playRandomAmbiantTrack(%this, %override)
+//
+// Playing a RANDOM ambiant music track.
+//
+
+function GameConnection::playRandomAmbiantTrack(%this)
 {
     //Decide which category of ambiant music to play.
     //If enabled, do Robb's choice. If disabled, do Muna's choice.
@@ -110,16 +116,63 @@ function GameConnection::playRandomAmbiantTrack(%this, %override)
     %musicDatablock = NameToID("musicData_" @ %musicDatablockBase @ %ambiantTrackChoice);
 
     //Create an AudioEmitter with the datablock, to play the music.
-    return %this.playAmbiantMusic(%musicDatablock, 0, 1.0, %override);
+    return %this.playAmbiantMusic(%musicDatablock, 1.0, "Ambiant");
 }
-function Player::playRandomAmbiantTrack(%obj, %override)
+function Player::playRandomAmbiantTrack(%obj)
 {
     %client = %obj.client;
     if(isObject(%client))
     {
-        return %client.playRandomAmbiantTrack(%override);
+        return %client.playRandomAmbiantTrack();
     }
 }
+
+//
+// Is ambiant music playing?
+//
+
+function GameConnection::hasAmbiantMusic(%this)
+{
+    return %this.eventideMusicEmitter;
+}
+function Player::hasAmbiantMusic(%obj)
+{
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        return %client.eventideMusicEmitter;
+    }
+    return 0;
+}
+
+//
+// Stopping ambiant music playback.
+//
+
+function GameConnection::stopAmbiantMusic(%this)
+{
+    %eventideMusicEmitter = %this.eventideMusicEmitter;
+    if(isObject(%eventideMusicEmitter))
+    {
+        %eventideMusicEmitter.delete();
+    }
+}
+function Player::stopAmbiantMusic(%obj)
+{
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        %eventideMusicEmitter = %client.eventideMusicEmitter;
+        if(isObject(%eventideMusicEmitter))
+        {
+            %client.eventideMusicEmitter.delete();
+        }
+    }
+}
+
+//
+// Package to play an ambient music track on player spawn, and stop it upon minigame end/anything else.
+//
 
 package Gamemode_Eventide_AmbiantMusic
 {
@@ -143,6 +196,13 @@ package Gamemode_Eventide_AmbiantMusic
         if(isObject(%client))
         {
             %client.playRandomAmbiantTrack();
+        }
+    }
+    function Armor::onNewDataBlock(%this, %obj)
+    {
+        if(!%this.isEventideClass && %obj.hasAmbiantMusic())
+        {
+            %obj.stopAmbiantMusic();
         }
     }
 };
