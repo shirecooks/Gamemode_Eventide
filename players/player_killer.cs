@@ -198,13 +198,26 @@ function PlayerKiller::killerLoop(%this, %obj)
 	for(%i = 0; %i < %obj.nearVictims.getCount(); %i++)
 	{
 		%victim = %obj.nearVictims.getObject(%i);
-		%victimDistance = VectorDist(%victim.getPosition(), %obj.getPosition());
 
-		if(%victimDistance > %searchDistance && (%currentTime - %victim.timeSinceKillerNear) > %gracePeriod)
+		//Can't do anything if the victim no longer exists.
+		if(!isObject(%victim) || %victim.getState() $= "Dead")
 		{
+			%obj.nearVictims.remove(%victim);
+			continue;
+		}
+
+		%victimDistance = VectorDist(%victim.getPosition(), %obj.getPosition());
+		if(%victimDistance > %searchDistance)
+		{
+			//If the grace period hasn't expired, don't do this yet.
+			if((%currentTime - %victim.timeSinceKillerNear) < %gracePeriod)
+			{
+				continue;
+			}
+
 			//The victim is too far away, unmark them as being near the killer.
-			%victim.isKillerNear = false;
 			%victim.getDatablock().onKillerExitRange(%victim, %obj);
+			%victim.isKillerNear = false;
 
 			%obj.nearVictims.remove(%victim);
 			%this.onKillerExitRange(%obj, %victim);
@@ -220,22 +233,30 @@ function PlayerKiller::killerLoop(%this, %obj)
 	for(%i = 0; %i < %obj.chasingVictims.getCount(); %i++)
 	{
 		%victim = %obj.chasingVictims.getObject(%i);
-		%victimClient = %victim.client;
 
+		//Can't do anything if the victim no longer exists.
+		if(!isObject(%victim) || %victim.getState() $= "Dead")
+		{
+			%obj.chasingVictims.remove(%victim);
+			continue;
+		}
+
+		%victimClient = %victim.client;
 		if((%currentTime - %victim.timeSinceChased) > %gracePeriod)
 		{
 			//It's been too long since the victim was last seen, end the chase.
 			%obj.chasingVictims.remove(%victim);
+			%obj.getDatablock().onKillerChaseEnd(%obj, %victim);
 
+			%victim.getDatablock().onKillerChaseEnd(%victim, %obj);
 			%victim.isBeingChased = false;
-			%victim.getDatablock().onKillerChaseEnd(%victim);
 
 			%victimDistance = VectorDist(%victim.getPosition(), %obj.getPosition());
 			if(%victimDistance > %searchDistance)
 			{
 				//The victim is completely out-of-range, unmark them as being near.
+				%victim.getDatablock().onKillerExitRange(%victim, %obj);
 				%victim.isKillerNear = false;
-				%victim.getDatablock().onKillerExitRange(%obj, %victim);
 				
 				%obj.nearVictims.remove(%victim);
 				%this.onKillerExitRange(%obj, %victim);
@@ -264,6 +285,7 @@ function PlayerKiller::killerLoop(%this, %obj)
 	//Pre-emptively set this, it may be overwritten during the container search.
 	%closeRangeFlag = false;
 	%obj.gazingPlayer = false;
+	%currentVictimDistance = 2147483647; //Maximum 32-bit signed integer.
 
 	//Figure out who is near the killer or in view of the killer.
     initContainerRadiusSearch(%obj.getEyePoint(), %searchDistance, $TypeMasks::PlayerObjectType);
@@ -284,15 +306,22 @@ function PlayerKiller::killerLoop(%this, %obj)
         %victimObstructed = containerRayCast(%killerPosition, %victimPosition, %typemasks, %obj);
         %victimDistance = containerSearchCurrDist();
 
+		//Necessary for the head-turn mechanic presented further down.
+		if(%victimDistance < %currentVictimDistance)
+		{
+			%currentVictimDistance = %victimDistance;
+			%obj.closestChasingVictim = %victim;
+		}
+
 		//Before anything else, mark the victim as near the killer if they aren't already.
 		if(!%victim.isKillerNear)
 		{
 			%obj.nearVictims.add(%victim);
 			%this.onKillerEnterRange(%obj, %victim);
 
+			%victim.getDatablock().onKillerEnterRange(%victim, %obj);
 			%victim.isKillerNear = true;
 			%victim.timeSinceKillerNear = %currentTime;
-			%victim.getDatablock().onKillerEnterRange(%victim, %obj);
 		}
 
 		//If the victim is in view of the killer, start some music, do some facial expressions, etc.
@@ -308,13 +337,13 @@ function PlayerKiller::killerLoop(%this, %obj)
 			%victim.timeSinceChased = %currentTime;
 
 			//If the victim wasn't being chased previously, do some actions.
-			if(!%obj.isBeingChased)
+			if(!%victim.isBeingChased)
 			{
 				%obj.chasingVictims.add(%victim);
 				%this.onKillerChaseStart(%obj, %victim);
 
-				%victim.isBeingChased = true;
 				%victim.getDatablock().onKillerChaseStart(%victim, %obj);
+				%victim.isBeingChased = true;
 			}
 		}
     }
