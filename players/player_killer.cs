@@ -76,9 +76,28 @@ function PlayerKiller::onNewDatablock(%this, %obj)
 	}
 
 	//Store some information used for voice-lines and chase management.
+	if(isObject(%obj.chasingVictims))
+	{
+		%obj.chasingVictims.delete();
+	}
 	%obj.chasingVictims = new SimSet();
+
+	if(isObject(%obj.incapVictims))
+	{
+		%obj.incapVictims.delete();
+	}
 	%obj.incapVictims = new SimSet();
+
+	if(isObject(%obj.nearVictims))
+	{
+		%obj.nearVictims.delete();
+	}
 	%obj.nearVictims = new SimSet();
+
+	if(isObject(%obj.threatenedBy))
+	{
+		%obj.threatenedBy.delete();
+	}
 	%obj.threatenedBy = new SimSet();
 
 	//Start the killer tick loop, used for voice lines, chase music and other functionality.
