@@ -3,8 +3,6 @@ datablock ShapeBaseImageData(KillerMeleeImage)
     class = "KillerMeleeImage";
     superClass = "";
 
-	meleeRange = 0.5;
-	meleeCooldown = 1750;
 	meleeTrailSkin = $Eventide_MeleeTrails["base.trail"];
 	meleeTrailTime = 1000;
 	meleeTrailOffset = "0.3 1.4 0.7"; 
@@ -16,6 +14,11 @@ datablock ShapeBaseImageData(KillerMeleeImage)
 
 	hitProjectile = "";
 	hitObscureProjectile = "";
+
+	meleeRange = 0.5;
+	meleeCooldown = 1750;
+	slowdownSpeed = 0.3;
+	slowdownTime = 1500;
 
    	shapeFile = "base/data/shapes/empty.dts";
    	emap = true;
@@ -57,51 +60,60 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 	%currentTime = getSimTime();
 	%killerDatablock = %obj.getDataBlock();
 
-	if(%obj.getState() $= "Dead" || %obj.isInvisible || %obj.getEnergyLevel() < (%killerDatablock.maxEnergy / 8) || (%obj.lastMeleeTime + %this.meleeCooldown) > %currentTime) 
+	if(%obj.getState() $= "Dead" || %obj.getEnergyLevel() < (%killerDatablock.maxEnergy / 8) || (%obj.lastMeleeTime + %this.meleeCooldown) > %currentTime) 
 	{
 		return;
 	}
 
-	%killerEyePoint = %obj.getEyePoint();
 	%killerLookVector = VectorNormalize(%obj.getLookVector());
 	%killerPosition = %obj.getHackPosition();
 	%killerWeaponPosition = %obj.getMuzzlePoint(0);
 	
 	//Melee cooldown and energy decrease.
-	%obj.lastMeleeTime = %currentTIme;	
+	%obj.lastMeleeTime = %currentTime;	
 	%obj.setEnergyLevel(%obj.getEnergyLevel() - (%killerDatablock.maxEnergy / 6));	
 
 	//Melee swing sound effects.
 	%obj.playVoiceLine("Attack"); //Killer grunt.
-	
-	//Air slice sound.
-	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
-	ServerPlay3D(%soundEffect, %killerWeaponPosition);
 
 	//Melee animation.
 	%meleeAnim = getRandom(1, 4);
-	%obj.playthread(2, "melee" @ %meleeAnim); //Weapon Swing animation.
-
-	//Visual air slice.
-	if(%this.meleeTrailSkin !$= "") 
-	{
-		%meleeTrailAngle = %this.meleeTrailAngle[%meleeAnim];
-		%obj.spawnMeleeTrail(%this.meleeTrailSkin, %this.meleeTrailTime, %this.meleeTrailOffset, %meleeTrailAngle, %this.meleeTrailScale);
-	}
+	%obj.playThread(2, "melee" @ %meleeAnim); //Weapon Swing animation.
 
 	//Missing and/or striking the environment with the melee weapon.
 	%typemasks = $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType;
-	%obstruction = ContainerRayCast(%killerEyePoint, VectorAdd(%killerEyePoint, VectorScale(%killerLookVector, %this.meleeRange)), %typemasks, %obj);
+	%obstruction = ContainerRayCast(%killerWeaponPosition, VectorAdd(%killerWeaponPosition, VectorScale(%killerLookVector, %this.meleeRange)), %typemasks, %obj);
 	if(isObject(%obstruction) && %this.hitObscureProjectile !$= "")
-	{								
-		%c = new Projectile()
+	{							
+		//Spawn a debris explosion.	
+		%impactProjectile = new Projectile()
 		{
 			dataBlock = %this.hitObscureProjectile;
 			initialPosition = posFromRaycast(%obstruction);
 			sourceObject = %obj;
 			client = %obj.client;
 		};
-		%c.explode();
+		%impactProjectile.explode();
+
+		//Dynamic weapon recoil animation based on which direction the weapon was swung.
+		%recoilAnimationDelay = 50;
+		%obj.schedule(%recoilAnimationDelay, playThread, 3, "plant");
+
+		if(%meleeAnim <= 2)
+		{
+			%recoilAnimation = (%meleeAnim == 1) ? "shiftTo" : "shiftAway";
+
+			%obj.schedule(%recoilAnimationDelay, playThread, 2, "armReadyRight");
+			%obj.schedule((%recoilAnimationDelay + 500), playThread, 2, "root");
+		}
+		else
+		{
+			%recoilAnimation = "wrench";
+
+			%obj.schedule(%recoilAnimationDelay, playThread, 2, "root");
+		}
+		%obj.schedule(%recoilAnimationDelay, playThread, 1, %recoilAnimation);
+
 		return;
 	}
 
@@ -144,9 +156,20 @@ function KillerMeleeImage::onSwing(%this, %obj, %slot)
 		%hit.damage(%obj, %victimPosition, 25 * getWord(%killerScale, 2), $DamageType::Default);
 		
 		//Temporarily slow down the killer.
-		%killerDatablock.setTempSpeed(%obj, 0.3);	
-		%killerDatablock.schedule(1500, setTempSpeed, %obj, 1);
-	}	
+		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);
+		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj, 1);
+	}
+
+	//Air slice sound.
+	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
+	ServerPlay3D(%soundEffect, %killerWeaponPosition);
+
+	//Visual air slice.
+	if(%this.meleeTrailSkin !$= "") 
+	{
+		%meleeTrailAngle = %this.meleeTrailAngle[%meleeAnim];
+		%obj.spawnMeleeTrail(%this.meleeTrailSkin, %this.meleeTrailTime, %this.meleeTrailOffset, %meleeTrailAngle, %this.meleeTrailScale);
+	}
 }
 
 //
