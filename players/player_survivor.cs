@@ -35,7 +35,16 @@ function PlayerSurvivor::onNewDatablock(%this, %obj)
 	%obj.createVoiceConfig(%voicePack);
 
 	//Store some information used for voice-lines and chase management.
+	if(isObject(%obj.chasingKillers))
+	{
+		%obj.chasingKillers.delete();
+	}
 	%obj.chasingKillers = new SimSet();
+
+	if(isObject(%obj.nearbyKillers))
+	{
+		%obj.nearbyKillers.delete();
+	}
 	%obj.nearbyKillers = new SimSet();
 }
 
@@ -79,23 +88,33 @@ function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
 function PlayerSurvivor::onKillerChaseStart(%this, %obj, %target)
 {
 	%obj.chasingKillers.add(%target);
+
 	//If the survivor has started being chased, play a talking animation that emulates shaking in fear.
-	if(%obj.chasingKillers.getCount() == 1)
+	if(!%obj.isBeingChased)
 	{
 		%obj.playThread(2, "talk");
 	}
 
+	//Enhance the fear express by making the mouth agape.
+	if(%obj.faceConfig.isFace("Scared"))
+	{
+		%obj.faceConfig.dupeFaceSlot("Neutral", "Scared");                    
+	}
+
 	//Play the killer's chase music.
-	%obj.playAmbiantMusic(%target.killerChaseMusic, 2, 1.0);
+	%obj.playAmbiantMusic(%target.killerChaseMusic, 1.0, "Chase");
 }
 
 function PlayerSurvivor::onKillerChaseEnd(%this, %obj, %target)
 {
 	%obj.chasingKillers.remove(%target);
-	//The survivor is no longer being chased, stop the fearful shaking.
+
+	//The survivor is no longer being chased, stop the fearful shaking and reset their mouth from being agape.
 	if(%obj.chasingKillers.getCount() == 0)
 	{
 		%obj.playThread(2, "root");
+
+		%obj.faceConfig.resetFaceSlot("Neutral");
 	}
 
 	//Depending on the circumstances, play a killer's nearby music, or just some ambiant tracks.
