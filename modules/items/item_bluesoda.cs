@@ -67,10 +67,11 @@ function blueSodaImage::onMount(%this, %obj, %slot)
 {
 	if((%obj.lastDrinkTime+%this.cooldown) > getSimTime())
 		{
-		centerprint(%obj.client,"<font:arial:13><color:ff7744>Can't use this yet!" ,1);
-		serverCmdUnUseTool(%obj.client);
-		%obj.playThread(2, undo);
-		return;
+			%time = (%this.cooldown) - (getSimTime() - %obj.lastDrinkTime);
+			centerprint(%obj.client,"<font:arial:13><color:ff7744>Can't use this yet!<br>" @ mFloatLength(%time / 1000, 1) @ "s remaining..." ,1);
+			serverCmdUnUseTool(%obj.client);
+			%obj.playThread(2, undo);
+			return;
 		}
 }
 

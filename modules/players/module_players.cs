@@ -30,4 +30,4 @@ exec("./player_yourself.cs");
 exec("./player_shadow.cs");
 exec("./player_blockhead.cs");
 exec("./player_badspot.cs");
-//exec("./player_wrathful/wrathful.cs");
+exec("./player_wrathful/wrathful.cs");

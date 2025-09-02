@@ -48,6 +48,18 @@ datablock PlayerData(PlayerGrabberNoJump : PlayerGrabber)
 	jumpForce = 0;
 };
 
+datablock ShapeBaseImageData(MaskedImage) 
+{
+	shapeFile = "Add-Ons/Gamemode_Eventide/modules/players/models/hallow.dts";
+	mountPoint = $HeadSlot;
+	offset = "0 -0.015 -0.41";
+	eyeOffset = "0 0 -1000";
+	rotation = eulerToMatrix("0 0 0");
+	scale = "0.1 0.1 0.1";
+	colorShiftColor = "0.55 0.32 0.04 1";
+	emap = 0;
+};
+
 function PlayerGrabber::onNewDatablock(%this,%obj)
 {
 	Parent::onNewDatablock(%this,%obj);
@@ -232,7 +244,7 @@ function PlayerGrabber::EventideAppearance(%this,%obj,%client)
 	%obj.HideNode($secondPack[%client.secondPack]);
 	%obj.hideNode($pack[%client.pack]);
 	%obj.HideNode("visor");
-	%obj.mountImage("jasonmaskimage",2);
+	%obj.mountImage("MaskedImage",2);
 	%obj.setNodeColor("headskin",%skinColor);
 	%obj.setNodeColor("Rhand",%skinColor);
 	%obj.setNodeColor("Lhand",%skinColor);
@@ -251,8 +263,8 @@ function PlayerGrabber::EventideAppearance(%this,%obj,%client)
 	%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
 	%obj.setNodeColor("femchest_blood_front", "0.7 0 0 1");
 	%obj.setNodeColor("femchest_blood_back", "0.7 0 0 1");
-	%obj.unHideNode("jasonmask");
-	%obj.setNodeColor("jasonmask","1 1 1 1");
+//	%obj.unHideNode("jasonmask");
+//	%obj.setNodeColor("jasonmask","1 1 1 1");
 	%obj.setHeadUp(0);
 }
 
