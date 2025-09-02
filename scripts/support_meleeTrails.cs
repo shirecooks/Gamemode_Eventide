@@ -43,6 +43,8 @@ function Player::spawnMeleeTrail(%obj, %skin, %time, %offset, %angle, %scale)
 	//Play an animation before deleting it.
 	%shape.playThread(0, "rotate");
 	%shape.schedule(%time, delete);	
+
+	%obj.meleeTrail = %shape;
 }
 
 //
