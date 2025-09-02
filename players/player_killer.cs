@@ -14,8 +14,8 @@ datablock PlayerData(PlayerKiller : PlayerEventide)
 
 	rechargeRate = 0.26;
 	maxDamage = 9999;
-	maxTools = 0;
-	maxWeapons = 0;
+	maxTools = 1;
+	maxWeapons = 1;
 
 	killerlight = "NoFlareRLight";	
 	killerLoopTick = 200;
@@ -423,15 +423,21 @@ function PlayerKiller::onKillerChaseEnd(%this, %obj, %target)
 }
 
 //
-// Package for ensuring killer-related loops and functions do not continue after a datablock change.
+// Package to manage the killer's melee.
 //
 
 package Player_Killer
 {
-	function Armor::onNewDatablock(%this, %obj)
+	function ServerCmdUnUseTool(%client)
 	{
-		cancel(%obj.killerLoopSchedule);
-		return Parent::onNewDatablock(%this, %obj);
+		Parent::ServerCmdUnUseTool(%client);
+
+		%player = %client.Player;
+		%playerDatablock = %player.getDataBlock();
+		if(%playerDatablock.isKiller)
+		{
+			%player.mountImage(%playerDatablock.killerWeaponImage, 0);
+		}
 	}
 };
 if(isPackage(Player_Killer))
