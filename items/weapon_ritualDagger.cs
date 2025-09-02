@@ -107,10 +107,10 @@ datablock ItemData(daggerItem)
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(daggerImage : KillerMeleeImage)
+datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 {
 	class = "daggerImage";
-    superClass = "KillerMeleeImage";
+    superClass = "eventideMeleeImage";
 
     shapeFile = "./models/ritualDagger/ritualDagger.dts";
     item = daggerItem;

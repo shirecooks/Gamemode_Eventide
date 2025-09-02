@@ -1,6 +1,6 @@
-datablock ShapeBaseImageData(KillerMeleeImage)
+datablock ShapeBaseImageData(eventideMeleeImage)
 {
-    class = "KillerMeleeImage";
+    class = "eventideMeleeImage";
     superClass = "";
 
 	meleeTrailSkin = $Eventide_MeleeTrails["base.trail"];
@@ -55,7 +55,7 @@ datablock ShapeBaseImageData(KillerMeleeImage)
 	stateTransitionOnTimeout[2] = "Ready";
 };
 
-function KillerMeleeImage::onSwing(%this, %obj, %slot)
+function eventideMeleeImage::onSwing(%this, %obj, %slot)
 {	
 	%currentTime = getSimTime();
 	%killerDatablock = %obj.getDataBlock();

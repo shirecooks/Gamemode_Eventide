@@ -17,9 +17,9 @@ exec("./players/datablock_textures.cs");
 exec("./players/datablock_lights.cs");
 exec("./players/datablock_killerTrails.cs");
 exec("./players/datablock_killerBlood.cs");
-exec("./players/datablock_killerMeleeProp.cs");
 exec("./items/datablock_woodFrag.cs");
 
+exec("./items/weapon_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
 exec("./items/weapon_revolver.cs");
 exec("./items/weapon_chair.cs");

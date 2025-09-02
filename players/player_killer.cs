@@ -7,7 +7,7 @@ datablock PlayerData(PlayerKiller : PlayerEventide)
     isKiller = true;
     firstPersonOnly = true;
 	
-	meleeWeaponImage = KillerMeleeImage;
+	killerWeaponImage = eventideMeleeImage;
 
 	facePack = "";
 	voicePack = "";
