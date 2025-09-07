@@ -4,7 +4,7 @@ $Eventide_FontStyles["isGlobalFontConfigArray"] = true; //Stores any created fon
 // Font object creation and functionality.
 //
 
-function createFontStyle(%category, %prefix, %suffix)
+function createFontStyle(%category, %printChannel, %prefix, %suffix)
 {
     %fontStyle = new ScriptObject()
     {
@@ -13,6 +13,7 @@ function createFontStyle(%category, %prefix, %suffix)
         category = %category;
         prefix = %prefix;
         suffix = %suffix;
+        printChannel = %printChannel;
     };
     %fontStyle.setName("fontStyle_" @ %category);
 
@@ -52,8 +53,31 @@ function styleFormatString(%category, %string)
 }
 
 //
+// Displaying text processed by a font.
+//
+
+function GameConnection::printFormatString(%client, %category, %string, %displayTime)
+{
+    %printChannel = strlwr(%category.printChannel);
+    if(%printChannel $= "")
+    {
+        return;
+    }
+
+    switch$(%printChannel)
+    {
+        case "centerprint":
+            %client.centerPrint(styleFormat(%category, %string), %displayTime);
+        case "bottomprint":
+            %client.bottomPrint(styleFormat(%category, %string), %displayTime);
+        case "chatmessage":
+            %client.chatMessage(styleFormat(%category, %string));
+    }
+}
+
+//
 // Baked-in Eventide fonts.
 //
 
-createFontStyle("hint", "\c6", "");
-createFontStyle("urgent", "<font:impact:32>\c3", "");
+createFontStyle("hint", "bottomPrint", "\c6", "");
+createFontStyle("urgent", "centerPrint", "<font:impact:32>\c3", "");
