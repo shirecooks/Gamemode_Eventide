@@ -12,7 +12,7 @@ datablock StaticShapeData(KillerTrailShape)
 for(%file = findFirstFile(%filePattern); %file !$= ""; %file = findNextFile(%filePattern))
 {
 	addExtraResource(%file);
-	$Eventide_MeleeTrails[fileBase(%file)] = %file;
+	$Eventide_MeleeTrails[fileBase(%file)] = fileBase(fileBase(%file)); //Remove the file extension AND the ".trail" suffix.
 }
 
 //Function to spawn this trail on-demand.
