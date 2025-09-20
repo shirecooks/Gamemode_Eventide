@@ -431,8 +431,12 @@ package Player_Killer
 	function ServerCmdUnUseTool(%client)
 	{
 		Parent::ServerCmdUnUseTool(%client);
-
 		%player = %client.Player;
+		if(!%player)
+		{
+			return;
+		}
+
 		%playerDatablock = %player.getDataBlock();
 		if(%playerDatablock.isKiller)
 		{
