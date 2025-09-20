@@ -10,7 +10,8 @@ exec("./scripts/support_client.cs");
 exec("./scripts/support_weaponCooldown.cs");
 exec("./scripts/support_statusEffects.cs");
 exec("./scripts/support_meleeTrails.cs");
-exec("./scripts/support_fontStyles.cs");
+exec("./scripts/support_textStyles.cs");
+exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/status_stun.cs");
 
 exec("./sounds/datablock_sounds.cs");
