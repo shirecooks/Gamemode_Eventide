@@ -1,43 +1,43 @@
 datablock TSShapeConstructor(WrathfulDts)
 {
-    baseShape  = "Add-Ons/Player_Wrathful/wrathful.dts";
-    sequence0  = "Add-Ons/Player_Wrathful/w_root.dsq root";
-    sequence1  = "Add-Ons/Player_Wrathful/w_run.dsq run";
-    sequence2  = "Add-Ons/Player_Wrathful/w_walk.dsq walk";
-    sequence3  = "Add-Ons/Player_Wrathful/w_back.dsq back";
-    sequence4  = "Add-Ons/Player_Wrathful/w_side.dsq side";
-    sequence5  = "Add-Ons/Player_Wrathful/w_crouch.dsq crouch";
-    sequence6  = "Add-Ons/Player_Wrathful/w_crouchRun.dsq crouchRun";
-    sequence7  = "Add-Ons/Player_Wrathful/w_crouchBack.dsq crouchBack";
-    sequence8  = "Add-Ons/Player_Wrathful/w_crouchSide.dsq crouchSide";
-    sequence9  = "Add-Ons/Player_Wrathful/w_look.dsq look";
-    sequence10 = "Add-Ons/Player_Wrathful/w_headside.dsq headside";
-    sequence11 = "Add-Ons/Player_Wrathful/w_jump.dsq jump";
-    sequence12 = "Add-Ons/Player_Wrathful/w_standJump.dsq standjump";
-    sequence13 = "Add-Ons/Player_Wrathful/w_fall.dsq fall";
-    sequence14 = "Add-Ons/Player_Wrathful/w_land.dsq land";
-    sequence15 = "Add-Ons/Player_Wrathful/w_armAttack.dsq armAttack";
-    sequence16 = "Add-Ons/Player_Wrathful/w_armReadyLeft.dsq armReadyLeft";
-    sequence17 = "Add-Ons/Player_Wrathful/w_armReadyRight.dsq armReadyRight";
-    sequence18 = "Add-Ons/Player_Wrathful/w_armReadyBoth.dsq armReadyBoth";
-    sequence19 = "Add-Ons/Player_Wrathful/w_talk.dsq talk";
-    sequence20 = "Add-Ons/Player_Wrathful/w_death1.dsq death1";
-    sequence21 = "Add-Ons/Player_Wrathful/w_sit.dsq sit";
-    sequence22 = "Add-Ons/Player_Wrathful/w_activate.dsq activate";
-    sequence23 = "Add-Ons/Player_Wrathful/w_activate2.dsq activate2";
-    sequence24 = "Add-Ons/Player_Wrathful/w_leftRecoil.dsq leftrecoil";
-    sequence25 = "Add-Ons/Player_Wrathful/w_melee.dsq attack1";
-    sequence26 = "Add-ons/Player_Wrathful/w_melee.dsq";
-    sequence27 = "Add-ons/Player_Wrathful/w_charge.dsq";
-    sequence28 = "Add-ons/Player_Wrathful/w_chargecycle.dsq";
-    sequence29 = "Add-ons/Player_Wrathful/w_chargerecovery.dsq";
-    sequence30 = "Add-ons/Player_Wrathful/w_handcannon.dsq";
-    sequence31 = "Add-ons/Player_Wrathful/w_rage.dsq";
-    sequence32 = "Add-ons/Player_Wrathful/w_stomp.dsq";
+    baseShape  = "./wrathful.dts";
+    sequence0  = "./w_root.dsq root";
+    sequence1  = "./w_run.dsq run";
+    sequence2  = "./w_walk.dsq walk";
+    sequence3  = "./w_back.dsq back";
+    sequence4  = "./w_side.dsq side";
+    sequence5  = "./w_crouch.dsq crouch";
+    sequence6  = "./w_crouchRun.dsq crouchRun";
+    sequence7  = "./w_crouchBack.dsq crouchBack";
+    sequence8  = "./w_crouchSide.dsq crouchSide";
+    sequence9  = "./w_look.dsq look";
+    sequence10 = "./w_headside.dsq headside";
+    sequence11 = "./w_jump.dsq jump";
+    sequence12 = "./w_standJump.dsq standjump";
+    sequence13 = "./w_fall.dsq fall";
+    sequence14 = "./w_land.dsq land";
+    sequence15 = "./w_armAttack.dsq armAttack";
+    sequence16 = "./w_armReadyLeft.dsq armReadyLeft";
+    sequence17 = "./w_armReadyRight.dsq armReadyRight";
+    sequence18 = "./w_armReadyBoth.dsq armReadyBoth";
+    sequence19 = "./w_talk.dsq talk";
+    sequence20 = "./w_death1.dsq death1";
+    sequence21 = "./w_sit.dsq sit";
+    sequence22 = "./w_activate.dsq activate";
+    sequence23 = "./w_activate2.dsq activate2";
+    sequence24 = "./w_leftRecoil.dsq leftrecoil";
+    sequence25 = "./w_melee.dsq attack1";
+    sequence26 = "./w_melee.dsq";
+    sequence27 = "./w_charge.dsq";
+    sequence28 = "./w_chargecycle.dsq";
+    sequence29 = "./w_chargerecovery.dsq";
+    sequence30 = "./w_handcannon.dsq";
+    sequence31 = "./w_rage.dsq";
+    sequence32 = "./w_stomp.dsq";
 };    
 
-//sequence11 = "Add-Ons/Player_Wrathful/w_headup.dsq headUp";
-///Add-Ons/Player_Wrathful/Wrathful/Shape
+//sequence11 = "./w_headup.dsq headUp";
+///./Wrathful/Shape
 
 datablock PlayerData(PlayerWrathful : PlayerStandardArmor)
 {
@@ -46,7 +46,7 @@ datablock PlayerData(PlayerWrathful : PlayerStandardArmor)
 	uiName = "The Wrathful";
     canjet = false;
    //cameraVerticalOffset = 0.8;
-   isEventideModel = true;
+   isEventideModel = false;
 	isKiller = true;
     firstPersonOnly = true;
 	showEnergyBar = true;
@@ -77,10 +77,10 @@ datablock PlayerData(PlayerWrathful : PlayerStandardArmor)
 	killeridlesound = "";
 	killeridlesoundamount = 5;
 	
-	killerchasesound = "wrathful_melee";
-	killerchasesoundamount = 5;
+	killerchasesound = "";
+	killerchasesoundamount = 3;
 
-	killermeleesound = "";
+	killermeleesound = "wrathful_melee";
 	killermeleesoundamount = 3;    
 
 	killerweaponsound = "wrathful_weapon";
@@ -110,9 +110,15 @@ function PlayerWrathful::onNewDatablock(%this,%obj)
 
 function PlayerWrathful::onPeggFootstep(%this,%obj)
 {
+	if(!isObject(%obj) || %obj.getState() $= "Dead" || %obj.isSlow)
+	{
+		return;
+	}
+	
 	serverplay3d("wrathful_walking" @ getRandom(1,4) @ "_sound", %obj.getHackPosition());
 	%obj.spawnExplosion("Eventide_footstepShakeProjectile", 0.5 + (getRandom() / 2));
 }
+
 
 function PlayerWrathful::onTrigger(%this, %obj, %trig, %press) 
 {		
@@ -131,8 +137,9 @@ function PlayerWrathful::onTrigger(%this, %obj, %trig, %press)
 
 function PlayerWrathful::Rage(%this,%obj)
 {
-	%obj.playthread(1,w_rage);
-	%obj.playaudio(3,"wrathful_rage_sound");
-	%obj.setTempSpeed(0);
-	%obj.schedule(2000,setTempSpeed,1);
+	%obj.playthread(1,w_stomp);
+	//%obj.schedule(2200,playthread,1,w_root);
+	//%obj.playaudio(3,"wrathful_rage_sound");
+	//%obj.setTempSpeed(0);
+	//%obj.schedule(2200,setTempSpeed,1);
 }
