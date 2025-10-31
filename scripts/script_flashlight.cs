@@ -1,6 +1,6 @@
 $Pref::Eventide::FlashlightLength = 2;
 $Pref::Eventide::FlashlightStepSize = 5;
-$Pref::Eventide::FlashlightRate = 10;
+$Pref::Eventide::FlashlightRate = 33;
 $Pref::Eventide::FlashlightBlindIntensity = 1.25;
 
 //
@@ -47,7 +47,7 @@ datablock fxLightData(PlayerBlockedFlashlight)
 
 datablock ShapeBaseImageData(FlashlightImage) 
 {
-	shapeFile = "Add-Ons/Gamemode_Eventide/modules/misc/models/flashlight.dts";
+	shapeFile = "./models/flashlight/flashlight.dts";
 	hasLight = false;
 
 	emap = true;
@@ -70,11 +70,20 @@ function Player::flashlightTick(%obj)
 	}
 
 	//Don't update the flashlight if the player is dead.
-	if(%obj.getState() $= "Dead" || !isObject(%obj.light))
+	if(!isObject(%obj.light))
 	{
 		%obj.deleteFlashlightBeam();
 		return;
 	}
+
+	//Don't update the flashlight beam if the player isn't moving.
+	if(%obj.lastFlashlightTickTransform $= %obj.getTransform())
+	{
+		cancel(%obj.flashlightTick);
+		%obj.flashlightTick = %obj.schedule($Pref::Eventide::FlashlightRate, "flashlightTick");
+		return;
+	}
+	%obj.lastFlashlightTickTransform = %obj.getTransform();
 
 	//Fire a raycast, limited to half the visible distance. If it hits something, stop there. If not, stop at the end of the raycast.
 	%range = 32; //64 studs.
@@ -82,7 +91,7 @@ function Player::flashlightTick(%obj)
 	%eyeVector = VectorNormalize(%obj.getEyeVector());
 	%end = VectorAdd(%start, VectorScale(%eyeVector, %range));
 
-	%mask = ($TypeMasks::StaticShapeObjectType | $TypeMasks::FxBrickObjectType | $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::TerrainObjectType);
+	%mask = ($TypeMasks::StaticShapeObjectType | $TypeMasks::FxBrickObjectType | $TypeMasks::VehicleObjectType);
 	%raycast = containerRayCast(%start, %end, %mask, %obj);
 
 	if(%raycast $= "0") 
@@ -102,7 +111,7 @@ function Player::flashlightTick(%obj)
 	%lightDatablock = %obj.light.getDataBlock();
 
 	//To ensure the beam is visually smooth, make sure the beam nodes are always 3 units above the ground or higher. Any lower, and the light begins to clip into the ground.
-	%initialLightPosition = VectorAdd(%start, VectorScale(%flashlightVector, (1 / $Eventide_FlashlightStepSize)));
+	%initialLightPosition = VectorAdd(%start, VectorScale(%flashlightVector, (1 / $Pref::Eventide::FlashlightStepSize)));
 	%initialLightZValue = getWord(%initialLightPosition, 2);
 	%initialLightPosition = setWord(%initialLightPosition, 2, mClampF(%initialLightZValue, 3.0, %initialLightZValue));
 
@@ -130,7 +139,7 @@ function Player::flashlightTick(%obj)
 			%beamStepCenter = VectorAdd(%start, VectorScale(%initialLightVector, (%i + 1)));
 
 			//Rotate the point left if on an even iteration, or right if on an odd iteration.
-			%rotationFactor = %j % 2 == 0 ? mDegToRad($Eventide_FlashlightStepSize * 4) : -mDegToRad($Eventide_FlashlightStepSize * 4);
+			%rotationFactor = %j % 2 == 0 ? mDegToRad($Pref::Eventide::FlashlightStepSize * 4) : -mDegToRad($Pref::Eventide::FlashlightStepSize * 4);
 			%translatedPoint = VectorSub(%beamStepCenter, %initialLightPosition);
 			%rotatedPoint = VectorRotate(%translatedPoint, "0 0 1", %rotationFactor);
 			%finalPoint = VectorAdd(%rotatedPoint, %initialLightPosition);
@@ -159,7 +168,8 @@ function Player::flashlightTick(%obj)
 	%unusedLightObjects.delete();
 
 	//Schedule another flashlight update, soon.
-	%obj.flashlightTick = %obj.schedule($Eventide_FlashlightRate, "flashlightTick");
+	cancel(%obj.flashlightTick);
+	%obj.flashlightTick = %obj.schedule($Pref::Eventide::FlashlightRate, "flashlightTick");
 }
 
 function Player::createFlashlightBeam(%obj)
@@ -173,7 +183,7 @@ function Player::createFlashlightBeam(%obj)
 	%obj.flashlightBeamGroup.numIterations = 0;
 	
 	%totalLights = 0;
-	for(%i = 1; %i < $Eventide_FlashlightLength; %i++)
+	for(%i = 1; %i < $Pref::Eventide::FlashlightLength; %i++)
 	{
 		%totalLights += mPow(2, %i);
 		%obj.flashlightBeamGroup.numIterations += 1;
@@ -287,7 +297,7 @@ function Player::flashlightSurge(%obj)
 
 			if(%player.getDatablock().isKiller)
 			{
-				%player.whiteOut = $Eventide_FlashlightBlindIntensity;
+				%player.whiteOut = $Pref::Eventide::FlashlightBlindIntensity;
 			}
 			else
 			{
@@ -344,7 +354,7 @@ package Gamemode_Eventide_Flashlight
 		{
 			return;
 		}
-		else if(!isObject(%player) || %player.getState() $= "Dead")
+		else if(!%playerDatablock.isEventideClass || !isObject(%player) || %player.getState() $= "Dead")
 		{
 			return Parent::serverCmdLight(%client);
 		}
@@ -457,9 +467,9 @@ package Gamemode_Eventide_Flashlight
 	}
 };
 
-if(isPackage("Gamemode_Eventide_Flashlight"))
+if(isPackage(Gamemode_Eventide_Flashlight))
 {
-	deactivatePackage("Gamemode_Eventide_Flashlight");
+	deactivatePackage(Gamemode_Eventide_Flashlight);
 }
-activatePackage("Gamemode_Eventide_Flashlight");
-pushServerPackageToBack("Gamemode_Eventide_Flashlight");
+activatePackage(Gamemode_Eventide_Flashlight);
+pushServerPackageToBack(Gamemode_Eventide_Flashlight);
