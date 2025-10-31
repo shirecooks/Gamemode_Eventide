@@ -1,82 +1,120 @@
 //
-// Loading footstep sounds.
+// Loading footstep materials.
 //
 
-$Eventide_FootstepPacks["isGlobalFootstepPackArray"] = true; //All footstep packs will be stored in this array.
-$Eventide_FootstepsPacks["index"] = ""; //Footsteps will be happening too often for us to use a ScriptObject. We'll instead be using a plain array.
+$Eventide_FootstepMaterials["isGlobalFootstepMaterialArray"] = true; //All footstep packs will be stored in this array.
+$Eventide_FootstepMaterials["index"] = ""; //Footsteps will be happening too often for us to use a ScriptObject. We'll instead be using a plain array.
 
-function createFootstepPack(%footstepFileCategory, %footstepPackRGB)
+function createFootstepMaterial(%footstepFileCategory, %footstepMaterialRGB)
 {
 	//Add the footstep pack RGB value to the index, to be iterated over later.
-	$Eventide_FootstepsPacks["index"] = ($Eventide_FootstepsPacks["index"] $= "") ? (%footstepPackRGB) : ($Eventide_FootstepsPacks["index"] SPC %footstepPackRGB);
+	$Eventide_FootstepsPacks["index"] = ($Eventide_FootstepsPacks["index"] $= "") ? (%footstepMaterialRGB) : ($Eventide_FootstepsPacks["index"] SPC %footstepMaterialRGB);
 
-	$Eventide_FootstepsPacks[%footstepPackRGB] = %footstepFileCategory;
-	
+	$Eventide_FootstepsPacks[%footstepMaterialRGB] = %footstepFileCategory;
 }
 
-function parseVoicePacks(%startingDirectory)
+function parseFootstepMaterials(%startingDirectory)
 {    
-    %footstepPackPaths = getFileString(%startingDirectory @ "/*.etfsp");
-    for(%i = 0; %i < getFieldCount(%footstepPackPaths); %i++)
+    %footstepMaterialPaths = getFileString(%startingDirectory @ "/*.etfsp");
+    for(%i = 0; %i < getFieldCount(%footstepMaterialPaths); %i++)
     {
-		%footstepPackFile = getField(%footstepPackPaths, %i);
+		%footstepMaterialFile = getField(%footstepMaterialPaths, %i);
 
 		%fileObject = new FileObject();
-		%footstepPackRGB = %fileObject.readLine();
+		%footstepMaterialRGB = %fileObject.readLine();
 		%fileObject.delete();
 
-        %footstepPackPath = filePath(%footstepPackFile);
-        %footstepPackFileName = fileBase(%footstepPackPath);
+        %footstepMaterialPath = filePath(%footstepMaterialFile);
+        %footstepMaterialFileName = fileBase(%footstepMaterialPath);
 
-        echo("Parsing footstep pack \"" @ %footstepPackFileName @ "\" from \"" @ %footstepPackPath @ "\"...");
-        %footstepPack = createFootstepPack(%footstepPackFileName, %footstepPackRGB);
+        echo("Parsing footstep material \"" @ %footstepMaterialFileName @ "\" from \"" @ %footstepMaterialPath @ "\"...");
+        %footstepMaterial = createFootstepMaterial(%footstepMaterialFileName, %footstepMaterialRGB);
     }
 }
 
 //
-// Miscellaneous functions.
+// Managing footstep materials.
 //
 
-//Ripped from Slayer.
-function rgbToHex(%rgb)
+function findClosestFootstepMaterial(%rgb)
 {
-	// use % to find remainder
-	%r = getWord(%rgb,0);
-	%g = getWord(%rgb,1);
-	%b = getWord(%rgb,2);
-	// in-case the rgb value isn't on the right scale
-	%r = ( %r <= 1 ) ? %r * 255 : %r;
-	%g = ( %g <= 1 ) ? %g * 255 : %g;
-	%b = ( %b <= 1 ) ? %b * 255 : %b;
-	// the hexidecimal numbers
-	%a = "0123456789ABCDEF";
+	%closestRGB = "0 0 0";
+	%currentDistance = 0;
 
-	%r = getSubStr(%a,(%r-(%r % 16))/16,1) @ getSubStr(%a,(%r % 16),1);
-	%g = getSubStr(%a,(%g-(%g % 16))/16,1) @ getSubStr(%a,(%g % 16),1);
-	%b = getSubStr(%a,(%b-(%b % 16))/16,1) @ getSubStr(%a,(%b % 16),1);
+	//Determine which material has the closest RGB similarity to the provided RGB color.
+	%materialIndex = $Eventide_FootstepMaterials["index"];
+	for(%i = 0; %i < getWordCount(%materialIndex); %i++)
+	{
+		%targetRGB = getWord(%materialIndex, %i);
+		%euclideanColorDistance = VectorDist(%rgb, %targetRGB);
 
-	return %r @ %g @ %b;
+		if(%euclideanColorDistance < %currentDistance)
+		{
+			%closestRGB = %targetRGB;
+			%currentDistance = %euclideanColorDistance;
+		}
+	}
+
+	return $Eventide_FootstepMaterials[%closestRGB];
 }
 
+package Script_Footsteps
+{
+	function fxDTSBrick::onPlant(%obj)
+	{
+		parent::onPlant(%obj);
+		%obj.assumeMaterial();
+	}
+
+	function fxDTSBrick::onLoadPlant(%obj)
+	{
+		parent::onLoadPlant(%obj);
+		%obj.assumeMaterial();
+	}
+
+	function paintProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
+	{
+		parent::onCollision(%this, %obj, %col, %fade, %pos, %normal);
+		if(%col.getType() & $TypeMasks::FxBrickObjectType)
+		{
+			%obj.assumeMaterial();
+		}
+	}
+};
+if(isPackage(Script_Footsteps))
+{
+	deactivatePackage(Script_Footsteps);
+}
+activatePackage(Script_Footsteps);
+
 //
-// Brick functions.
+// Material detection.
 //
 
 function fxDTSBrick::assumeMaterial(%obj)
 {
-    %rgb = getColorIDTable(%obj.colorID);
-}
+	if(%obj.material !$= "")
+	{
+		return %obj.material;
+	}
 
-//
-// Vehicle functions.
-//
+	%rgb = getColorIDTable(%obj.colorId);
+    %obj.material = findClosestFootstepMaterial(%rgb);
+	return %obj.material;
+}
 
 function WheeledVehicleData::assumeMaterial(%this, %obj)
 {
 	if(%this.numWheels > 0)
 	{
-
+		return "metal";
 	}
+	return "wood";
+}
+
+function SimObject::assumeMaterial(%this, %obj)
+{
+	return "tile";
 }
 
 //
@@ -114,13 +152,16 @@ function Armor::getFootstepSound(%this, %obj)
 	}
 
 	%playerPosition = %obj.getPosition();
-	%collider = containerRayCast(%playerPosition, VectorAdd(%playerPosition, -0.1), ($TypeMasks::fxBrickObjectType | $Typemasks::TerrainObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::FxPlaneObjectType));
-	if(!%collider) 
+	%typemask = ($TypeMasks::FxBrickObjectType | $Typemasks::StaticObjectType | $TypeMasks::VehicleObjectType);
+
+	%isOnGround = !containerBoxEmpty(%typemask, %playerPosition, 0.6, 0.6, 0.6);
+	if(!%isOnGround) 
 	{
 		//If the player isn't touching the ground, they can't make a footstep sound.
 		return -1;
 	}
 
+	%collider = containerRayCast(%playerPosition, VectorAdd(%playerPosition, "0.0 0.0 -0.1"), %typemask);
 	%colliderType = %collider.getType();
 	if(%colliderType & $TypeMasks::fxBrickObjectType || %colliderType & $TypeMasks::VehicleObjectType)
 	{
