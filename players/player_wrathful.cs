@@ -1,5 +1,5 @@
 //
-// Melee weapon.
+// Melee weapons
 //
 
 //
@@ -21,7 +21,7 @@ datablock ProjectileData(KillerWrathfulRageHitProjectile : KillerWrathfulHitProj
 };
 
 //
-// Normal melee.
+//// Normal melee.
 datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 {
 	class = "MeleeWrathfulImage";
@@ -43,7 +43,7 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 MeleeWrathfulImage.inheritFunctionsFromSuperClass();
 
 //
-// Attacking while enraged.
+//// Ability and item for attacking while enraged.
 datablock ShapeBaseImageData(MeleeWrathfulRageImage : MeleeWrathfulImage)
 {
 	class = "MeleeWrathfulRageImage";
@@ -128,7 +128,8 @@ function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
 		}
 		
 		//Damage the target and give them a good shove.
-		%hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 15));
+        %pushVelocty = VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 5);
+		%hit.setVelocity(%pushVelocty);
 		%hit.damage(%obj, %hit.getHackPosition(), %this.fixedDamageAmount, $DamageType::Default);
 		
 		//Temporarily slow down the killer.
@@ -149,7 +150,7 @@ function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
 }
 
 //
-// Ability and item to initiate charging.
+//// Ability and item to initiate charging.
 datablock ItemData(wrathfulChargeAbilityItem)
 {
 	category = "Weapon";
@@ -191,10 +192,10 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
 	stateTransitionOnTimeout[0] = "Ready";
 
 	stateName[1] = "Ready";
-	stateTransitionOnTriggerDown[1] = "EnergyCheck";
+	stateTransitionOnTriggerDown[1] = "CooldownCheck";
 
-	stateName[2] = "EnergyCheck";
-	stateScript[2] = "onEnergyCheck";
+	stateName[2] = "CooldownCheck";
+	stateScript[2] = "onCooldownCheck";
 	stateAllowImageChange[1] = false;
 	stateWaitForTimeout[2] = true;
 	stateTimeoutValue = 0.01;
@@ -202,10 +203,10 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
 
 	stateName[3] = "Switch";
 	stateTransitionOnAmmo[3] = "Charge";
-	stateTransitionOnNoAmmo[3] = "EnergyCheckFail";
+	stateTransitionOnNoAmmo[3] = "CooldownCheckFail";
 
-	stateName[4] = "EnergyCheckFail";
-	stateScript[4] = "onEnergyCheckFail";
+	stateName[4] = "CooldownCheckFail";
+	stateScript[4] = "onCooldownCheckFail";
 	stateTransitionOnTimeout[4] = "Ready";
 	stateWaitForTimeout[4] = true;
 	stateTimeoutValue[4] = 0.01;
@@ -216,11 +217,13 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
 	stateWaitForTimeout[5] = true;
 	stateTimeoutValue[5] = 0.01;
 	stateTransitionOnTimeout[5] = "Ready";
+
+    chargeCooldown = 24000;
 };
 
-function wrathfulChargeAbilityImage::onEnergyCheck(%this, %obj, %slot)
+function wrathfulChargeAbilityImage::onCooldownCheck(%this, %obj, %slot)
 {
-	if(%obj.getEnergyPercent() == 1)
+	if((getSimTime() - %obj.lastChargeTime) < %this.chargeCooldown)
 	{
 		%obj.setImageAmmo(0, true);
 	}
@@ -230,7 +233,7 @@ function wrathfulChargeAbilityImage::onEnergyCheck(%this, %obj, %slot)
 	}
 }
 
-function wrathfulChargeAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
+function wrathfulChargeAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -239,7 +242,7 @@ function wrathfulChargeAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
 	%client = %obj.client;
 	if(%client)
 	{
-		%client.printFormatString("hint", "You don't have enough energy to charge! Wait until the bar fills up...");
+		%client.printFormatString("hint", "You don't have enough energy to charge! Wait another " @ sFromMs(%this.chargeCooldown - (getSimTime() - %obj.lastChargeTime)) @ " seconds.");
 	}
 }
 
@@ -344,6 +347,7 @@ function PlayerWrathful::beginCharge(%this, %obj)
 	    %client.camera.setMode("Corpse", %obj);
     }
 
+    %obj.isCharging = true;
     %obj.lastChargeTime = getSimTime();
 
     //Begin the charging state by switch Wrathful to the charging datablock.
@@ -468,9 +472,34 @@ function PlayerWrathfulCharging::endCharge(%this, %obj)
 
     //End the charge by switching the player back to the usual player datablock.
     cancel(%obj.chargeSchedule);
+    %obj.isCharging = false;
     %obj.setDatablock(PlayerWrathful);
 
     //Play the reset animation.
     %obj.setActionThread("root");
     %obj.playThread(1, "w_chargerecovery");
 }
+
+//
+// Package to stop player from moving during a charge.
+package Player_Wrathful
+{
+    function Observer::onTrigger(%this, %obj, %trigger, %state)
+    {
+        %client = %obj.getControllingClient();
+        %player = %client.player;
+        if(!%player)
+        {
+            return Parent::onTrigger(%this, %obj, %trigger, %state);
+        }
+        else if(!%player.isCharging)
+        {
+            return Parent::onTrigger(%this, %obj, %trigger, %state);
+        }
+    }
+};
+if(isPackage(Player_Wrathful))
+{
+    deactivatePackage(Player_Wrathful);
+}
+activatePackage(Player_Wrathful);
