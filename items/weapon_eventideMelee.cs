@@ -78,7 +78,19 @@ function eventideMeleeImage::onSwing(%this, %obj, %slot)
 
 	//Melee animation.
 	%meleeAnim = getRandom(1, 4);
-	%obj.playThread(2, "melee" @ %meleeAnim); //Weapon Swing animation.
+
+	%customSwingAnimation = %this.customSwingAnimation;
+	if(%customSwingAnimation !$= "")
+	{
+		%customSwingAnimationCount = %this.customSwingAnimationCount;
+		%customSwingAnimationCount = (%customSwingAnimationCount $= "") ? "" : getRandom(1, %customSwingAnimationCount);
+
+		%obj.playThread(2, %customSwingAnimation @ %customSwingAnimationCount);
+	}
+	else
+	{
+		%obj.playThread(2, "melee" @ %meleeAnim); //Weapon Swing animation.
+	}
 
 	//Missing and/or striking the environment with the melee weapon.
 	%typemasks = $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType;
@@ -152,8 +164,13 @@ function eventideMeleeImage::onSwing(%this, %obj, %slot)
 		}
 		
 		//Damage the target and give them a good shove.
-		%hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 15));								
-		%hit.damage(%obj, %victimPosition, 25 * getWord(%killerScale, 2), $DamageType::Default);
+		%hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 15));
+		%damageAmount = %this.fixedDamageAmount;
+		if(%damageAmount $= "")
+		{
+			%damageAmount = (25 * getWord(%obj.getScale(), 2));
+		}
+		%hit.damage(%obj, %hit.getHackPosition(), %damageAmount, $DamageType::Default);
 		
 		//Temporarily slow down the killer.
 		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);

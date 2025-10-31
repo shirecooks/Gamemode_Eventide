@@ -48,6 +48,7 @@ exec("./players/player_runner.cs");
 exec("./players/player_sheriff.cs");
 exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
+exec("./players/player_wrathful.cs");
 
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
