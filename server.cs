@@ -13,6 +13,8 @@ exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/support_textStyles.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/status_stun.cs");
+exec("./scripts/status_frozen.cs");
+exec("./scripts/status_fear.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
