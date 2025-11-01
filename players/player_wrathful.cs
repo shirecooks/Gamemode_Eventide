@@ -37,117 +37,11 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 	swingSound = "wrathfulSwing";
 	swingSoundAmount = 2;
 
+    meleeRange = 1.0;
     customSwingAnimation = "w_attack1";
     fixedDamageAmount = 28;
 };
 MeleeWrathfulImage.inheritFunctionsFromSuperClass();
-
-//
-//// Ability and item for attacking while enraged.
-datablock ShapeBaseImageData(MeleeWrathfulRageImage : MeleeWrathfulImage)
-{
-	class = "MeleeWrathfulRageImage";
-    superClass = "MeleeWrathfulImage";
-
-    customSwingAnimation = "";
-    meleeTrailSkin = "";
-    fixedDamageAmount = 36;
-};
-MeleeWrathfulRageImage.inheritFunctionsFromSuperClass();
-
-function MeleeWrathfulRageImage::onSwing(%this, %obj, %slot)
-{
-    %currentTime = getSimTime();
-	%killerDatablock = %obj.getDataBlock();
-
-    //If we couldn't melee normally, don't melee now.
-    if(%obj.getState() $= "Dead" || %obj.getEnergyLevel() < (%killerDatablock.maxEnergy / 8) || (%obj.lastMeleeTime + %this.meleeCooldown) > %currentTime) 
-	{
-		return;
-	}
-
-    %obj.lastMeleeTime = %currentTime;
-    %obj.setEnergyLevel(%obj.getEnergyLevel() - (%killerDatablock.maxEnergy / 6));
-
-    //Play a punching animation.
-    %obj.playThread(0, "w_handcannon");
-
-    //Hold Wrathful in place (animation breaks otherwise) and deal some damage, after a delay.
-    %windupTime = 400;
-    %obj.freeze(%windupTime);
-    %this.schedule(%windupTime, "afterWindup", %obj, %slot);
-}
-
-function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
-{
-    if(%obj.getState() $= "Dead")
-    {
-        return;
-    }
-
-    %killerDatablock = %obj.getDataBlock();
-    %killerLookVector = VectorNormalize(%obj.getLookVector());
-	%killerPosition = %obj.getHackPosition();
-	%killerWeaponPosition = %obj.getMuzzlePoint(0);
-
-    //Shake the player's screen, make it feel like a big punch.
-    %obj.spawnExplosion("impulseProjectile", %obj.getScale()); 
-
-	//Perform a container search for victims, and if any are found, determine if we can damage them.
-	%killerScale = %obj.getScale();
-	initContainerRadiusSearch(%killerWeaponPosition, %this.meleeRange, $TypeMasks::PlayerObjectType);		
-	while(%hit = containerSearchNext())
-	{
-		//If the victim is a special-purpose bot or can't be damaged, drop out.
-		if(%hit == %obj || %hit == %obj.effectbot || !MinigameCanDamage(%obj, %hit)) 
-		{
-			continue;
-		}
-
-		%victimPosition = %hit.getHackPosition();
-
-		//Check if the killer is facing the victim. If not, do nothing.
-		%dot = VectorDot(%killerLookVector, VectorNormalize(VectorSub(%victimPosition, %killerPosition)));
-		if(%dot < 0.4)
-		{
-			continue;
-		}
-
-		//Blood splatter or whatever else particle effect upon hitting the target.
-		if(%this.hitProjectile !$= "")
-		{
-			%effect = new Projectile()
-			{
-				dataBlock = %this.hitProjectile;
-				initialPosition = %victimPosition;
-				initialVelocity = VectorNormalize(VectorSub(%victimPosition, %killerWeaponPosition));
-				scale = %killerScale;
-				sourceObject = %obj;
-			};
-			%effect.explode();
-		}
-		
-		//Damage the target and give them a good shove.
-        %pushVelocty = VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 5);
-		%hit.setVelocity(%pushVelocty);
-		%hit.damage(%obj, %hit.getHackPosition(), %this.fixedDamageAmount, $DamageType::Default);
-		
-		//Temporarily slow down the killer.
-		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);
-
-        //Bring Wrathful back up to speed, and possibly more if he's still mad.
-        %restoreSpeed = 1.0;
-        if(%obj.hasStatusEffect("WrathfulRage", "Wrathful"))
-        {
-            %restoreSpeed = 1.25;
-        }
-		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj, %restoreSpeed);
-	}
-
-	//Air slice sound.
-	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
-	ServerPlay3D(%soundEffect, %killerWeaponPosition);
-}
 
 //
 //// Ability and item to initiate charging.
@@ -219,11 +113,14 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
 	stateTransitionOnTimeout[5] = "Ready";
 
     chargeCooldown = 24000;
+    chargeTime = 2000;
 };
 
 function wrathfulChargeAbilityImage::onCooldownCheck(%this, %obj, %slot)
 {
-	if((getSimTime() - %obj.lastChargeTime) < %this.chargeCooldown)
+    %obj.lastChargeTime = (%obj.lastChargeTime $= "") ? (getSimTime() - wrathfulChargeAbilityImage.chargeCooldown) : %obj.lastChargeTime;
+
+	if((getSimTime() - %obj.lastChargeTime) >= %this.chargeCooldown)
 	{
 		%obj.setImageAmmo(0, true);
 	}
@@ -238,11 +135,11 @@ function wrathfulChargeAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
 
-	//Tell the killer they need more energy.
+	//Tell the killer they need to wait for longer.
 	%client = %obj.client;
 	if(%client)
 	{
-		%client.printFormatString("hint", "You don't have enough energy to charge! Wait another " @ sFromMs(%this.chargeCooldown - (getSimTime() - %obj.lastChargeTime)) @ " seconds.");
+		%client.printFormatString("hint", "You can't charge again yet! Wait another " @ sFromMs(%this.chargeCooldown - (getSimTime() - %obj.lastChargeTime)) @ " seconds.");
 	}
 }
 
@@ -250,6 +147,214 @@ function wrathfulChargeAbilityImage::onCharge(%this, %obj, %slot)
 {
 	%playerDatablock = %obj.getDatablock();
     %playerDatablock.beginCharge(%obj);
+}
+
+//
+//// Ability and item to initiate rage.
+datablock ItemData(wrathfulRageAbilityItem)
+{
+	category = "Weapon";
+	className = "Weapon";
+
+	shapeFile = "base/data/shapes/empty.dts";
+
+	uiName = "Rage";
+	iconName = "./icons/hicolor_headache";
+
+	image = wrathfulRageAbilityImage;
+	canDrop = false;
+};
+
+datablock ShapeBaseImageData(wrathfulRageAbilityImage)
+{
+	className = "WeaponImage";
+	shapeFile = "base/data/shapes/empty.dts";
+
+	mountPoint = $RightHandSlot;
+   	offset = "0 0 0";
+   	eyeOffset = 0;
+   	rotation = eulerToMatrix("0 0 0");
+   	correctMuzzleVector = false;
+
+   	item = wrathfulRageAbilityItem;
+   	ammo = "";
+   	projectile = "";
+   	projectileType = Projectile;
+   	melee = false;
+   	armReady = false;
+
+	hintStyle = "hint";
+	hintMessage = "Click to become enraged for 30 seconds, moving faster and punching harder.";
+
+	stateName[0] = "Activate";
+	stateWaitForTimeout[0] = true;
+	stateTimeoutValue[0] = 0.01;
+	stateTransitionOnTimeout[0] = "Ready";
+
+	stateName[1] = "Ready";
+	stateTransitionOnTriggerDown[1] = "CooldownCheck";
+
+	stateName[2] = "CooldownCheck";
+	stateScript[2] = "onCooldownCheck";
+	stateAllowImageChange[1] = false;
+	stateWaitForTimeout[2] = true;
+	stateTimeoutValue = 0.01;
+	stateTransitionOnTimeout[2] = "Switch";
+
+	stateName[3] = "Switch";
+	stateTransitionOnAmmo[3] = "Rage";
+	stateTransitionOnNoAmmo[3] = "CooldownCheckFail";
+
+	stateName[4] = "CooldownCheckFail";
+	stateScript[4] = "onCooldownCheckFail";
+	stateTransitionOnTimeout[4] = "Ready";
+	stateWaitForTimeout[4] = true;
+	stateTimeoutValue[4] = 0.01;
+
+	stateName[5] = "Rage";
+	stateScript[5] = "onRage";
+	stateAllowImageChange[5] = true;
+	stateWaitForTimeout[5] = true;
+	stateTimeoutValue[5] = 0.01;
+	stateTransitionOnTimeout[5] = "Ready";
+
+    rageCooldown = 60000;
+    rageTime = 30;
+};
+
+function wrathfulRageAbilityImage::onCooldownCheck(%this, %obj, %slot)
+{
+    %obj.lastRageTime = (%obj.lastRageTime $= "") ? (getSimTime() - wrathfulRageAbilityImage.rageCooldown) : %obj.lastRageTime;
+
+	if((getSimTime() - %obj.lastRageTime) >= %this.rageCooldown)
+	{
+		%obj.setImageAmmo(0, true);
+	}
+	else
+	{
+		%obj.setImageAmmo(0, false);
+	}
+}
+
+function wrathfulRageAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+{
+	//Play a fail animation.
+	%obj.playThread(2, "undo");
+
+	//Tell the killer they need to wait for longer.
+	%client = %obj.client;
+	if(%client)
+	{
+		%client.printFormatString("hint", "You can't rage again yet! Wait another " @ sFromMs(%this.rageCooldown - (getSimTime() - %obj.lastRageTime)) @ " seconds.");
+	}
+}
+
+function wrathfulRageAbilityImage::onRage(%this, %obj, %slot)
+{
+	%playerDatablock = %obj.getDatablock();
+    %playerDatablock.beginRagePhaseOne(%obj);
+}
+
+//
+// Ability and item for attacking while enraged.
+datablock ShapeBaseImageData(MeleeWrathfulRageImage : MeleeWrathfulImage)
+{
+	class = "MeleeWrathfulRageImage";
+    superClass = "MeleeWrathfulImage";
+
+    customSwingAnimation = "";
+    meleeTrailSkin = "";
+    fixedDamageAmount = 36;
+};
+MeleeWrathfulRageImage.inheritFunctionsFromSuperClass();
+
+function MeleeWrathfulRageImage::onSwing(%this, %obj, %slot)
+{
+    %currentTime = getSimTime();
+	%killerDatablock = %obj.getDataBlock();
+
+    //If we couldn't melee normally, don't melee now.
+    if(%obj.getState() $= "Dead" || %obj.getEnergyLevel() < (%killerDatablock.maxEnergy / 8) || (%obj.lastMeleeTime + %this.meleeCooldown) > %currentTime) 
+	{
+		return;
+	}
+
+    %obj.lastMeleeTime = %currentTime;
+    %obj.setEnergyLevel(%obj.getEnergyLevel() - (%killerDatablock.maxEnergy / 6));
+
+    //Hold Wrathful in place (animation breaks otherwise) and deal some damage, after a delay.
+    %windupTime = 400;
+    %obj.freeze(%windupTime);
+    %this.schedule(%windupTime, "afterWindup", %obj, %slot);
+
+    //Play a punching animation.
+    %obj.setActionThread(root);
+    %obj.playThread(0, "w_handcannon");
+}
+
+function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
+{
+    if(%obj.getState() $= "Dead")
+    {
+        return;
+    }
+
+    %killerDatablock = %obj.getDataBlock();
+    %killerLookVector = VectorNormalize(%obj.getLookVector());
+	%killerPosition = %obj.getHackPosition();
+	%killerWeaponPosition = %obj.getMuzzlePoint(0);
+
+    //Shake the player's screen, make it feel like a big punch.
+    %obj.spawnExplosion("impulseProjectile", %obj.getScale()); 
+
+	//Perform a container search for victims, and if any are found, determine if we can damage them.
+	%killerScale = %obj.getScale();
+	initContainerRadiusSearch(%killerWeaponPosition, %this.meleeRange, $TypeMasks::PlayerObjectType);		
+	while(%hit = containerSearchNext())
+	{
+		//If the victim is a special-purpose bot or can't be damaged, drop out.
+		if(%hit == %obj || %hit == %obj.effectbot || !MinigameCanDamage(%obj, %hit)) 
+		{
+			continue;
+		}
+
+		%victimPosition = %hit.getHackPosition();
+
+		//Check if the killer is facing the victim. If not, do nothing.
+		%dot = VectorDot(%killerLookVector, VectorNormalize(VectorSub(%victimPosition, %killerPosition)));
+		if(%dot < 0.4)
+		{
+			continue;
+		}
+
+		//Blood splatter or whatever else particle effect upon hitting the target.
+		if(%this.hitProjectile !$= "")
+		{
+			%effect = new Projectile()
+			{
+				dataBlock = %this.hitProjectile;
+				initialPosition = %victimPosition;
+				initialVelocity = VectorNormalize(VectorSub(%victimPosition, %killerWeaponPosition));
+				scale = %killerScale;
+				sourceObject = %obj;
+			};
+			%effect.explode();
+		}
+		
+		//Damage the target and give them a good shove.
+        %hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.6")), 3));
+		%hit.damage(%obj, %hit.getHackPosition(), %this.fixedDamageAmount, $DamageType::Default);
+		
+		//Temporarily slow down the killer.
+		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);
+
+        //Bring Wrathful back up to speed, and possibly more if he's still mad.
+		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj, 1.0);
+	}
+
+	//Air slice sound.
+	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
+	ServerPlay3D(%soundEffect, %killerWeaponPosition);
 }
 
 //
@@ -309,6 +414,8 @@ datablock PlayerData(PlayerWrathful : PlayerKiller)
 
     killerNearMusic = musicData_Eventide_WrathfulNear;
 	killerChaseMusic = musicData_Eventide_WrathfulChase;
+
+    voicePack = "wrathful";
 
     rechargeRate = 0.375;	
 	maxDamage = 1250;
@@ -378,20 +485,15 @@ function PlayerWrathfulCharging::chargeTick(%this, %obj)
     }
 
     //Wrathful can only charge for two seconds at most.
-    if((getSimTime() - %obj.lastChargeTime) > 2000)
+    if((getSimTime() - %obj.lastChargeTime) > wrathfulChargeAbilityImage.chargeTime)
     {
         %this.endCharge(%obj);
         return;
     }
 
-    // %playerPosition = %obj.getPosition();
-    // %isOnGround = !containerBoxEmpty($TypeMasks::fxBrickObjectType | $TypeMasks::StaticObjectType, %playerPosition, 0.6, 0.6, 0.6);
-	// if(%isOnGround)
-	// {
     %forwardVector = %obj.getForwardVector();
     %chargeVelocity = VectorScale(%forwardVector, (2 * PlayerWrathful.maxForwardSpeed));
     %obj.setVelocity(%chargeVelocity);
-	// }
 
     cancel(%obj.chargeSchedule);
     %obj.chargeSchedule = %this.schedule(33, "chargeTick", %obj);
@@ -409,15 +511,15 @@ function PlayerWrathfulCharging::onObjectCollision(%this, %obj, %col)
         %targetPosition = %col.getHackPosition();
 
         //For whatever reason, Wrathful collides with everyone in a 15 mile radius. Fine, be that way.
-        if(VectorDist(%hostPosition, %targetPosition) < 1.6)
+        if(VectorDist(%hostPosition, %targetPosition) > 2)
         {
             return true;
         }
 
         //The Wrathful has struck a player, fling them away.
-        %impulseVector = VectorScale(VectorSub(%targetPosition, %hostPosition), 3);
+        %impulseVector = VectorAdd(VectorScale(VectorNormalize(VectorSub(%targetPosition, %hostPosition)), 3), "0 0 0.6");
         %inheritence = VectorAdd(%col.getVelocity(), %impulseVector);
-        %col.setVelocity(%impulseVector);
+        %col.setVelocity(%inheritence);
 
         //Do some damage.
         if(!%col.isStunned)
@@ -473,6 +575,7 @@ function PlayerWrathfulCharging::endCharge(%this, %obj)
     //End the charge by switching the player back to the usual player datablock.
     cancel(%obj.chargeSchedule);
     %obj.isCharging = false;
+    %obj.lastChargeTime = getSimTime();
     %obj.setDatablock(PlayerWrathful);
 
     //Play the reset animation.
@@ -481,7 +584,99 @@ function PlayerWrathfulCharging::endCharge(%this, %obj)
 }
 
 //
-// Package to stop player from moving during a charge.
+// Raging functionality.
+//
+
+function PlayerWrathful::beginRagePhaseOne(%this, %obj)
+{
+    //Disable the player's control over Wrathful, so they have to watch the roar play out.
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        %client.setControlObject(%client.camera);
+	    %client.camera.setMode("Corpse", %obj);
+    }
+
+    %obj.isRaging = true;
+
+    //Play the raging animation.
+    %obj.playThread(1, "w_rage");
+
+    //"Do the roar."
+    %obj.playVoiceLine("Rage");
+
+    %this.schedule(2500, "beginRagePhaseTwo", %obj);
+}
+
+function PlayerWrathful::beginRagePhaseTwo(%this, %obj)
+{
+    if(!isObject(%obj) || %obj.getState() $= "Dead")
+    {
+        return;
+    }
+
+    //Give the player control of their character again.
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        %client.setControlObject(%obj);
+	    %client.camera.setMode("Observer");
+    }
+
+    //Reset the raging animation.
+    %obj.playThread(1, "root");
+
+    %obj.lastRageTime = getSimTime();
+
+    //Begin the charging state by switch Wrathful to the charging datablock.
+    %newDatablock = PlayerWrathfulRaging;
+    %obj.setDatablock(%newDatablock);
+    %obj.rageSchedule = %newDatablock.schedule(30000, "endRage", %obj);
+}
+
+datablock PlayerData(PlayerWrathfulRaging : PlayerWrathful) 
+{
+    class = "PlayerWrathfulRaging";
+    superClass = "PlayerWrathful";
+    uiName = "";
+
+    killerWeaponImage = MeleeWrathfulRageImage;
+
+    maxForwardSpeed = 9.24;
+	maxBackwardSpeed = 5.5;
+	maxSideSpeed = 7.92;
+};
+//Inherit functions from `PlayerWrathful`.
+PlayerWrathfulRaging.inheritFunctionsFromSuperClass();
+
+function PlayerWrathfulRaging::endRage(%this, %obj)
+{
+    if(!isObject(%obj) || %obj.getState() $= "Dead")
+    {
+        return;
+    }
+
+    //Give the player control of their character again.
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        %client.setControlObject(%obj);
+	    %client.camera.setMode("Observer");
+    }
+
+    //End the charge by switching the player back to the usual player datablock.
+    %obj.isRaging = false;
+    %obj.lastRageTime = getSimTime();
+    %obj.setDatablock(PlayerWrathful);
+
+    //Play the reset animation.
+    %obj.emote("HateImage", 1);
+}
+
+//
+// Package, for everything.
+//
+
 package Player_Wrathful
 {
     function Observer::onTrigger(%this, %obj, %trigger, %state)
@@ -492,10 +687,30 @@ package Player_Wrathful
         {
             return Parent::onTrigger(%this, %obj, %trigger, %state);
         }
-        else if(!%player.isCharging)
+        else if(!%player.isCharging && ! %player.isRaging)
         {
             return Parent::onTrigger(%this, %obj, %trigger, %state);
         }
+    }
+
+    function serverCmdUseTool(%client, %slot)
+    {
+        %player = %client.player;
+        if(%player && (%player.isCharging || %player.isRaging))
+        {
+            return;
+        }
+        parent::ServerCmdUseTool(%client, %slot);
+    }
+
+    function ServerCmdUnUseTool(%client)
+    {
+        %player = %client.player;
+        if(%player && (%player.isCharging || %player.isRaging))
+        {
+            return;
+        }
+        parent::ServerCmdUnUseTool(%client);
     }
 };
 if(isPackage(Player_Wrathful))
