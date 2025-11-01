@@ -81,11 +81,8 @@ function EventidePlayer::VCESpecFadeOut(%this, %obj)
 	%obj.isInvisible = true;
 	%obj.lastFadeTime = getSimTime();
 
-	//Unequip the player's items, don't let them use them while invisible.
-	if(isObject(%obj.client))
-	{
-		serverCmdUnuseTool(%obj.client);
-	}
+	//Unghosts the Staller from others, so they can still use tools while invisible.
+	adjustObjectScopeToAll(%obj, false, %obj.client);
 
 	//Start a loop that detects when the player runs out of energy, and disabled their invisibility when it does.
 	%this.invisibilityTick(%obj);
@@ -136,6 +133,9 @@ function EventidePlayer::VCESpecFadeIn(%this, %obj)
 	//Re-enable the player's flashlight.
 	%obj.flashlightDisabled = false;
 
+	//Rescope the Staller to everyone, so they can be seen.
+	adjustObjectScopeToAll(%obj, true);
+
 	//Restore the VCESpec appearance.
 	%this.EventideAppearance(%obj, %obj.client);	
 }
@@ -168,34 +168,201 @@ package Gamemode_Eventide_Player_VCESpec
 		}
 	}
 
-    function ServerCmdStartTalking(%client)
-	{
-		if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist")
-		{
-			return;
-		}
-		Parent::ServerCmdStartTalking(%client);
-	}
-
-    function serverCmdMessageSent(%client, %message)
+	function serverCmdMessageSent(%client, %text)
 	{
 		%PortEvalBypass = (%client.canEval || ($Pref::Server::ChatEval::SuperAdmin && %client.isSuperAdmin)) && getSubStr(%message, 0, 1) $= "\\";
-        if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist" && !%PortEvalBypass)
+
+		//If the player is not a Stalle or is doing an Eval command, do normal functionality.
+		%player = %client.player;
+		if(!%player || %client.playerClass $= "" || %client.playerClass.title !$= "VCE Specialist" || %PortEvalBypass)
 		{
-			%client.centerPrint("<color:ffffff>...", 3);
+			return Parent::serverCmdMessageSent(%client, %text);
+		}
+
+		//All this just to stop the Staller from talking.
+		%trimText = trim(%text);
+		if (%client.lastChatText $= %trimText)
+		{
+			%chatDelta = (getSimTime() - %client.lastChatTime) / getTimeScale();
+			if (%chatDelta < 15000)
+			{
+				%client.spamMessageCount = $SPAM_MESSAGE_THRESHOLD;
+				messageClient(%client, '', '\c5Do not repeat yourself.');
+			}
+		}
+		%client.lastChatTime = getSimTime();
+		%client.lastChatText = %trimText;
+		%player = %client.Player;
+
+		%text = chatWhiteListFilter(%text);
+		%text = StripMLControlChars(%text);
+		%text = trim(%text);
+		if (strlen(%text) <= 0)
+		{
 			return;
 		}
-		Parent::serverCmdMessageSent(%client, %message);
+		if ($Pref::Server::MaxChatLen > 0)
+		{
+			if (strlen(%text) >= $Pref::Server::MaxChatLen)
+			{
+				%text = getSubStr(%text, 0, $Pref::Server::MaxChatLen);
+			}
+		}
+		%protocol = "http://";
+		%protocolLen = strlen(%protocol);
+		%urlStart = strpos(%text, %protocol);
+		if (%urlStart == -1)
+		{
+			%protocol = "https://";
+			%protocolLen = strlen(%protocol);
+			%urlStart = strpos(%text, %protocol);
+		}
+		if (%urlStart == -1)
+		{
+			%protocol = "ftp://";
+			%protocolLen = strlen(%protocol);
+			%urlStart = strpos(%text, %protocol);
+		}
+		if (%urlStart != -1)
+		{
+			%urlEnd = strpos(%text, " ", %urlStart + 1);
+			%skipProtocol = 0;
+			if (%protocol $= "http://")
+			{
+				%skipProtocol = 1;
+			}
+			if (%urlEnd == -1)
+			{
+				%fullUrl = getSubStr(%text, %urlStart, strlen(%text) - %urlStart);
+				%url = getSubStr(%text, %urlStart + %protocolLen, (strlen(%text) - %urlStart) - %protocolLen);
+			}
+			else
+			{
+				%fullUrl = getSubStr(%text, %urlStart, %urlEnd - %urlStart);
+				%url = getSubStr(%text, %urlStart + %protocolLen, (%urlEnd - %urlStart) - %protocolLen);
+			}
+			if (strlen(%url) > 0)
+			{
+				%url = strreplace(%url, "<", "");
+				%url = strreplace(%url, ">", "");
+				if (%skipProtocol)
+				{
+					%newText = strreplace(%text, %fullUrl, "<a:" @ %url @ ">" @ %url @ "</a>\c6");
+				}
+				else
+				{
+					%newText = strreplace(%text, %fullUrl, "<a:" @ %protocol @ %url @ ">" @ %url @ "</a>\c6");
+				}
+				echo(%newText);
+				%text = %newText;
+			}
+		}
+		if ($Pref::Server::ETardFilter)
+		{
+			if (!chatFilter(%client, %text, $Pref::Server::ETardList, '\c5This is a civilized game.  Please use full words.'))
+			{
+				return 0;
+			}
+		}
+		chatMessageAll(%client, '\c7%1\c3%2\c7%3\c6: %4', %client.clanPrefix, %client.getPlayerName(), %client.clanSuffix, %text);
+		echo(%client.getSimpleName(), ": ", %text);
 	}
 
-	function ServerCmdTeamMessageSent(%client, %message)
+	function serverCmdTeamMessageSent(%client, %text)
 	{
-		if(isObject(%client.playerClass) && %client.playerClass.title $= "VCE Specialist" && !%PortEvalBypass)
+		%PortEvalBypass = (%client.canEval || ($Pref::Server::ChatEval::SuperAdmin && %client.isSuperAdmin)) && getSubStr(%message, 0, 1) $= "\\";
+
+		//If the player is not a Stalle or is doing an Eval command, do normal functionality.
+		%player = %client.player;
+		if(!%player || %client.playerClass $= "" || %client.playerClass.title !$= "VCE Specialist" || %PortEvalBypass)
 		{
-			%client.centerPrint("<color:ffffff>...", 3);
+			return Parent::serverCmdMessageSent(%client, %text);
+		}
+
+		%trimText = trim(%text);
+		if (%client.lastChatText $= %trimText)
+		{
+			%chatDelta = (getSimTime() - %client.lastChatTime) / getTimeScale();
+			if (%chatDelta < 15000)
+			{
+				%client.spamMessageCount = $SPAM_MESSAGE_THRESHOLD;
+				messageClient(%client, '', '\c5Do not repeat yourself.');
+			}
+		}
+		%client.lastChatTime = getSimTime();
+		%client.lastChatText = %trimText;
+
+		%text = chatWhiteListFilter(%text);
+		%text = StripMLControlChars(%text);
+		%text = trim(%text);
+		if (strlen(%text) <= 0)
+		{
 			return;
 		}
-		Parent::ServerCmdTeamMessageSent(%client, %message);
+		if ($Pref::Server::MaxChatLen > 0)
+		{
+			if (strlen(%text) >= $Pref::Server::MaxChatLen)
+			{
+				%text = getSubStr(%text, 0, $Pref::Server::MaxChatLen);
+			}
+		}
+		%protocol = "http://";
+		%protocolLen = strlen(%protocol);
+		%urlStart = strpos(%text, %protocol);
+		if (%urlStart == -1)
+		{
+			%protocol = "https://";
+			%protocolLen = strlen(%protocol);
+			%urlStart = strpos(%text, %protocol);
+		}
+		if (%urlStart == -1)
+		{
+			%protocol = "ftp://";
+			%protocolLen = strlen(%protocol);
+			%urlStart = strpos(%text, %protocol);
+		}
+		if (%urlStart != -1)
+		{
+			%urlEnd = strpos(%text, " ", %urlStart + 1);
+			%skipProtocol = 0;
+			if (%protocol $= "http://")
+			{
+				%skipProtocol = 1;
+			}
+			if (%urlEnd == -1)
+			{
+				%fullUrl = getSubStr(%text, %urlStart, strlen(%text) - %urlStart);
+				%url = getSubStr(%text, %urlStart + %protocolLen, (strlen(%text) - %urlStart) - %protocolLen);
+			}
+			else
+			{
+				%fullUrl = getSubStr(%text, %urlStart, %urlEnd - %urlStart);
+				%url = getSubStr(%text, %urlStart + %protocolLen, (%urlEnd - %urlStart) - %protocolLen);
+			}
+			if (strlen(%url) > 0)
+			{
+				%url = strreplace(%url, "<", "");
+				%url = strreplace(%url, ">", "");
+				if (%skipProtocol)
+				{
+					%newText = strreplace(%text, %fullUrl, "<a:" @ %url @ ">" @ %url @ "</a>\c6");
+				}
+				else
+				{
+					%newText = strreplace(%text, %fullUrl, "<a:" @ %protocol @ %url @ ">" @ %url @ "</a>\c6");
+				}
+				%text = %newText;
+			}
+		}
+		if ($Pref::Server::ETardFilter)
+		{
+			if (!chatFilter(%client, %text, $Pref::Server::ETardList, '\c5This is a civilized game.  Please use full words.'))
+			{
+				return 0;
+			}
+		}
+		chatMessageTeam(%client, %client.team, '\c7%1\c3%2\c7%3\c4: %4', %client.clanPrefix, %client.getPlayerName(), %client.clanSuffix, %text);
+		echo("(T)", %client.getSimpleName(), ": ", %text);
 	}
 
 	function Player::emote(%player, %data, %skipSpam)
@@ -208,15 +375,6 @@ package Gamemode_Eventide_Player_VCESpec
 		}
 		Parent::emote(%player, %data, %skipSpam);
 	}
-
-	function ServerCmdUseTool(%client, %slot)
-    {
-        if(%client.playerClass !$= "" && %client.playerClass.title $= "VCE Specialist" && isObject(%client.player) && %client.player.isInvisible)
-		{
-			return;
-		}
-		parent::ServerCmdUseTool(%client, %slot);
-    }
 };
 if(isPackage("Gamemode_Eventide_Player_VCESpec"))
 {
