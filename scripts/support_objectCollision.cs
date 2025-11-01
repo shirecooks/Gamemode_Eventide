@@ -1,5 +1,10 @@
 function onObjectCollisionTest(%obj, %col)
 {
+    if(%obj == %col)
+    {
+        return true;
+    }
+
     %hostDatablock = %obj.Datablock;
     %targetDatablock = %col.Datablock;
 
