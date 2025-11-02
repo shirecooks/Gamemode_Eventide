@@ -36,7 +36,7 @@ function PlayerFearEffect::beginStatusEffect(%this, %obj)
     }
 
     //Make the player jolt in fear.
-    %obj.spawnExplosion("impulseProjectile", %obj.getScale());
+    %obj.spawnExplosion("camShakeProjectile", %obj.getScale());
     %obj.playThread(3, "plant");
 }
 

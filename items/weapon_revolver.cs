@@ -421,7 +421,7 @@ function revolverImage::onFire(%this, %obj, %slot)
    %obj.playThread(2, jump);
 
    //Shake the player's camera to mimic recoil.
-   %obj.spawnExplosion("impulseProjectile", %obj.getScale()); 
+   %obj.spawnExplosion("camShakeProjectile", %obj.getScale()); 
 
    //Create a muzzle flash.
    %revolverlight = new fxLight() 

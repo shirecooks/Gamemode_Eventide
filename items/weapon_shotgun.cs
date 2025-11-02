@@ -370,7 +370,7 @@ function shotgunImage::onFire(%this, %obj, %slot)
 {
 	//Play the recoil animation.
 	%obj.playThread(2, "jump");
-	%obj.spawnExplosion("impulseProjectile", %obj.getScale()); 
+	%obj.spawnExplosion("camShakeProjectile", %obj.getScale()); 
 
 	//Play a firing sound.
 	serverPlay3D("shotgun_fire_sound", %obj.getMuzzlePoint($RightHandSlot));

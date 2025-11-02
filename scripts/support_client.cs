@@ -150,3 +150,66 @@ function Player::restoreCameraFromOrbit(%obj)
     %client.setControlObject(%obj);
 	%client.camera.setMode("Observer");
 }
+
+//
+// Shaky cam, cutscenes and abilities.
+//
+
+datablock ExplosionData(camShakeExplosion)
+{
+   explosionShape = "";
+   lifeTimeMS = 150;
+
+   faceViewer     = true;
+   explosionScale = "1 1 1";
+
+   shakeCamera = true;
+   camShakeFreq = "10.0 10.0 10.0";
+   camShakeAmp = "10.0 10.0 10.0";
+   camShakeDuration = 0.5;
+   camShakeRadius = 10.0;
+
+   damageRadius = 0;
+   radiusDamage = 0;
+
+   impulseRadius = 0;
+   impulseForce = 0;
+};
+
+datablock ProjectileData(camShakeProjectile)
+{
+	projectileShapeName = "";
+	directDamage        = 0;
+	directDamageType    = $DamageType::Default;
+	radiusDamageType    = $DamageType::Default;
+	
+	
+	brickExplosionRadius = 0;
+	brickExplosionImpact = false;
+	brickExplosionForce  = 0;
+	brickExplosionMaxVolume = 0;
+	brickExplosionMaxVolumeFloating = 0;
+	
+	impactImpulse	   = 0;
+	verticalImpulse	   = 0;
+	explosion           = camShakeExplosion;
+	
+	muzzleVelocity      = 0;
+	velInheritFactor    = 1;
+	
+	armingDelay         = 00;
+	lifetime            = 1;
+	fadeDelay           = 0;
+	bounceElasticity    = 0.0;
+	bounceFriction      = 0.0;
+	isBallistic         = false;
+	gravityMod		   = 0.0;
+	
+	hasLight    = false;
+	lightRadius = 10;
+	lightColor  = "0.0 1.0 1.0";
+	
+	explodeOnDeath = 1;
+	
+	uiName = "Camera Shake";
+};
