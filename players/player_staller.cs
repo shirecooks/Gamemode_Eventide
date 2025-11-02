@@ -47,7 +47,7 @@ datablock ParticleData(stallerCloakSmokeParticle)
 
 datablock ParticleData(stallerCloakInvertedStarParticle : stallerCloakSmokeParticle)
 {
-	textureName = "Add-Ons/Gamemode_Eventide/players/icons/invertedStar";
+	textureName = "Add-Ons/Gamemode_Eventide/players/particles/invertedStar";
 
 	lifetimeMS = 800;
 	gravityCoefficient = -0.5;
