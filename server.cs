@@ -12,12 +12,12 @@ exec("./scripts/support_statusEffects.cs");
 exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/support_textStyles.cs");
 exec("./scripts/support_objectCollision.cs");
-exec("./scripts/script_footsteps.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/status_stun.cs");
 exec("./scripts/status_frozen.cs");
 exec("./scripts/status_fear.cs");
 exec("./scripts/status_deafen.cs");
+exec("./scripts/status_nearSight.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
@@ -25,6 +25,7 @@ exec("./players/datablock_lights.cs");
 exec("./players/datablock_killerTrails.cs");
 exec("./players/datablock_killerBlood.cs");
 exec("./items/datablock_woodFrag.cs");
+exec("./items/datablock_sharpMelee.cs");
 
 exec("./items/weapon_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
@@ -54,6 +55,7 @@ exec("./players/player_sheriff.cs");
 exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
 exec("./players/player_wrathful.cs");
+exec("./players/player_shire.cs");
 
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
@@ -62,3 +64,4 @@ exec("./scripts/script_flashlight.cs");
 %currentWorkingDirectory = filePath($Con::File);
 exec("./scripts/script_faceSystem.cs"); parseFacePacks(%currentWorkingDirectory @ "/players/faces");
 exec("./scripts/script_voiceSystem.cs"); parseVoicePacks(%currentWorkingDirectory @ "/sounds/voicePacks");
+//exec("./scripts/script_footsteps.cs"); parseFootstepMaterials(%currentWorkingDirectory @ "/sounds/footsteps");
