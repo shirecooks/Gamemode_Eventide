@@ -4,7 +4,7 @@
 
 //
 // Melee weapon particle effects.
-datablock ParticleData(KillerKatanaClankSprayParticle : KillerAxeClankSprayParticle)
+datablock ParticleData(KillerKatanaClankSprayParticle : KillerGenericSharpClankSprayParticle)
 {
 	colors[1]	= "1 0.7 0.6 1";
 	sizes[0]	= 0.35;
@@ -14,7 +14,7 @@ datablock ParticleData(KillerKatanaClankSprayParticle : KillerAxeClankSprayParti
 	lifetimeVarianceMS = 10;
 };
 
-datablock ParticleEmitterData(KillerKatanaClankSprayEmitter : KillerAxeClankSprayEmitter)
+datablock ParticleEmitterData(KillerKatanaClankSprayEmitter : KillerGenericSharpClankSprayEmitter)
 {
 	particles = "KillerKatanaClankSprayParticle";
 	
@@ -26,7 +26,7 @@ datablock ParticleEmitterData(KillerKatanaClankSprayEmitter : KillerAxeClankSpra
 	uiName = "Katana Clank Spray";
 };
 
-datablock ParticleData(KillerKatanaClankChunkParticle : KillerAxeClankChunkParticle)
+datablock ParticleData(KillerKatanaClankChunkParticle : KillerGenericSharpClankChunkParticle)
 {
 	textureName = "base/data/particles/nut";
 	useInvAlpha = false;
@@ -40,7 +40,7 @@ datablock ParticleData(KillerKatanaClankChunkParticle : KillerAxeClankChunkParti
 	spinSpeed = 900;
 };
 
-datablock ParticleEmitterData(KillerKatanaClankChunkEmitter : KillerAxeClankChunkEmitter)
+datablock ParticleEmitterData(KillerKatanaClankChunkEmitter : KillerGenericSharpClankChunkEmitter)
 {
 	particles = "KillerKatanaClankChunkParticle";
 	
@@ -145,7 +145,6 @@ MeleeTantoImage.inheritFunctionsFromSuperClass();
 
 //
 // Ability image and inventory item.
-
 datablock ItemData(renownedPossessAbilityItem)
 {
 	category = "Weapon";
