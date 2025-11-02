@@ -76,6 +76,18 @@ function PlayerKiller::onNewDatablock(%this, %obj)
 		%voiceConfig.setLineCooldown("Idle", 10000);
 	}
 
+	//Special functionality: killers having more than one player datablock. 
+	//Don't mess up the killer loop if that is the case. Stop here.
+	if(%this.superClass !$= "PlayerKiller")
+	{
+		return;
+	}
+	else if(%obj.shallowDatablockChanges !$= "" && %obj.shallowDatablockChanges > 0)
+	{
+		%obj.shallowDatablockChanges--;
+		return;
+	}
+
 	//Store some information used for voice-lines and chase management.
 	if(isObject(%obj.chasingVictims))
 	{
