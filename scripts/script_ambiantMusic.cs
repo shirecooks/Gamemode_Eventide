@@ -22,12 +22,6 @@ function GameConnection::playAmbiantMusic(%this, %musicDatablock, %volume, %cate
         {
             return;
         }
-
-        // //If this music is already playing, skip.
-        // if(%eventideMusicEmitter.profile == %musicDatablock)
-        // {
-        //     return;
-        // }
         
         %eventideMusicEmitter.delete();
     }
@@ -140,7 +134,7 @@ function Player::hasAmbiantMusic(%obj)
     %client = %obj.client;
     if(isObject(%client))
     {
-        return %client.eventideMusicEmitter;
+        return %client.hasAmbiantMusic();
     }
     return 0;
 }
@@ -162,12 +156,105 @@ function Player::stopAmbiantMusic(%obj)
     %client = %obj.client;
     if(isObject(%client))
     {
-        %eventideMusicEmitter = %client.eventideMusicEmitter;
-        if(isObject(%eventideMusicEmitter))
+        %client.stopAmbiantMusic();
+    }
+}
+
+//
+// Accessory music playback - used for status effects and such.
+//
+
+function GameConnection::playAccessoryMusic(%this, %musicDatablock, %volume, %category)
+{
+    if(%category $= "")
+    {
+        %category = "Default";
+    }
+
+    if(%volume $= "")
+    {
+        %volume = 1.0;
+    }
+
+    %accessoryMusicBag = %this.accessoryMusicBag;
+    if(!isObject(%accessoryMusicBag))
+    {
+        %accessoryMusicBag = new SimGroup();
+        %this.accessoryMusicBag = %accessoryMusicBag;
+    }
+
+    %accessoryMusicEmitter = new AudioEmitter()
+    {
+        category = %category;
+        position = "9e9 9e9 9e9";
+        profile = %musicDatablock;
+        volume = %volume;
+        type = 10;
+        useProfileDescription = false;
+        is3D = false;
+    };
+    %accessoryMusicBag.add(%accessoryMusicEmitter);
+    %accessoryMusicEmitter.adjustObjectScopeToAll(false, %this);
+
+    return %accessoryMusicEmitter;
+}
+function Player::playAccessoryMusic(%obj, %musicDatablock, %volume, %category)
+{
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        return %client.playAccessoryMusic(%musicDatablock, %volume, %category);
+    }
+}
+
+function GameConnection::stopAccessoryMusic(%this, %category, %datablock)
+{
+    %accessoryMusicBag = %this.accessoryMusicBag;
+    if(!isObject(%accessoryMusicBag))
+    {
+        return;
+    }
+
+    if(%datablock $= "" && %category $= "")
+    {
+        %accessoryMusicBag.clear();
+        return;
+    }
+
+    for(%i = 0; %i < %accessoryMusicBag.getCount(); %i++)
+    {
+        %accessoryMusicEmitter = %accessoryMusicBag.getObject(%i);
+        if(%accessoryMusicEmitter.profile.getID() $= %datablock || %accessoryMusicEmitter.category $= %category)
         {
-            %client.eventideMusicEmitter.delete();
+            %accessoryMusicEmitter.delete();
         }
     }
+}
+function Player::stopAccessoryMusic(%obj, %category, %datablock)
+{
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        %client.stopAccessoryMusic(%category, %datablock);
+    }
+}
+
+//
+// Is accessory music playing?
+//
+
+function GameConnection::hasAccessoryMusic(%this)
+{
+    return %this.accessoryMusicBag;
+}
+function Player::hasAccessoryMusic(%obj)
+{
+    %client = %obj.client;
+    if(isObject(%client))
+    {
+        return %client.hasAccessoryMusic();
+    }
+    return 0;
 }
 
 //
@@ -181,10 +268,19 @@ package Gamemode_Eventide_AmbiantMusic
         Parent::onRemove(%this, %obj);
 
         %client = %obj.client;
-        %eventideMusicEmitter = %client.eventideMusicEmitter;
-        if(isObject(%client) && isObject(%eventideMusicEmitter))
+        if(isObject(%client))
         {
-            %eventideMusicEmitter.delete();
+            %eventideMusicEmitter = %client.eventideMusicEmitter;
+            %accessoryMusicEmitter = %client.accessoryMusicBag;
+
+            if(isObject(%eventideMusicEmitter))
+            {
+                %eventideMusicEmitter.delete();
+            }
+            if(isObject(%accessoryMusicEmitter))
+            {
+                %accessoryMusicEmitter.delete();
+            }
         }
     }
     function PlayerEventide::onNewDatablock(%this, %obj)
@@ -193,16 +289,23 @@ package Gamemode_Eventide_AmbiantMusic
 
         //Play an ambiant track.
         %client = %obj.client;
-        if(isObject(%client))
+        if(isObject(%client) && !%obj.hasAmbiantMusic())
         {
             %client.playRandomAmbiantTrack();
         }
     }
     function Armor::onNewDataBlock(%this, %obj)
     {
-        if(!%this.isEventideClass && %obj.hasAmbiantMusic())
+        if(!%this.isEventideClass)
         {
-            %obj.stopAmbiantMusic();
+            if(%obj.hasAmbiantMusic())
+            {
+                %obj.stopAmbiantMusic();
+            }
+            if(%obj.hasAccessoryMusic())
+            {
+                %obj.stopAccessoryMusic();
+            }
         }
     }
 };
