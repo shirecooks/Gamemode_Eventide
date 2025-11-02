@@ -21,6 +21,56 @@ datablock ProjectileData(KillerWrathfulRageHitProjectile : KillerWrathfulHitProj
 };
 
 //
+//// Particles and emitters for the rage ability.
+datablock ParticleData(wrathfulBurningRageParticle : VehicleBurnParticle)
+{
+	inheritedVelFactor = 0.25;
+};
+
+datablock ParticleEmitterData(wrathfulBurningRageEmitter : VehicleBurnEmitter)
+{
+	particles = "wrathfulBurningRageParticle";
+	uiName = "Wrathful's Burning Rage";
+};
+
+datablock ShapeBaseImageData(WrathfulBurningRageImage)
+{
+	shapeFile = "base/data/shapes/empty.dts";
+	emap = false;
+
+	mountPoint = $HipSlot;
+	offset = "0 0 -1";
+
+	stateName[0] = "Ready";
+	stateTimeoutValue[0] = 0.01;
+	stateTransitionOnTimeout[0]	= "BurningRage";
+
+	stateName[1] = "BurningRage";
+	stateEmitter[1]	= "wrathfulBurningRageEmitter";
+	stateEmitterTime[1]	= 0.3;
+	stateTimeoutValue[1] = 0.3;
+	stateTransitionOnTimeout[1]	= "Loop";
+	stateWaitForTimeout[1] = true;
+
+	stateName[2] = "Loop";
+	stateTimeoutValue[2] = 0.01;
+	stateTransitionOnTimeout[2]	= "BurningRage";
+};
+
+//
+//// Dust explosion on stomp.
+datablock ExplosionData(wrathfulDustExplosion : tumbleImpactAExplosion)
+{
+   soundProfile = "";
+};
+
+datablock ProjectileData(wrathfulDustExplosionProjectile : tumbleImpactAProjectile)
+{
+   explosion = wrathfulDustExplosion;
+   uiName = "Wrathful's Stomp";
+};
+
+//
 //// Normal melee.
 datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 {
@@ -38,7 +88,7 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 	swingSoundAmount = 2;
 
     meleeRange = 1.0;
-    customSwingAnimation = "w_attack1";
+    customSwingAnimation = "attack1";
     fixedDamageAmount = 28;
 };
 MeleeWrathfulImage.inheritFunctionsFromSuperClass();
@@ -284,7 +334,7 @@ function MeleeWrathfulRageImage::onSwing(%this, %obj, %slot)
 
     //Play a punching animation.
     %obj.setActionThread(root);
-    %obj.playThread(0, "w_handcannon");
+    %obj.playThread(1, "bigAttack1");
 }
 
 function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
@@ -300,7 +350,7 @@ function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
 	%killerWeaponPosition = %obj.getMuzzlePoint(0);
 
     //Shake the player's screen, make it feel like a big punch.
-    %obj.spawnExplosion("impulseProjectile", %obj.getScale()); 
+    %obj.shakeCamera(0.5);
 
 	//Perform a container search for victims, and if any are found, determine if we can damage them.
 	%killerScale = %obj.getScale();
@@ -338,20 +388,120 @@ function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
 		
 		//Damage the target and give them a good shove.
 		%hit.damage(%obj, %hit.getHackPosition(), %this.fixedDamageAmount, $DamageType::Default);
-        %impulseVector = VectorAdd(VectorScale(VectorNormalize(VectorSub(%victimPosition, %killerWeaponPosition)), 15), "0 0 1.2");
-        %inheritence = VectorAdd(%hit.getVelocity(), %impulseVector);
-        %hit.setVelocity(%inheritence);
+		%hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.6")), 15));
 		
 		//Temporarily slow down the killer.
 		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);
 
         //Bring Wrathful back up to speed, and possibly more if he's still mad.
-		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj, 1.0);
+		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj);
 	}
 
 	//Air slice sound.
 	%soundEffect = %this.swingSound @ %this.swingSoundAmount @ "_sound";
 	ServerPlay3D(%soundEffect, %killerWeaponPosition);
+}
+
+//
+//// Ability and item to initiate stomping.
+datablock ItemData(wrathfulStompAbilityItem)
+{
+	category = "Weapon";
+	className = "Weapon";
+
+	shapeFile = "base/data/shapes/empty.dts";
+
+	uiName = "Stomp";
+	iconName = "./icons/archetype_control";
+
+	image = wrathfulStompAbilityImage;
+	canDrop = false;
+};
+
+datablock ShapeBaseImageData(wrathfulStompAbilityImage)
+{
+	className = "WeaponImage";
+	shapeFile = "base/data/shapes/empty.dts";
+
+	mountPoint = $RightHandSlot;
+   	offset = "0 0 0";
+   	eyeOffset = 0;
+   	rotation = eulerToMatrix("0 0 0");
+   	correctMuzzleVector = false;
+
+   	item = wrathfulStompAbilityItem;
+   	ammo = "";
+   	projectile = "";
+   	projectileType = Projectile;
+   	melee = false;
+   	armReady = false;
+
+	hintStyle = "hint";
+	hintMessage = "Click to stomp, stunning everyone in a small radius.";
+
+	stateName[0] = "Activate";
+	stateWaitForTimeout[0] = true;
+	stateTimeoutValue[0] = 0.01;
+	stateTransitionOnTimeout[0] = "Ready";
+
+	stateName[1] = "Ready";
+	stateTransitionOnTriggerDown[1] = "CooldownCheck";
+
+	stateName[2] = "CooldownCheck";
+	stateScript[2] = "onCooldownCheck";
+	stateAllowImageChange[1] = false;
+	stateWaitForTimeout[2] = true;
+	stateTimeoutValue = 0.01;
+	stateTransitionOnTimeout[2] = "Switch";
+
+	stateName[3] = "Switch";
+	stateTransitionOnAmmo[3] = "Stomp";
+	stateTransitionOnNoAmmo[3] = "CooldownCheckFail";
+
+	stateName[4] = "CooldownCheckFail";
+	stateScript[4] = "onCooldownCheckFail";
+	stateTransitionOnTimeout[4] = "Ready";
+	stateWaitForTimeout[4] = true;
+	stateTimeoutValue[4] = 0.01;
+
+	stateName[5] = "Stomp";
+	stateScript[5] = "onStomp";
+	stateAllowImageChange[5] = true;
+	stateWaitForTimeout[5] = true;
+	stateTimeoutValue[5] = 0.01;
+	stateTransitionOnTimeout[5] = "Ready";
+};
+
+function wrathfulStompAbilityImage::onCooldownCheck(%this, %obj, %slot)
+{
+    %stompCooldown = (%obj.getDatablock().stompCooldown $= "") ? 36000 : %obj.getDatablock().stompCooldown;
+	if((%obj.lastStompTime + %stompCooldown) < getSimTime())
+	{
+		%obj.setImageAmmo(0, true);
+	}
+	else
+	{
+		%obj.setImageAmmo(0, false);
+	}
+}
+
+function wrathfulStompAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+{
+	//Play a fail animation.
+	%obj.playThread(2, "undo");
+
+	//Tell the killer they need to wait for longer.
+	%client = %obj.client;
+	if(%client)
+	{
+        %stompCooldown = (%obj.getDatablock().stompCooldown $= "") ? 36000 : %obj.getDatablock().stompCooldown;
+		%client.printFormatString("hint", "You can't stomp again yet! Wait another " @ sFromMs(%stompCooldown - (getSimTime() - %obj.lastStompTime)) @ " seconds.");
+	}
+}
+
+function wrathfulStompAbilityImage::onStomp(%this, %obj, %slot)
+{
+    %obj.applyStatusEffect("WrathfulStompEffect", "Wrathful", PlayerWrathful.stompDelay);
 }
 
 //
@@ -403,8 +553,8 @@ datablock PlayerData(PlayerWrathful : PlayerKiller)
     shapeFile = PlayerWrathfulDTS.baseShape;
     uiName = "Wrathful Player";
 
-    maxTools = 2;
-    maxWeapons = 2;
+    maxTools = 3;
+    maxWeapons = 3;
 
     killerWeaponImage = MeleeWrathfulImage;
 
@@ -427,6 +577,9 @@ datablock PlayerData(PlayerWrathful : PlayerKiller)
     rageTime = 30000;
 
     stompCooldown = 36000;
+	stompDelay = 500;
+	stompRadius = 16;
+	stompStunTime = 2000;
 };
 //Inherit functions from `PlayerKiller`.
 PlayerWrathful.inheritFunctionsFromSuperClass();
@@ -505,7 +658,6 @@ function WrathfulChargeEffect::finalizeStatusEffect(%this, %obj)
     //Necessary for the item cooldown.
     %playerDatablock = %obj.getDatablock();
     %obj.lastChargeTime = getSimTime();
-    %obj.weaponCooldown(%obj.currTool, "You're tired, and need to wait " @ mCeil(%playerDatablock.chargeCooldown / 1000) @ " seconds to charge again.", "Your charge ability is ready!", %playerDatablock.chargeCooldown);
 }
 
 //
@@ -616,6 +768,9 @@ function WrathfulPreRageEffect::beginStatusEffect(%this, %obj)
 
     //"Do the roar."
     %obj.playVoiceLine("Rage");
+
+	//Create a visual indicator of rage by setting Wrathful on fire.
+	%obj.mountImage("WrathfulBurningRageImage", 2);
 }
 
 function WrathfulPreRageEffect::finalizeStatusEffect(%this, %obj)
@@ -625,6 +780,9 @@ function WrathfulPreRageEffect::finalizeStatusEffect(%this, %obj)
 	{
 		return;
 	}
+
+	//Undo the rage animation.
+	%obj.playThread(1, "root");
 
 	//Give the player control of Wrathful again.
     %obj.lockInputs = false;
@@ -668,10 +826,74 @@ function WrathfulRageEffect::finalizeStatusEffect(%this, %obj)
     %obj.defaultSpeed = "";
     %obj.getDatablock().setTempSpeed(%obj);
 
-    //Stop the rage-music audio emitter.
+    //Stop the rage-music audio emitter and particle effect.
     %obj.stopAccessoryMusic("Rage");
+	%obj.unmountImage(2);
 
     //Play a little visual, let survivors know the rage is over.
 	%obj.playThread(2, "undo");
     %obj.emote("HateImage", 1);
+}
+
+//
+// Stomping functionality.
+//
+
+//
+//// Status effect for stomping functionality.
+function WrathfulStompEffect::beginStatusEffect(%this, %obj)
+{
+	//If the player is dead, do nothing.
+	if(!isObject(%obj) || %obj.getState() $= "Dead")
+	{
+		return;
+	}
+
+    //Give a cutscene-esque effect by making the player only able to observe Wrathful, instead of control.
+    %obj.lockInputs = true;
+    %obj.createCameraOrbit();
+
+    //Play the charging animation.
+    %obj.playThread(1, "stomp");
+}
+
+function WrathfulStompEffect::finalizeStatusEffect(%this, %obj)
+{
+	//If the player is dead, do nothing.
+	if(!isObject(%obj) || %obj.getState() $= "Dead")
+	{
+		return;
+	}
+
+	//Undo the rage animation.
+	%obj.playThread(1, "root");
+
+	//Give the player control of Wrathful again.
+    %obj.lockInputs = false;
+    %obj.restoreCameraFromOrbit();
+
+    //
+    // Complete the stomping action.
+
+    %obj.lastStompTime = getSimTime();
+
+    //Play a stomping sound effect.
+    %obj.playVoiceLine("Stomp");
+
+	//Spawn a cloud of dust at Wrathful's foot.
+	%obj.spawnExplosion("wrathfulDustExplosionProjectile", VectorScale(%obj.getScale(), 2));
+
+	//Give everyone the Fear status effect in the given radius.
+	initContainerRadiusSearch(%obj.getPosition(), PlayerWrathful.stompRadius, $TypeMasks::PlayerObjectType);
+	while(%victim = containerSearchNext())
+	{
+		//Make the ground shake.
+		%victim.shakeCamera(1.0);
+
+		//Stun anyone who isn't a killer.
+		if(%victim.getID() != %obj.getID() && !%victim.getDatablock().isKiller)
+		{
+			%victim.stun(PlayerWrathful.stompStunTime);
+		}
+	}
 }
