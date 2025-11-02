@@ -35,8 +35,9 @@ function PlayerFearEffect::beginStatusEffect(%this, %obj)
         %obj.unmountImage(0);
     }
 
-    //Play the stun animation.
-	%obj.playThread(3, "jump");
+    //Make the player jolt in fear.
+    %obj.spawnExplosion("impulseProjectile", %obj.getScale());
+    %obj.playThread(3, "plant");
 }
 
 function PlayerFearEffect::finalizeStatusEffect(%this, %obj)
