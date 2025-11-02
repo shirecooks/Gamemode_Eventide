@@ -12,6 +12,7 @@ exec("./scripts/support_statusEffects.cs");
 exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/support_textStyles.cs");
 exec("./scripts/support_objectCollision.cs");
+exec("./scripts/support_cutscenes.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/status_stun.cs");
 exec("./scripts/status_frozen.cs");
