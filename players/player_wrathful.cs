@@ -88,7 +88,8 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 	swingSoundAmount = 2;
 
     meleeRange = 1.0;
-    customSwingAnimation = "attack1";
+    customSwingAnimation = "attack";
+	customSwingAnimationCount = 1;
     fixedDamageAmount = 28;
 };
 MeleeWrathfulImage.inheritFunctionsFromSuperClass();
@@ -878,7 +879,7 @@ function WrathfulStompEffect::finalizeStatusEffect(%this, %obj)
     %obj.lastStompTime = getSimTime();
 
     //Play a stomping sound effect.
-    %obj.playVoiceLine("Stomp");
+    %obj.playManagedSound("Stomp");
 
 	//Spawn a cloud of dust at Wrathful's foot.
 	%obj.spawnExplosion("wrathfulDustExplosionProjectile", VectorScale(%obj.getScale(), 2));
