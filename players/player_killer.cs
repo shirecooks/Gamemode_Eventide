@@ -57,9 +57,10 @@ function PlayerKiller::onNewDatablock(%this, %obj)
 	}
 
 	//Mount the melee weapon.
-	if(%this.killerWeaponImage !$= "")
+	%killerWeaponImage = (%obj.killerWeaponImage $= "") ? %this.killerWeaponImage : %obj.killerWeaponImage;
+	if(%killerWeaponImage !$= "")
 	{
-		%obj.mountImage(%this.killerWeaponImage, 0);
+		%obj.mountImage(%killerWeaponImage, 0);
 	}
 
 	//Face and voice config setup, if specified.
@@ -440,7 +441,8 @@ package Player_Killer
 		%playerDatablock = %player.getDataBlock();
 		if(%playerDatablock.isKiller)
 		{
-			%player.mountImage(%playerDatablock.killerWeaponImage, 0);
+			%killerMeleeImage = (%player.killerWeaponImage $= "") ? %playerDatablock.killerWeaponImage : %player.killerWeaponImage;
+			%player.mountImage(%killerMeleeImage, 0);
 		}
 	}
 };
