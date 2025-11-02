@@ -43,6 +43,8 @@ function SimObject::clearStatusEffect(%obj, %class, %category)
     %statusEffect = %obj.hasStatusEffect(%class, %category);
     if(%statusEffect)
     {
+        cancel(%statusEffect.clearSchedule);
+        
         if(isFunction(%statusEffect.class, finalizeStatusEffect))
         {
             %statusEffect.finalizeStatusEffect(%obj);
