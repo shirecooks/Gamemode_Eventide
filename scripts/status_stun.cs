@@ -95,8 +95,7 @@ function PlayerStunEffect::beginStatusEffect(%this, %obj)
 	switch$(%obj.getClassName())
 	{
 		case "Player": 	
-            %obj.client.setControlObject(%obj.client.camera);
-			%obj.client.camera.setMode("Corpse",%obj);
+            %obj.createCameraOrbit();
             %playerDatablock = %obj.getDatablock();
 			if(isFunction(%playerDatablock, onEnterStun))
             {
@@ -129,8 +128,7 @@ function PlayerStunEffect::finalizeStatusEffect(%this, %obj)
 	switch$(%obj.getClassName())
 	{
 		case "Player": 	
-            %obj.client.setControlObject(%obj);
-			%obj.client.camera.setMode("Observer");
+            %obj.restoreCameraFromOrbit();
             %playerDatablock = %obj.getDatablock();
             if(isFunction(%playerDatablock, onExitStun))
             {
