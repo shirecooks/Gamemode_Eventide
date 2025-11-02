@@ -174,7 +174,7 @@ function eventideMeleeImage::onSwing(%this, %obj, %slot)
 		
 		//Temporarily slow down the killer.
 		%killerDatablock.setTempSpeed(%obj, %this.slowdownSpeed);
-		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj, 1);
+		%killerDatablock.schedule(%this.slowdownTime, setTempSpeed, %obj);
 	}
 
 	//Air slice sound.
