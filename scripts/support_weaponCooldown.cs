@@ -10,7 +10,7 @@ function Player::weaponCooldown(%obj, %slot, %startMessage, %endMessage, %time)
     %client = %obj.client;
     if(%client)
     {
-        %client.centerPrint("<font:arial:13><color:ff7744>" @ %startMessage, %time);
+        %client.printFormatString("hint", %startMessage, %time);
     }
 
     //No weapon equipped, no cooldown can be done.
@@ -33,7 +33,7 @@ function Player::_weaponCooldownEnd(%obj, %slot, %imageName, %message, %time)
     %client = %obj.client;
     if(%client)
     {
-        %client.centerPrint("<font:arial:13><color:ff7744>" @ %message, %time);
+        %client.printFormatString("hint", %message, %time);
     }
 
     %weapon = %obj.getMountedImage(%slot);
