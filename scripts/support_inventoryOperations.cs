@@ -27,6 +27,9 @@ function Player::removeItemFromInventory(%obj, %slot)
     {
         messageClient(%client, 'MsgItemPickup', '', %slot, 0, true);
     }
+
+    //Clear the attributes from the now empty inventory slot.
+    %obj.clearImageAttributes(%slot);
 }
 
 function Player::addItemToInventory(%obj, %image)

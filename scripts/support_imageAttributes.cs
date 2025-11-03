@@ -57,6 +57,29 @@ function Player::getImageAttribute(%obj, %attribute, %invPosition)
     return %obj.tool[%invPosition, %attribute];
 }
 
+function Player::clearImageAttributes(%obj, %invPosition)
+{
+    if(%invPosition $= "")
+    {
+        %invPosition = %obj.currTool;
+    }
+
+    if(%obj.tool[%invPosition] $= "")
+    {
+        return -1;
+    }
+
+    //Cycle through each attribute available to an item, and zero it out.
+    %attributeList = %obj.tool[%invPosition, "index"];
+    for(%i = 0; %i < getWordCount(%attributeList); %i++)
+    {
+        %attribute = getWord(%attributeList, %i);
+        %obj.setImageAttribute(%attribute, "", %invPosition);
+    }
+
+    return 1;
+}
+
 //
 // Package to manage hashing and attribute persistance.
 //
@@ -110,6 +133,9 @@ package Support_ImageAttributes
                         %player.tool[%invPosition, %attribute] = ""; //Clear the attribute from the player's inventory, to avoid confusion.
                     }
                 }
+
+                //Clear the attributes from the now empty inventory slot.
+                %obj.clearImageAttributes(%invPosition);
 
                 %thrownItem.setScale(%player.getScale());
                 MissionCleanup.add(%thrownItem);
