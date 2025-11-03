@@ -11,6 +11,13 @@ function PlayerNearSightEffect::beginStatusEffect(%this, %obj)
 		return;
 	}
 
+    //Tell the player they're blinded.
+    %client = %obj.client;
+    if(%client)
+    {
+        %client.printFormatString("hint", "Your vision narrows...");
+    }
+
     //Darken the player's vision.
     %client = %obj.client;
     if(%client)
