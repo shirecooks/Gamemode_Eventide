@@ -90,7 +90,7 @@ package Support_Client
 
     function ServerCmdPlantBrick(%client)
     {
-        if(%obj.checkInputsLocked())
+        if(%client.checkInputsLocked())
         {
             return;
         }
