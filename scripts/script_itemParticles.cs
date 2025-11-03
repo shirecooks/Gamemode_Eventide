@@ -12,8 +12,7 @@ function Item::createEmitter(%obj, %emitterDatablock)
         dataBlock = %nodeDatablock;
         emitter = %emitterDatablock;
     };
-    %emitter.setEmitterDataBlock(%emitterDatablock);
-
+    
     %obj.emitter = %emitter;
     %obj.updateEmitter();
 }
