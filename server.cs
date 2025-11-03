@@ -57,6 +57,7 @@ exec("./players/player_killer.cs");
 exec("./players/player_renowned.cs");
 exec("./players/player_wrathful.cs");
 exec("./players/player_shire.cs");
+exec("./players/player_angler.cs");
 
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
