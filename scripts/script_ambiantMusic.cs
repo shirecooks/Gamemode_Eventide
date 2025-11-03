@@ -271,15 +271,16 @@ package Gamemode_Eventide_AmbiantMusic
         if(isObject(%client))
         {
             %eventideMusicEmitter = %client.eventideMusicEmitter;
-            %accessoryMusicEmitter = %client.accessoryMusicBag;
+            %accessoryMusicBag = %client.accessoryMusicBag;
 
             if(isObject(%eventideMusicEmitter))
             {
                 %eventideMusicEmitter.delete();
             }
-            if(isObject(%accessoryMusicEmitter))
+            if(isObject(%accessoryMusicBag))
             {
-                %accessoryMusicEmitter.delete();
+                %accessoryMusicBag.clear();
+                %accessoryMusicBag.delete();
             }
         }
     }

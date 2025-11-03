@@ -71,7 +71,9 @@ datablock ProjectileData(wrathfulDustExplosionProjectile : tumbleImpactAProjecti
 };
 
 //
-//// Normal melee.
+// Melee weapons.
+//
+
 datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 {
 	class = "MeleeWrathfulImage";

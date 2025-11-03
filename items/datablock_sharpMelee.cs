@@ -217,8 +217,6 @@ datablock ExplosionData(KillerGenericSharpClankExplosion)
 	emitter[0] = KillerGenericSharpClankDustEmitter;
 	emitter[1] = KillerGenericSharpClankSprayEmitter;
 	emitter[2] = KillerGenericSharpClankChunkEmitter;
-	emitter[3] = KillerBloodSprayEmitter;
-	emitter[4] = KillerBloodDropletEmitter;
 	
 	//-------------//
 	// Properties: //
