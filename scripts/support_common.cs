@@ -56,3 +56,31 @@ function sFromMs(%milliseconds)
 {
     return mCeil(%milliseconds / 1000);
 }
+
+function VectorToEuler(%vec) 
+{
+	%vec = vectorNormalize(%vec);
+	%yaw   = mRadToDeg(mATan(getWord(%vec, 0), getWord(%vec, 1)));
+	%pitch = mRadToDeg(mASin(getWord(%vec, 2)));
+	return %pitch SPC 0 SPC %yaw;
+}
+
+//Allows Projectiles to execute datablock-based code on create.
+package Support_Common
+{
+    function Projectile::onAdd(%obj)
+    {
+        parent::onAdd(%obj);
+
+        %datablock = %obj.Datablock;
+        if(isFunction(%datablock, "onAdd"))
+        {
+            %datablock.onAdd(%obj);
+        }
+    }
+};
+if(isPackage(Support_Common))
+{
+    deactivatePackage(Support_Common);
+}
+activatePackage(Support_Common);
