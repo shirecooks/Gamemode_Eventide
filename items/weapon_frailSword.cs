@@ -60,44 +60,25 @@ datablock ItemData(frailSwordItem)
 	canDrop 			= true;
 };
 
-datablock ShapeBaseImageData(frailSwordImage)
+datablock ShapeBaseImageData(frailSwordImage : eventideMeleeImage)
 {
-	shapeFile 			= frailSwordItem.shapeFile;
-	emap 				= false;
+	class = "frailSwordImage";
+    superClass = "eventideMeleeImage";
 
-	mountPoint 			= 0;
-	offset 				= "0 0 0";
-	correctMuzzleVector = false;
+	shapeFile = frailSwordItem.shapeFile;
+	item = frailSwordItem;
 
-	doColorShift = true;
-	colorShiftColor = "0.400 0.196 0 1.000";
-	className 			= "WeaponImage";
+	doColorShift = frailSwordItem.doColorShift;
+    colorShiftColor = frailSwordItem.colorShiftColor;
 
-	item 				= frailSwordItem;
-	armReady 			= true;
-	melee				= true;
-	
-	stateName[0] 					= "Activate";
-	stateSound[0]                    = "frailSwordDraw_sound";
-	stateTimeoutValue[0] 			= 0.5;
-	stateTransitionOnTimeout[0] 	= "Ready";
-	
-	stateName[1] 					= "Ready";
-	stateScript[1]                  = "onReady";
-	stateTransitionOnTriggerDown[1] = "PreSwing";
-	
-	stateName[2] 					= "PreSwing";
-	stateScript[2] 					= "onSwing";
-	stateFire[2] 					= true;
-	stateTransitionOnTimeout[2] 	= "Swing";
-	stateTimeoutValue[2] 			= 0.07;
-	
-	stateName[3] 					= "Swing";
-	stateScript[3] 					= "onFire";
-	stateFire[3] 					= true;
-	stateTransitionOnTimeout[3] 	= "Ready";
-	stateTimeoutValue[3] 			= 0.6;
+	hitProjectile = KillerSharpHitProjectile;
+	hitObscureProjectile = KillerGenericSharpClankProjectile;
+
+	meleeTrail = $Eventide_MeleeTrails["base.trail"];
+	swingSound = "generic_lightSwing";
+	swingSoundAmount = 5;
 };
+frailSwordImage.inheritFunctionsFromSuperClass();
 
 //
 // Sequence callbacks.
@@ -105,90 +86,35 @@ datablock ShapeBaseImageData(frailSwordImage)
 
 function frailSwordImage::onSwing(%this, %obj, %slot)
 {	
-	%obj.playThread(2, "shiftAway");
-	//%obj.schedule(75,spawnKillerTrail,PlayerRenowned.meleetrailskin,"0.42 0.87 0.375","0 -90 0","3 2.7 1");
-}
-function frailSwordImage::onReady(%this, %obj, %slot)
-{
-	%obj.playThread(1, "armReady");
-}
+	%this.super("onSwing", %this, %obj, %slot);
 
-function frailSwordImage::onFire(%this, %obj, %slot)
-{
-	if(!isObject(%obj) || %obj.getState() $= "Dead") 
-    {
-        return;
-    }
-
-    //Play a swinging sound effect.
-    serverPlay3D("frailSword_swing_sound", %obj.getMuzzlePoint(0));
-
-    //Play a swinging animation.
-	%obj.playThread(2, "shiftTo");
-
-	%startpos = %obj.getMuzzlePoint(0);
-	%endpos = %obj.getMuzzleVector(0);
-	%hit = containerRayCast(%startpos, VectorAdd(%startpos, VectorScale(%endpos, 4)),$TypeMasks::PlayerObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType, %obj);
-	if(isObject(%hit))
+	%hits = %Obj.getImageAttribute("hits");
+	%victim = %obj.getImageAttribute("lastPersonHit");
+	if(%hits >= 3)
 	{
-		%hitpos = posFromRaycast(%hit);
-		%obj.frailSwordDamage[%obj.currTool] += 1;	
+		%muzzlePoint = %obj.getMuzzlePoint(0);
 
-		if(%obj.frailSwordDamage[%obj.currTool] < 3)
+		//Play a breaking sound effect.
+		serverPlay3D("sword_break_sound", %muzzlePoint);
+
+		//Spawn some debris.
+		new Projectile()
 		{
-			serverPlay3D("swordHit_sound", %hitpos);
-			%p = new Projectile()
-			{
-				dataBlock = "swordProjectile";
-				initialPosition = %hitpos;
-				sourceObject = %obj;
-				client = %obj.client;
-			};
-			%p.explode();
+			dataBlock = "frailSwordProjectile";
+			initialPosition = %muzzlePoint;
+		}.explode();
 
-            //If a player was hit and we are in the same minigame, damage them and push them back.
-            if((%hit.getType() & $TypeMasks::PlayerObjectType) && minigameCanDamage(%obj, %hit))
-            {
-                %hit.applyImpulse(%hit.getPosition(), VectorAdd(VectorScale(%obj.getMuzzleVector(0), 1000), "0 0 1000"));
-                %hit.Damage(%obj, %hit.getPosition(), 25, $DamageType::frailSword);
-            }
-		}
-		else
+		//Remove the sword from the player's inventory, reset damage.
+		%obj.removeItemFromInventory();
+
+		//If a player was hit and we are in the same minigame, stun them and push them back.
+		if(minigameCanDamage(%obj, %victim))
 		{
-			serverPlay3D("sword_break_sound", %hitpos);
-			%p = new Projectile()
-			{
-				dataBlock = "frailSwordProjectile";
-				initialPosition = %hitpos;
-				sourceObject = %obj;
-				client = %obj.client;
-			};
-			%p.explode();	
+			%victimPosition = %victim.getPosition();
 
-            //Remove the sword from the player's inventory, reset damage.
-			%obj.removeItemFromInventory();
-			%obj.frailSword = 0;
-
-            //If a player was hit and we are in the same minigame, stun them and push them back.
-            if((%hit.getType() & $TypeMasks::PlayerObjectType) && minigameCanDamage(%obj, %hit))
-            {
-                %hit.applyImpulse(%hit.getPosition(), VectorAdd(VectorScale(%obj.getMuzzleVector(0), 1000), "0 0 1000"));
-                %hit.Damage(%obj, %hit.getPosition(), 50, $DamageType::frailSword);
-                %hit.stun();
-            }
+			%victim.applyImpulse(%victimPosition, VectorAdd(VectorScale(%obj.getMuzzleVector(0), 1000), "0 0 1000"));
+			%victim.Damage(%obj, %victimPosition, 50, $DamageType::frailSword);
+			%victim.stun();
 		}
 	}
-}
-
-function frailSwordImage::onUnmount(%this, %obj, %slot)
-{    
-    Parent::onUnmount(%this, %obj, %slot);
-    %obj.playThread(2,"plant");
-}
-
-function frailSwordImage::onMount(%this, %obj, %slot)
-{    
-    Parent::onMount(%this, %obj, %slot);
-    %obj.playThread(1, "armReady");
-    %obj.playThread(2, "plant");
 }
