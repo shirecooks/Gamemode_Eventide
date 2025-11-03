@@ -10,11 +10,11 @@ function PlayerDeafenEffect::beginStatusEffect(%this, %obj)
 		return;
 	}
 
-    //Tell the player they're stunned.
+    //Tell the player they're deafened.
     %client = %obj.client;
     if(%client)
     {
-        %client.printFormatString("hint", "Your eyes start ringing, you can barely hear anything.");
+        %client.printFormatString("hint", "Your ears start ringing, you can barely hear anything.");
     }
 
     //Play an ear-ringing sound.
