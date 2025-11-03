@@ -69,7 +69,7 @@ package Support_ImageAttributes
         %hash = %player.tool[%invPosition, "hash"];
         if(%hash $= "")
         {
-            %player.tool[%invPosition, "hash"] = getRandom(-2147483648, 2147483647);
+            %player.tool[%invPosition, "hash"] = getRandom($minInt, $maxInt);
         }
         return Parent::onUse(%this, %player, %invPosition);
     }
