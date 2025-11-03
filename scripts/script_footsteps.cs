@@ -7,8 +7,10 @@ $Eventide_FootstepMaterials["index"] = ""; //Footsteps will be happening too oft
 
 function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 {
-	%material = fileBase(%footstepMaterialFile);
+	%material = strlwr(fileBase(%footstepMaterialFile));
 	%cwd = filePath(%footstepMaterialFile);
+
+	echo("Parsing footstep material:" SPC %material SPC "from" SPC %cwd);
 
 	//Count the number of sounds available for a given material.
 	%soundEffectCount = 0;
@@ -18,13 +20,16 @@ function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 		%pattern = getField(%patterns, %i);
 		for(%file = findFirstFile(%cwd @ "/*" @ %pattern); %file !$= ""; %file = findNextFile(%cwd @ "/*" @ %pattern))
 		{
+			echo("\t- Added footstep sound:" SPC %file);
 			%soundEffectCount++;
 		}
 	}
 
 	//Add the footstep pack RGB value to the index, to be iterated over later.
-	$Eventide_FootstepMaterials["index"] = ($Eventide_FootstepMaterials["index"] $= "") ? (%footstepMaterialRGB) : ($Eventide_FootstepMaterials["index"] SPC %footstepMaterialRGB);
+	$Eventide_FootstepMaterials["index"] = ($Eventide_FootstepMaterials["index"] $= "") ? (%footstepMaterialRGB) : ($Eventide_FootstepMaterials["index"] TAB %footstepMaterialRGB);
 	
+	echo("Current index:" SPC $Eventide_FootstepMaterials["index"]);
+
 	$Eventide_FootstepMaterials[%material] = %footstepMaterialRGB;
 	$Eventide_FootstepMaterials[%footstepMaterialRGB] = %material;
 	$Eventide_FootstepMaterials[%footstepMaterialRGB, "count"] = %soundEffectCount;
@@ -39,6 +44,7 @@ function parseFootstepMaterials(%startingDirectory)
 		%footstepMaterialFile = getField(%footstepMaterialPaths, %i);
 
 		%fileObject = new FileObject();
+		%fileObject.openForRead(%footstepMaterialFile);
 		%footstepMaterialRGB = %fileObject.readLine();
 		%fileObject.delete();
 
@@ -57,15 +63,13 @@ function parseFootstepMaterials(%startingDirectory)
 function findClosestFootstepMaterial(%rgb)
 {
 	%closestRGB = "0 0 0";
-	%currentDistance = 0;
+	%currentDistance = $maxInt; //Can only go down from here.
 
 	//Determine which material has the closest RGB similarity to the provided RGB color.
 	%materialIndex = $Eventide_FootstepMaterials["index"];
-	talk("Index:" SPC %materialIndex);
-	for(%i = 0; %i < getWordCount(%materialIndex); %i++)
+	for(%i = 0; %i < getFieldCount(%materialIndex); %i++)
 	{
-		%targetRGB = getWord(%materialIndex, %i);
-		talk("Candidate RGB:" SPC %targetRGB);
+		%targetRGB = getField(%materialIndex, %i);
 		%euclideanColorDistance = VectorDist(%rgb, %targetRGB);
 
 		if(%euclideanColorDistance < %currentDistance)
@@ -74,8 +78,6 @@ function findClosestFootstepMaterial(%rgb)
 			%currentDistance = %euclideanColorDistance;
 		}
 	}
-
-	talk("Closest RGB value found:" SPC %closestRGB);
 
 	return $Eventide_FootstepMaterials[%closestRGB];
 }
@@ -92,35 +94,6 @@ function getFootstepSoundFromMaterial(%material)
 	%soundEffectCount = $Eventide_FootstepMaterials[%rgb, "count"];
 	return "fs" @ %material @ getRandom(1, %soundEffectCount) @ "_sound";
 }
-
-package Script_Footsteps
-{
-	function fxDTSBrick::onPlant(%obj)
-	{
-		parent::onPlant(%obj);
-		%obj.assumeMaterial();
-	}
-
-	function fxDTSBrick::onLoadPlant(%obj)
-	{
-		parent::onLoadPlant(%obj);
-		%obj.assumeMaterial();
-	}
-
-	function paintProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
-	{
-		parent::onCollision(%this, %obj, %col, %fade, %pos, %normal);
-		if(%col.getType() & $TypeMasks::FxBrickObjectType)
-		{
-			%obj.assumeMaterial();
-		}
-	}
-};
-if(isPackage(Script_Footsteps))
-{
-	deactivatePackage(Script_Footsteps);
-}
-activatePackage(Script_Footsteps);
 
 //
 // Material detection.
@@ -166,16 +139,22 @@ function Armor::getNextFootstepTime(%this, %obj)
 		return -1;
 	}
 
-	%playerSpeedX = getWord(%playerVelocity, 0);
-	%playerSpeedY = getWord(%playerVelocity, 1);
-	%relevantSpeed = (%playerSpeedX > %playerSpeedY) ? %playerSpeedX : %playerSpeedY;
-
 	//Based on the logistic growth equation. Solve for cadence to get steps per second.
 	%e = 2.718281828459045;
-	%maxStepsPerSecond = 3.5;
-	%runTransitionPoint = 6.0;
+	%maxStepsPerSecond = 4.5;
+	%runTransitionPoint = 7.0;
 	%cadenceRise = 0.35;
-	return 1000 * (%maxStepsPerSecond / (1.0 + mPow(%e, (-%k * (%relevantSpeed - %runTransitionPoint)))));
+
+	%movementSpeed = VectorLen(%playerVelocity);
+	if(%movementSpeed < 5)
+	{
+		//Prevent an awkward delay when accelerating up to normal speed. Return 2.2 steps per second.
+		return (1000 / 2.2);
+	}
+	
+	%stepsPerSecond = %maxStepsPerSecond / (1.0 + mPow(%e, (-%cadenceRise * (%movementSpeed - %runTransitionPoint))));
+	%millisecondsPerStep = 1000 / %stepsPerSecond;
+	return %millisecondsPerStep;
 }
 
 function Armor::getFootstepSound(%this, %obj)
@@ -203,6 +182,11 @@ function Armor::getFootstepSound(%this, %obj)
 	}
 
 	%collider = containerRayCast(VectorAdd(%playerPosition, "0.0 0.0 0.1"), VectorAdd(%playerPosition, "0.0 0.0 -0.1"), %typemask);
+	if(!%collider)
+	{
+		return;
+	}
+
 	%colliderType = %collider.getType();
 	if(!(%colliderType & $TypeMasks::FxBrickObjectType) && !(%colliderType & $TypeMasks::VehicleObjectType))
 	{
@@ -249,6 +233,27 @@ function Armor::footstepTick(%this, %obj)
 
 package Script_Footsteps
 {
+	function fxDTSBrick::onPlant(%obj)
+	{
+		parent::onPlant(%obj);
+		%obj.assumeMaterial();
+	}
+
+	function fxDTSBrick::onLoadPlant(%obj)
+	{
+		parent::onLoadPlant(%obj);
+		%obj.assumeMaterial();
+	}
+
+	function paintProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
+	{
+		parent::onCollision(%this, %obj, %col, %fade, %pos, %normal);
+		if(%col.getType() & $TypeMasks::FxBrickObjectType)
+		{
+			%col.assumeMaterial();
+		}
+	}
+
 	function Armor::onAdd(%this, %obj)
 	{
 		parent::onAdd(%this, %obj);

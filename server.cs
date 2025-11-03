@@ -66,4 +66,4 @@ exec("./scripts/script_flashlight.cs");
 %currentWorkingDirectory = filePath($Con::File);
 exec("./scripts/script_faceSystem.cs"); parseFacePacks(%currentWorkingDirectory @ "/players/faces");
 exec("./scripts/script_voiceSystem.cs"); parseVoicePacks(%currentWorkingDirectory @ "/sounds/voicePacks");
-//exec("./scripts/script_footsteps.cs"); parseFootstepMaterials(%currentWorkingDirectory @ "/sounds/footsteps");
+exec("./scripts/script_footsteps.cs"); parseFootstepMaterials(%currentWorkingDirectory @ "/sounds/footsteps");

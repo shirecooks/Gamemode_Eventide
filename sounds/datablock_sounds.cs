@@ -1,14 +1,4 @@
-datablock AudioDescription(AudioFSRun)
-{
-	volume = 0.85;
-	isLooping = false;
-	is3D = 1;
-	ReferenceDistance = 10;
-	maxDistance = 40;
-	type = $SimAudioType;
-};
-
-datablock AudioDescription(AudioFSWalk)
+datablock AudioDescription(AudioFootstep3D)
 {
 	volume = 0.65;
 	isLooping = false;
@@ -32,62 +22,49 @@ for(%i = 0; %i < getFieldCount(%patterns); %i++)
         {
             %description = "AudioDefault3d";
         }
-        else if (strstr(%file, "normal") != -1) 
+        else if(strstr(%file, "normal") != -1) 
         {
             %description = "AudioClose3d";
 
-            if (strstr(%file, "loop") != -1) 
+            if(strstr(%file, "loop") != -1) 
             {
                 %description = "AudioCloseLooping3d";
             }        
         } 
-        else if (strstr(%file, "quiet") != -1) 
+        else if(strstr(%file, "quiet") != -1) 
         {
             %description = "AudioClosest3d";
 
-            if (strstr(%file, "loop") != -1) 
+            if(strstr(%file, "loop") != -1) 
             {
                 %description = "AudioClosestLooping3d";
             }
         } 
-        else if (strstr(%file, "loud") != -1) 
+        else if(strstr(%file, "loud") != -1) 
         {
             %description = "AudioDefault3d";
 
-            if (strstr(%file, "loop") != -1) 
+            if(strstr(%file, "loop") != -1) 
             {
                 %description = "AudioDefaultLooping3d";
             }
         }
-        else if (strstr(%file, "music") != -1) 
+        else if(strstr(%file, "music") != -1) 
         {
             %soundName = fileBase(%file);
             %description = "AudioMusicLooping3d";
+        }
+        else if(strstr(%file, "footsteps"))
+        {
+            %description = "AudioFootstep3D";
         }
         else 
         {
             %description = ""; // No match, do not create datablock
         }
 
-        // Special handling for footsteps
-        if (strstr(%file, "sounds/footsteps/") != -1) 
-        {
-            if (strstr(%file, "walk") != -1 || strstr(%file, "swim") != -1) 
-            {
-                %description = "AudioFSWalk";
-            } 
-            else if (strstr(%file, "run") != -1) 
-            {
-                %description = "AudioFSRun";
-            } 
-            else 
-            {
-                %description = ""; // No match for footsteps, skip
-            }
-        }
-
         // Skip if no valid description
-        if (%description $= "") 
+        if(%description $= "") 
         {
             continue;
         }
