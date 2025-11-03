@@ -1,3 +1,7 @@
+//Minimum and maximum integer values supported by TGE.
+$minInt = -2147483648;
+$maxInt = 2147483647;
+
 function cloneScriptObject(%targetObject)
 {
     %targetObjectName = %targetObject.getName();
