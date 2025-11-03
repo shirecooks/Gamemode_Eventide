@@ -42,9 +42,7 @@ package Script_ItemParticles
 {	
 	function ItemData::onAdd(%this, %obj)	
 	{
-        talk("Here...");
 		Parent::onAdd(%this,%obj);
-        talk("... There.");
 
         %emitterDatablock = %this.emitterDatablock;
         if(%emitterDatablock !$= "")
