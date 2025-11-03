@@ -149,6 +149,16 @@ function eventideMeleeImage::onSwing(%this, %obj, %slot)
 			continue;
 		}
 
+		//Mark on the weapon that it hit something.
+		%currentHits = %obj.getImageAttribute("hits");
+		%currentHits = %currentHits !$= "" ? %currentHits : 0;
+		%obj.setImageAttribute("hits", %currentHits++);
+
+		//Mark on the weapon the last person who was hit.
+		%lastPersonHit = %obj.getImageAttribute("lastPersonHit");
+		%lastPersonHit = %currentHits !$= "" ? %lastPersonHit : "";
+		%obj.setImageAttribute("lastPersonHit", %hit.getID());
+
 		//Blood splatter or whatever else particle effect upon hitting the target.
 		if(%this.hitProjectile !$= "")
 		{
