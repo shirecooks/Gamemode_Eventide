@@ -187,6 +187,9 @@ function anglerHookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %norm
 {
     %killer = %obj.sourceObject;
 
+    //Play a sound effect at the site of impact.
+    ServerPlay3D("chain_clash_sound", %pos);
+
     if(!(%col.getType() & $TypeMasks::PlayerObjectType) || %col.getDatablock().isKiller || !minigameCanDamage(%killer, %col))
     {
         //If it wasn't a player (we can damage), so we don't care.
