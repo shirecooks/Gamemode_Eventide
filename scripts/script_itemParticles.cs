@@ -30,6 +30,17 @@ function Item::emitterLoop(%obj)
     %obj.emitterLoopSchedule = %obj.schedule(33, "emitterLoop");
 }
 
+function Item::stopEmitter(%obj)
+{
+    cancel(%obj.emitterLoopSchedule);
+    
+	%emitter = %obj.emitter;
+    if(isObject(%emitter))
+    {
+        %emitter.delete();
+    }
+}
+
 //This function does not exist in the base game.
 //A stub is needed to prevent an error when the packaged function is called.
 function ItemData::onRemove(%this, %obj)
