@@ -147,6 +147,7 @@ datablock PlayerData(PlayerStaller : PlayerSurvivor)
 
     uiName = "Staller";
 	hoodMountPoint = 3;
+	voicePack = "Staller";
 };
 //Inherits functions from `PlayerSurvivor`.
 PlayerStaller.inheritFunctionsFromSuperClass();
@@ -169,6 +170,8 @@ function PlayerStaller::onNewDatablock(%this, %obj)
 	//Store some information used for voice-lines and chase management.
 	%obj.chasingKillers = new SimSet();
 	%obj.nearbyKillers = new SimSet();
+
+	%obj.createVoiceConfig
 }
 
 function PlayerStaller::eventideBodyParts(%this, %obj)
@@ -303,7 +306,7 @@ function PlayerStaller::cloak(%this, %obj)
 	%this.spawnCloakEffect(%obj);
 
 	//Play the cloaking sound effect.
-	serverPlay3D("staller_cloak_sound", %obj.getHackPosition());
+	%obj.playManagedSound("Cloak");
 
 	//Start the tick loop, to determine when the player has run out of energy.
 	cancel(%obj.cloakTickSchedule);
@@ -361,7 +364,7 @@ function PlayerStallerCloaked::uncloak(%this, %obj)
 	%this.spawnCloakEffect(%obj);
 
 	//Play the decloaking sound effect.
-	serverPlay3D("staller_uncloak_sound", %obj.getHackPosition());
+	%obj.playManagedSound("Uncloak");
 
 	//Reghost the player to everyone, so they are no longer invisible.
 	%obj.adjustObjectScopeToAll(true);
