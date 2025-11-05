@@ -48,7 +48,7 @@ exec("./items/item_redSoda.cs");
 exec("./bricks/item_ritual.cs");
 exec("./items/item_gem.cs");
 
-exec("./players/player_eventide.cs");
+exec("./players/base_eventide.cs");
 exec("./players/player_survivor.cs");
 exec("./players/player_staller.cs");
 exec("./players/player_tinkerer.cs");
@@ -57,11 +57,11 @@ exec("./players/player_fighter.cs");
 exec("./players/player_mender.cs");
 exec("./players/player_runner.cs");
 exec("./players/player_sheriff.cs");
-exec("./players/player_killer.cs");
-exec("./players/player_renowned.cs");
-exec("./players/player_wrathful.cs");
-exec("./players/player_shire.cs");
-exec("./players/player_angler.cs");
+exec("./players/base_killer.cs");
+exec("./players/killer_renowned.cs");
+exec("./players/killer_wrathful.cs");
+exec("./players/killer_shire.cs");
+exec("./players/killer_angler.cs");
 
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
