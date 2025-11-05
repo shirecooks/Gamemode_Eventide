@@ -45,6 +45,9 @@ exec("./items/status_speedSoda.cs");
 exec("./items/item_blueSoda.cs");
 exec("./items/item_redSoda.cs");
 
+exec("./bricks/item_ritual.cs");
+exec("./items/item_gem.cs");
+
 exec("./players/player_eventide.cs");
 exec("./players/player_survivor.cs");
 exec("./players/player_staller.cs");
