@@ -54,6 +54,19 @@ function PlayerEventide::onNewDatablock(%this, %obj)
 	//I doubt this is needed, but we'll leave it in anyway.
 	%obj.setActionThread("root");
 	%obj.setScale("1 1 1");
+
+	//Face and voice config setup, if specified.
+	if(%this.facePack !$= "")
+	{
+		%obj.createFaceConfig($Eventide_FacePacks[%this.facePack]);
+	}
+	if(%this.voicePack !$= "")
+	{
+		%obj.createVoiceConfig($Eventide_VoicePacks[%this.voicePack]);
+		//Set some default cooldowns.
+		%voiceConfig = %obj.voiceConfig;
+		%voiceConfig.setLineCooldown("Idle", 10000);
+	}
 }
 
 function PlayerEventide::onImpact(%this, %obj, %col, %vec, %force)
@@ -230,7 +243,7 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	}
 
 	//Optional face pack initialization.
-	if(%this.facePack !$= "")
+	if(!isObject(%obj.faceConfig) && %this.facePack !$= "")
 	{
 		%obj.createFaceConfig($Eventide_FacePacks[%this.facePack]);
 	}

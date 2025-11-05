@@ -63,19 +63,6 @@ function PlayerKiller::onNewDatablock(%this, %obj)
 		%obj.mountImage(%killerWeaponImage, 0);
 	}
 
-	//Face and voice config setup, if specified.
-	if(%this.facePack !$= "")
-	{
-		%obj.createFaceConfig($Eventide_FacePacks[%this.facePack]);
-	}
-	if(%this.voicePack !$= "")
-	{
-		%obj.createVoiceConfig($Eventide_VoicePacks[%this.voicePack]);
-		//Set some default cooldowns.
-		%voiceConfig = %obj.voiceConfig;
-		%voiceConfig.setLineCooldown("Idle", 10000);
-	}
-
 	//Special functionality: killers having more than one player datablock. 
 	//Don't mess up the killer loop if that is the case. Stop here.
 	if(%this.superClass !$= "PlayerKiller")
