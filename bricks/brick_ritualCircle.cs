@@ -1,4 +1,10 @@
 //
+// Storage of ritual circles, for minigame reset.
+//
+
+$Eventide_RitualCircles = new SimGroup();
+
+//
 // The brick itself.
 //
 
@@ -64,25 +70,26 @@ datablock StaticShapeData(BrickTextEmptyShape)
 
 function brickEventideRitualCircle::onObjectCollision(%this, %obj, %col)
 {
-	// talk(%col.getType());
-	// talk(%col.getClassName());
-	// //The Object Collision incorrectly reports items as random objects.
-	// if(!(%col.getType() & $TypeMasks::CameraObjectType))
-	// {
-	// 	return;
-	// }
+	%this.schedule(1, checkForItems, %obj);
+	return true;
+}
 
-	// %brickX = (%this.brickSizeX / 2);
-	// %brickY = (%this.brickSizeY / 2);
-	// %brickZ = (%this.brickSizeZ / 2);
+function brickEventideRitualCircle::checkForItems(%this, %obj)
+{
+	//The Object Collision DLL incorrectly reports dropped items as random objects.
+	//Triggers don't detect items, and PhysicalZones have no callbacks.
+	//No other choice that to just run a container search to determine if it was an actual item that collided with the ritual circle.
+	%brickX = (%this.brickSizeX / 2);
+	%brickY = (%this.brickSizeY / 2);
+	%brickZ = (%this.brickSizeZ / 2);
 
-	// %item = containerFindFirst($TypeMasks::ItemObjectType, %obj.position, %brickX, %brickY, %brickZ);
-	// if(!%item || !%item.Datablock.isRitualItem)
-	// {
-	// 	return;
-	// }
+	%item = containerFindFirst($TypeMasks::ItemObjectType, %obj.position, %brickX, %brickY, %brickZ);
+	if(!%item || %item.Datablock $= "" || %item.Datablock.ritualType $= "" || %item.isPlaced)
+	{
+		return;
+	}
 
-	// %this.placeRitual(%brick, %obj);
+	%this.placeRitual(%obj, %item);
 }
 
 function brickEventideRitualCircle::displayText(%this, %obj, %text, %color, %distance)
@@ -102,7 +109,7 @@ function brickEventideRitualCircle::displayText(%this, %obj, %text, %color, %dis
 
 function brickEventideRitualCircle::displayProgress(%this, %obj)
 {
-	%this.displayText(%obj, "Rituals needed (drop here):" SPC (%this.ritualsNeeded - %obj.ritualsPlaced));
+	%this.displayText(%obj, "Rituals needed (drop here):" SPC (%this.ritualsNeeded - %obj.ritualCollection.getCount()));
 }
 
 function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
@@ -118,7 +125,12 @@ function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
 
 	//Store the objects for later deletion, and count how many there are.
 	%obj.ritualCollection.add(%item);
+	%ritualsCollected = %obj.ritualCollection.getCount();
+	%ritualsNeeded = %this.ritualsNeeded;
+
 	%obj.ritualCount[%itemDatablock.ritualType]++;
+	%item.isPlaced = true;
+	%this.displayProgress(%obj);
 
 	//Process input events.
 	$InputTarget_["Self"] = %obj;
@@ -126,8 +138,7 @@ function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
 	%obj.processInputEvent("onRitualPlaced");
 
 	//If enough rituals have been placed, run the below function.
-	%obj.ritaulsPlaced++;
-	if(%obj.ritualsPlaced >= %this.ritualsNeeded)
+	if(%ritualsCollected >= %ritualsNeeded)
 	{
 		%this.onAllRitualsPlaced(%obj);
 	}
@@ -142,7 +153,7 @@ function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
 
 	//Play a sound effect, that pitches up for each additional ritual item.
 	%oldTimescale = getTimescale();
-	%percentagePitch = 2 / (%obj.ritualsPlaced / %this.ritualsNeeded);
+	%percentagePitch = (%ritualsCollected / %ritualsNeeded);
 	setTimescale(%percentagePitch);
 	serverPlay3D("ritual_place_sound", %brickPosition);
 	serverPlay3D("puzzle_chime_sound", %brickPosition);
@@ -166,7 +177,7 @@ function brickEventideRitualCircle::onAllRitualsPlaced(%this, %obj)
 	%minigame = getMiniGameFromObject(%obj);
 	if(isObject(%minigame))
 	{
-
+		%minigame.onAllRitualsPlaced();
 	}
 
 	//Process input events.
@@ -247,3 +258,42 @@ function brickEventideRitualCircle::onRemove(%this, %obj)
 
 	return parent::onRemove(%this, %obj);
 }
+
+//
+// Minigame functionality.
+//
+
+function MinigameSO::onAllRitualsPlaced(%obj)
+{
+	
+}
+
+function brickEventideRitualCircle::reset(%this, %obj)
+{
+	//Clear any held items.
+	%obj.ritualCollection.delete();
+	%obj.ritualCollection = new SimGroup();
+
+	//Reset the progress counter.
+	%obj.displayProgress();
+}
+
+package Brick_RitualCircle
+{
+	function MinigameSO::Reset(%obj, %client)
+	{
+		parent::Reset(%obj, %client);
+		
+		//Reset each ritual circle back to it's default state.
+		for(%i = 0; %i < $Eventide_RitualCircles.getCount(); %i++)
+		{
+			%ritualCircle = $Eventide_RitualCircles[%i];
+			%ritualCircle.Datablock.reset(%ritualCircle, %i);
+		}
+	}
+};
+if(isPackage(Brick_RitualCircle))
+{
+	deactivatePackage(Brick_RitualCircle);
+}
+activatePackage(Brick_RitualCircle);
