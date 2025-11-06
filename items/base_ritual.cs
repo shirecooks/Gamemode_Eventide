@@ -17,7 +17,7 @@ datablock ItemData(ritualItem)
 function ritualItem::placeOnRitualCircle(%this, %obj, %circle)
 {
 	//The ritual circle can only accept 4 gems.
-	%ritualCount = %circle.ritualCount[%this.getName()];
+	%ritualCount = %circle.ritualCount[%this.ritualType];
 	if(%ritualCount >= %this.maxRitualsOnCircle)
 	{
 		return false;
@@ -31,6 +31,9 @@ function ritualItem::placeOnRitualCircle(%this, %obj, %circle)
 
 	//Move the ritual onto the circle, prevent it from being picked up, and stop any attention emitters if present.
 	%obj.canPickup = false;
+	%obj.setVelocity("0 0 0");
 	%obj.setTransform(VectorAdd(%circlePosition, %offset) SPC %circleRotation);
 	%obj.stopEmitter();
+
+	return true;
 }

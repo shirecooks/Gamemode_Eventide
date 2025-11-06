@@ -29,7 +29,7 @@ exec("./players/datablock_killerBlood.cs");
 exec("./items/datablock_woodFrag.cs");
 exec("./items/datablock_sharpMelee.cs");
 
-exec("./items/weapon_eventideMelee.cs");
+exec("./items/base_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
 exec("./items/weapon_revolver.cs");
 exec("./items/weapon_chair.cs");
@@ -45,7 +45,7 @@ exec("./items/status_speedSoda.cs");
 exec("./items/item_blueSoda.cs");
 exec("./items/item_redSoda.cs");
 
-exec("./bricks/item_ritual.cs");
+exec("./items/base_ritual.cs");
 exec("./items/item_gem.cs");
 
 exec("./players/base_eventide.cs");
