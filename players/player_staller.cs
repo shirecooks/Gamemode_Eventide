@@ -147,7 +147,9 @@ datablock PlayerData(PlayerStaller : PlayerSurvivor)
 
     uiName = "Staller";
 	hoodMountPoint = 3;
+
 	voicePack = "Staller";
+	facePack = "";
 };
 //Inherits functions from `PlayerSurvivor`.
 PlayerStaller.inheritFunctionsFromSuperClass();
@@ -170,8 +172,6 @@ function PlayerStaller::onNewDatablock(%this, %obj)
 	//Store some information used for voice-lines and chase management.
 	%obj.chasingKillers = new SimSet();
 	%obj.nearbyKillers = new SimSet();
-
-	%obj.createVoiceConfig
 }
 
 function PlayerStaller::eventideBodyParts(%this, %obj)
