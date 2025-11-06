@@ -66,6 +66,7 @@ exec("./players/killer_angler.cs");
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
 exec("./scripts/script_flashlight.cs");
+exec("./scripts/script_noItemDespawn.cs");
 
 %currentWorkingDirectory = filePath($Con::File);
 exec("./scripts/script_faceSystem.cs"); parseFacePacks(%currentWorkingDirectory @ "/players/faces");
