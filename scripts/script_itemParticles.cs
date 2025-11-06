@@ -65,7 +65,7 @@ package Script_ItemParticles
 	function ItemData::onRemove(%this, %obj)
 	{
         %emitter = %obj.emitter;
-		if(%emitter) 
+		if(isObject(%emitter))
         {
             %emitter.delete();
         }
