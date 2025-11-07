@@ -1,5 +1,11 @@
-function Item::createEmitter(%obj, %emitterDatablock)
+//
+// Creating a companion object.
+//
+
+function ItemData::createEmitter(%this, %obj, %emitterDatablock)
 {
+    %obj.emitterOffset = (%emitterDatablock.emitterOffset !$= "") ? %emitterDatablock.emitterOffset : "0 0 0";
+
     %emitter = %obj.emitter;
     if(%emitter)
     {
@@ -14,20 +20,54 @@ function Item::createEmitter(%obj, %emitterDatablock)
     };
     
     %obj.emitter = %emitter;
-    %obj.updateEmitter();
+    %obj.emitterLoop();
+
+function ItemData::createLight(%this, %obj, %lightDatablock)
+{
+    %obj.lightOffset = (%lightDatablock.lightOffset !$= "") ? %lightDatablock.lightOffset : "0 0 0";
+
+    %light = %obj.light;
+    if(%light)
+    {
+        %light.delete();
+    }
+
+    %light = new fxLight()
+    {
+        dataBlock = %lightDatablock;
+    };
+    
+    %obj.light = %light;
+    %obj.lightLoop();
 }
 
-function Item::updateEmitter(%obj)
+//
+// Functions to make companion object follow the item.
+//
+
+function ItemData::updateEmitter(%this, %obj)
 {
     %emitter = %obj.emitter;
-	%emitter.setTransform(%obj.getTransform()); // moves the node
+    %itemTransform = %obj.getTransform();
+	%emitter.setTransform(VectorAdd(posFromTransform(%itemTransform), %obj.emitterOffset) SPC rotFromTransform(%itemTransform)); // moves the node
 	%emitter.inspectPostApply(); // sends updated position to clients
 }
 
+function ItemData::updateLight(%this, %obj)
+{
+    %light = %obj.light;
+    %itemTransform = %obj.getTransform();
+	%light.setTransform(VectorAdd(posFromTransform(%itemTransform), %obj.lightOffset) SPC rotFromTransform(%itemTransform));
+}
+
+//
+// Loops to make it happen continously.
+//
+
 function Item::emitterLoop(%obj)
 {
-	%obj.updateEmitter();
-    %obj.emitterLoopSchedule = %obj.schedule(33, "emitterLoop");
+	%obj.Datablock.updateEmitter(%obj);
+    %obj.emitterLoopSchedule = %obj.schedule(33, emitterLoop);
 }
 
 function Item::stopEmitter(%obj)
@@ -40,6 +80,27 @@ function Item::stopEmitter(%obj)
         %emitter.delete();
     }
 }
+
+function Item::lightLoop(%obj)
+{
+	%obj.updateLight();
+    %obj.lightLoopSchedule = %obj.schedule(33, lightLoop);
+}
+
+function Item::stopLight(%obj)
+{
+    cancel(%obj.lightLoopSchedule);
+    
+	%light = %obj.light;
+    if(isObject(%light))
+    {
+        %light.delete();
+    }
+}
+
+//
+// Package to make it automatic.
+//
 
 //This function does not exist in the base game.
 //A stub is needed to prevent an error when the packaged function is called.
@@ -57,8 +118,13 @@ package Script_ItemParticles
         %emitterDatablock = %this.emitterDatablock;
         if(%emitterDatablock !$= "")
         {
-            %obj.createEmitter(%emitterDatablock);
-            %obj.emitterLoop();
+            %obj.createEmitter(%obj, %emitterDatablock);
+        }
+
+        %lightDatablock = %this.lightDatablock;
+        if(%lightDatablock !$= "")
+        {
+            %obj.createLight(%obj, %lightDatablock);
         }
 	}
 
@@ -68,6 +134,12 @@ package Script_ItemParticles
 		if(isObject(%emitter))
         {
             %emitter.delete();
+        }
+
+        %light = %obj.light;
+		if(isObject(%light))
+        {
+            %light.delete();
         }
 
         parent::onRemove(%this, %obj);
