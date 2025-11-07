@@ -181,7 +181,7 @@ function Armor::getFootstepSound(%this, %obj)
 		return -1;
 	}
 
-	%collider = containerRayCast(VectorAdd(%playerPosition, "0.0 0.0 0.1"), VectorAdd(%playerPosition, "0.0 0.0 -0.6"), %typemask);
+	%collider = containerRayCast(VectorAdd(%playerPosition, "0.0 0.0 0.1"), VectorAdd(%playerPosition, "0.0 0.0 -0.8"), %typemask);
 	if(!%collider)
 	{
 		return;
