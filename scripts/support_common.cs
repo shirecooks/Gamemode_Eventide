@@ -69,9 +69,10 @@ function VectorToEuler(%vec)
 	return %pitch SPC 0 SPC %yaw;
 }
 
+$SessionSeed = getRandom($minInt, $maxInt);
 function generateUniqueIdentifier()
 {
-    return sha1(getRealTime() + getRandom($minInt, $maxInt) + getRandom($minInt, $maxInt));
+    return sha1($SessionSeed @ getRealTime() @ getRandom($minInt, $maxInt) @ getRandom($minInt, $maxInt));
 }
 
 //Allows Projectiles to execute datablock-based code on creation.

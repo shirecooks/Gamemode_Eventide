@@ -92,7 +92,7 @@ package Support_ImageAttributes
         %hash = %player.tool[%invPosition, "hash"];
         if(%hash $= "")
         {
-            %player.tool[%invPosition, "hash"] = getRandom($minInt, $maxInt);
+            %player.tool[%invPosition, "hash"] = generateUniqueIdentifier();
         }
         return Parent::onUse(%this, %player, %invPosition);
     }
