@@ -1,6 +1,6 @@
 datablock AudioDescription(AudioFootstep3D)
 {
-	volume = 0.65;
+	volume = 1.0;
 	isLooping = false;
 	is3D = 1;
 	ReferenceDistance = 5;
