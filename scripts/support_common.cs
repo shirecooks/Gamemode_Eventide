@@ -69,7 +69,12 @@ function VectorToEuler(%vec)
 	return %pitch SPC 0 SPC %yaw;
 }
 
-//Allows Projectiles to execute datablock-based code on create.
+function generateUniqueIdentifier()
+{
+    return sha1(getRealTime() + getRandom($minInt, $maxInt) + getRandom($minInt, $maxInt));
+}
+
+//Allows Projectiles to execute datablock-based code on creation.
 package Support_Common
 {
     function Projectile::onAdd(%obj)
