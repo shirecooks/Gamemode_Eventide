@@ -27,6 +27,9 @@ datablock ItemData(gemItem : ritualItem)
 	possibleOffset2 = "-2.28 2.875 0.1";
 	possibleOffset3 = "2.1 -2.725 0.1";
 	possibleOffset4 = "-2.1 -2.725 0.1";
+
+	placeSound = "gem_place";
+	placeSoundAmount = 1;
 };
 gemItem.inheritFunctionsFromSuperClass();
 
