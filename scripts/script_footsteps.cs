@@ -146,7 +146,7 @@ function Armor::getNextFootstepTime(%this, %obj)
 	%cadenceRise = 0.35;
 
 	%movementSpeed = VectorLen(%playerVelocity);
-	if(%movementSpeed < 5)
+	if(%movementSpeed > 3 && %movementSpeed < 5)
 	{
 		//Prevent an awkward delay when accelerating up to normal speed. Return 2.2 steps per second.
 		return (1000 / 2.2);
