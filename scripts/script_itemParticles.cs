@@ -21,6 +21,7 @@ function ItemData::createEmitter(%this, %obj, %emitterDatablock)
     
     %obj.emitter = %emitter;
     %obj.emitterLoop();
+}
 
 function ItemData::createLight(%this, %obj, %lightDatablock)
 {
