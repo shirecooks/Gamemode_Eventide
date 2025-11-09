@@ -47,6 +47,7 @@ exec("./items/item_redSoda.cs");
 
 exec("./items/base_ritual.cs");
 exec("./items/item_gem.cs");
+exec("./items/item_candle.cs");
 
 exec("./players/base_eventide.cs");
 exec("./players/player_survivor.cs");
