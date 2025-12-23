@@ -38,6 +38,8 @@ exec("./items/weapon_barStool.cs");
 exec("./items/weapon_throwingSpear.cs");
 exec("./items/weapon_frailSword.cs");
 exec("./items/weapon_shotgun.cs");
+exec("./items/weapon_magicWand.cs");
+exec("./items/weapon_epoxyBomb.cs");
 exec("./items/weapon_ritualDagger.cs");
 
 //Both "blueSoda" and "redSoda" share the status effect code in "datablock_speedSoda.cs"
@@ -48,6 +50,9 @@ exec("./items/item_redSoda.cs");
 exec("./items/base_ritual.cs");
 exec("./items/item_gem.cs");
 exec("./items/item_candle.cs");
+exec("./items/item_wrench.cs");
+exec("./items/item_pickaxe.cs");
+exec("./items/item_rum.cs");
 
 exec("./players/base_eventide.cs");
 exec("./players/player_survivor.cs");
