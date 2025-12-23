@@ -1,3 +1,5 @@
+$Eventide_BaseDirectory = filePath($Con::File);
+
 exec("./scripts/support_oop.cs");
 exec("./scripts/support_common.cs");
 exec("./scripts/support_imageAttributes.cs");
@@ -68,15 +70,15 @@ exec("./players/killer_renowned.cs");
 exec("./players/killer_wrathful.cs");
 exec("./players/killer_shire.cs");
 exec("./players/killer_angler.cs");
+exec("./players/killer_captain.cs");
 
 exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
 exec("./scripts/script_flashlight.cs");
 exec("./scripts/script_noItemDespawn.cs");
 
-%currentWorkingDirectory = filePath($Con::File);
-exec("./scripts/script_faceSystem.cs"); parseFacePacks(%currentWorkingDirectory @ "/players/faces");
-exec("./scripts/script_voiceSystem.cs"); parseVoicePacks(%currentWorkingDirectory @ "/sounds/voicePacks");
-exec("./scripts/script_footsteps.cs"); parseFootstepMaterials(%currentWorkingDirectory @ "/sounds/footsteps");
+exec("./scripts/script_faceSystem.cs"); parseFacePacks($Eventide_BaseDirectory @ "/players/faces");
+exec("./scripts/script_voiceSystem.cs"); parseVoicePacks($Eventide_BaseDirectory @ "/sounds/voicePacks");
+exec("./scripts/script_footsteps.cs"); parseFootstepMaterials($Eventide_BaseDirectory @ "/sounds/footsteps");
 
 exec("./bricks/brick_ritualCircle.cs");
