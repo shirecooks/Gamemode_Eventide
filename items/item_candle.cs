@@ -1,4 +1,4 @@
-datablock fxLightData(CandleLight)
+datablock fxLightData(candleLight)
 {
 	uiName = "Candle Light";
 
@@ -48,10 +48,15 @@ datablock fxLightData(CandleLight)
 	LerpRadius		= true;
 	LerpOffset		= false;
 	LerpRotation	= false;
+
+	lightOffset = "0 0 1.125";
 };
 
 datablock ItemData(candleItem : ritualItem)
 {
+	class = "candleItem";
+	superClass = "ritualItem";
+
 	shapeFile = "./models/candle/candle.dts";
 	mass = 1;
 	density = 0.2;
@@ -66,8 +71,15 @@ datablock ItemData(candleItem : ritualItem)
 	image = candleImage;
 
 	emitterDatablock = "brickDeployExplosionEmitter";
-	lightOffset = "0 0 1.125";
+
+	ritualType = "Candle";
+	maxRitualsOnCircle = 4;
+	possibleOffset1 = "0 -3.5 0.375 0 0 0";
+	possibleOffset2 = "0 3.5 0.375 0 0 0";
+	possibleOffset3 = "-3.25 1.1 0.375 0 0 0";
+	possibleOffset4 = "3.25 1.1 0.375 0 0 0";
 };
+candleItem.inheritFunctionsFromSuperClass();
 
 datablock ShapeBaseImageData(candleImage)
 {
@@ -78,7 +90,7 @@ datablock ShapeBaseImageData(candleImage)
     correctMuzzleVector = false;
     eyeOffset = "0 0 0";
 
-	item = gem1Item;
+	item = candleItem;
     ammo = " ";
     projectile = "";
     projectileType = Projectile;
@@ -87,13 +99,18 @@ datablock ShapeBaseImageData(candleImage)
     doColorShift = candleItem.doColorShift;
     colorShiftColor = candleItem.colorShiftColor;
 
-    stateName[0]                     = "Activate";
+    stateName[0] = "Activate";
 };
 
 function candleItem::placeOnRitualCircle(%this, %obj, %circle)
 {
-	//"0 0 1.125"
-	%this.super("placeOnRitualCircle", %this, %obj, %circle);
+	%result = %this.super("placeOnRitualCircle", %this, %obj, %circle);
 
+	if(%result)
+	{
+		//Light the candle after a short delay.
+		%this.schedule(500, createLight, %obj, candleLight, "0 0 1.125");
+	}
 	
+	return %result;
 }

@@ -6,6 +6,13 @@ datablock ItemData(ritualItem)
 	category = "Weapon";
 	className = "Weapon";
 
+	mass = 1;
+	density = 0.2;
+	elasticity = 0.2;
+	friction = 0.6;
+	emap = true;
+
+	canDrop = true;
 	isRitualItem = true;
     ritualType = "Generic";
 	maxRitualsOnCircle = 1;
@@ -34,10 +41,12 @@ function ritualItem::placeOnRitualCircle(%this, %obj, %circle)
 	%circleRotation = rotFromTransform(%circleTransform);
 
 	//Move the ritual onto the circle, prevent it from being picked up, and stop any attention emitters if present.
-	%newItemPosition = VectorAdd(%circlePosition, %offset);
+	%newItemPosition = VectorAdd(%circlePosition, getWords(%offset, 0, 2));
+	%newItemRotation = VectorAdd(%circleRotation, getWords(%offset, 3, 5));
+
 	%obj.canPickup = false;
 	%obj.setVelocity("0 0 0");
-	%obj.setTransform(%newItemPosition SPC %circleRotation);
+	%obj.setTransform(%newItemPosition SPC %newItemRotation);
 	%obj.stopEmitter();
 
 	//Play a sound when it's placed.

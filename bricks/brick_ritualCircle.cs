@@ -2,7 +2,7 @@
 // Storage of ritual circles, for minigame reset.
 //
 
-$Eventide_RitualCircles = new SimGroup();
+$Eventide_RitualCircles = new SimSet();
 
 //
 // The brick itself.
@@ -13,7 +13,7 @@ datablock fxDTSBrickData(brickEventideRitualCircle : brick16x16fData)
 	uiName = "Ritual Shape";
 	category = "Special";
 	subCategory = "Eventide";
-    iconName = "Add-Ons/Gamemode_Eventide/bricks/models/ritualCircle/icon_ritual";
+    iconName = $Eventide_BaseDirectory @ "/bricks/models/ritualCircle/icon_ritual";
 
 	lightDatablock = "ritualLight";
 	emitterDatablock = "pongTrailEmitter";
@@ -26,17 +26,6 @@ datablock StaticShapeData(brickEventideRitualCircleStaticShape)
 {
 	isInvincible = true;
 	shapeFile = "./models/ritualCircle/ritualCircle.dts";
-
-	gemPos1 = "2.28 2.875 0.1";
-	gemPos2 = "-2.28 2.875 0.1";
-	gemPos3 = "2.1 -2.725 0.1";
-	gemPos4 = "-2.1 -2.725 0.1";
-	candlePos1 = "0 -3.5 0.375";
-	candlePos2 = "0 3.5 0.375";
-	candlePos3 = "-3.25 1.1 0.375";
-	candlePos4 = "3.25 1.1 0.375";
-	bookPos = "0 0.65 0.1";
-	daggerPos = "0 -0.65 0.1";
 };
 
 datablock fxLightData(ritualLight)
@@ -83,13 +72,29 @@ function brickEventideRitualCircle::checkForItems(%this, %obj)
 	%brickY = (%this.brickSizeY / 2);
 	%brickZ = (%this.brickSizeZ / 2);
 
+	//Trying to directly iterate over found items causes the game to freeze.
+	//So, we're adding them to a simset first.
+	%foundItems = new SimSet();
+
 	%item = containerFindFirst($TypeMasks::ItemObjectType, %obj.position, %brickX, %brickY, %brickZ);
-	if(!%item || %item.Datablock $= "" || %item.Datablock.ritualType $= "" || %item.isPlaced)
+	while(%item != 0)
 	{
-		return;
+		if(%item.Datablock !$= "" && %item.Datablock.ritualType !$= "" && !%item.isPlaced)
+		{
+			%foundItems.add(%item);
+		}
+
+		%item = containerFindNext();
 	}
 
-	%this.placeRitual(%obj, %item);
+	for(%i = 0; %i < %foundItems.getCount(); %i++)
+	{
+		%item = %foundItems.getObject(%i);
+		%this.placeRitual(%obj, %item);
+	}
+
+	//Simsets aren't garbage-collected, so we do it instead.
+	%foundItems.delete();
 }
 
 function brickEventideRitualCircle::displayText(%this, %obj, %text, %color, %distance)
@@ -128,7 +133,21 @@ function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
 	%ritualsCollected = %obj.ritualCollection.getCount();
 	%ritualsNeeded = %this.ritualsNeeded;
 
-	%obj.ritualCount[%itemDatablock.ritualType]++;
+	%ritualType = %itemDatablock.ritualType;
+	%ritualIndex = %obj.ritualIndex;
+	%obj.ritualCount[%ritualType]++;
+	if(strstr(%ritualIndex, %ritualType) == -1)
+	{
+		if(%ritualIndex $= "")
+		{
+			%obj.ritualIndex = %ritualType;
+		}
+		else
+		{
+			%obj.ritualIndex = %ritualIndex SPC %ritualType;
+		}
+	}
+
 	%item.isPlaced = true;
 	%this.displayProgress(%obj);
 
@@ -168,9 +187,9 @@ function brickEventideRitualCircle::onAllRitualsPlaced(%this, %obj)
 
 	//Visual FX, you know the drill.
 	%obj.setEmitter(%this.completionEmitterDatablock);			
-	for (%p = 0; %p < getRandom(2,4); %p++) 
+	for (%p = 0; %p < getRandom(2, 4); %p++) 
 	{
-		%obj.spawnExplosion("horseRayProjectile","2 2 2");					
+		%obj.spawnExplosion("horseRayProjectile", "2 2 2");		
 	}
 
 	//If we're in a minigame, let's make some noise.
@@ -239,6 +258,9 @@ function brickEventideRitualCircle::onPlant(%this, %obj)
 
 	//Play an ambient sound loop.
 	%ritualCircle.playAudio(3, "ritual_hum_sound");
+
+	//Populate the easy-access array of ritual circles.
+	$Eventide_RitualCircles.add(%obj);
 }
 
 function brickEventideRitualCircle::onLoadPlant(%this, %obj) 
@@ -254,6 +276,7 @@ function brickEventideRitualCircle::onRemove(%this, %obj)
 		//%obj.textShape.delete(); Not needed apparently?
 		%obj.ritualCircle.delete();
 		%obj.ritualCollection.delete();
+		$Eventide_RitualCircles.remove(%obj);
 	}
 
 	return parent::onRemove(%this, %obj);
@@ -274,8 +297,22 @@ function brickEventideRitualCircle::reset(%this, %obj)
 	%obj.ritualCollection.delete();
 	%obj.ritualCollection = new SimGroup();
 
+	//Reset cached counts of ritual items.
+	%ritualIndex = %obj.ritualIndex;
+	for(%i = 0; %i < getWordCount(%ritualIndex); %i++)
+	{
+		%ritualType = getWord(%ritualIndex, %i);
+		%obj.ritualCount[%ritualType] = 0;
+	}
+
 	//Reset the progress counter.
-	%obj.displayProgress();
+	%this.displayProgress(%obj);
+
+	//Stop the looping magic audio.
+	%obj.ritualCircle.playAudio(3, "ritual_hum_sound");
+
+	//Get rid of the visual FX.
+	%obj.setEmitter("");	
 }
 
 package Brick_RitualCircle
@@ -287,7 +324,7 @@ package Brick_RitualCircle
 		//Reset each ritual circle back to it's default state.
 		for(%i = 0; %i < $Eventide_RitualCircles.getCount(); %i++)
 		{
-			%ritualCircle = $Eventide_RitualCircles[%i];
+			%ritualCircle = $Eventide_RitualCircles.getObject(%i);
 			%ritualCircle.Datablock.reset(%ritualCircle, %i);
 		}
 	}
@@ -297,3 +334,9 @@ if(isPackage(Brick_RitualCircle))
 	deactivatePackage(Brick_RitualCircle);
 }
 activatePackage(Brick_RitualCircle);
+
+//
+// Related events.
+//
+
+registerInputEvent("fxDTSBrick", "onAllRitualsPlaced", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1);

@@ -20,13 +20,13 @@ datablock ItemData(gemItem : ritualItem)
 	iconName = "./icons/icon_gem";
 
 	image = "";
-	canDrop = true;
 
+	ritualType = "Gem";
 	maxRitualsOnCircle = 4;
-	possibleOffset1 = "2.28 2.875 0.1";
-	possibleOffset2 = "-2.28 2.875 0.1";
-	possibleOffset3 = "2.1 -2.725 0.1";
-	possibleOffset4 = "-2.1 -2.725 0.1";
+	possibleOffset1 = "2.28 2.875 0.1 0 0 0";
+	possibleOffset2 = "-2.28 2.875 0.1 0 0 0";
+	possibleOffset3 = "2.1 -2.725 0.1 0 0 0";
+	possibleOffset4 = "-2.1 -2.725 0.1 0 0 0";
 
 	placeSound = "gem_place";
 	placeSoundAmount = 1;
@@ -46,7 +46,6 @@ datablock ItemData(gem1Item : gemItem)
 	className = "Weapon";
 
 	uiName = "Red Gem";
-	ritualType = "Gem";
 	iconName = "./icons/icon_gem";
 
 	doColorShift = true;

@@ -86,12 +86,15 @@ datablock ProjectileData(daggerObscureProjectile : KillerKatanaClankProjectile)
 // Item and image data.
 //
 
-datablock ItemData(daggerItem)
+datablock ItemData(daggerItem : ritualItem)
 {
+	class = "daggerItem";
+	superClass = "ritualItem";
+
 	category = "Weapon";
 	className = "Weapon";
 
-	shapeFile = "./models/ritualDagger/ritualDagger.dts";
+	shapeFile = "./models/ritualDagger/ritualDaggerDrop.dts";
 	mass = 1;
 	density = 0.2;
 	elasticity = 0.2;
@@ -105,7 +108,12 @@ datablock ItemData(daggerItem)
 
 	image = daggerImage;
 	canDrop = true;
+
+	ritualType = "Dagger";
+	maxRitualsOnCircle = 1;
+	possibleOffset1 = "0 -0.65 0.1 90 0 0";
 };
+daggerItem.inheritFunctionsFromSuperClass();
 
 datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 {
@@ -128,21 +136,3 @@ datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 	swingSoundAmount = 5;
 };
 daggerImage.inheritFunctionsFromSuperClass();
-
-//
-// Ritual circle prop.
-//
-
-datablock StaticShapeData(brickDaggerStaticShape)
-{
-	isInvincible = true;
-	isRitual = true;
-	shapeFile = "./models/ritualDagger/staticDagger.dts";
-	placementSound = "dagger_place_sound";
-};
-
-function brickDaggerStaticShape::onAdd(%this,%obj)
-{
-	Parent::onAdd(%this, %obj);
-	%obj.schedule(33, playAudio, 3, %this.placementSound);
-}
