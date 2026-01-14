@@ -1,26 +1,31 @@
 function Player::removeItemFromInventory(%obj, %slot)
 {
+    %currentTool = %obj.currTool;
+
     //If a slot is not specified, default to the currently held tool.
     if(%slot $= "")
     {
-        %slot = %obj.currTool;
+        %slot = %currentTool;
     }
 
+    %tool = %obj.tool[%slot];
+
     //If they don't have a tool in that slot, do nothing.
-    if(%obj.tool[%slot] == 0)
+    if(%tool == 0)
     {
         return;
     }
 
     //If the player is currently holding that tool, forcibly unequip it.
-    if(%slot == %obj.currTool)
+    if(%slot == %currentTool)
     {
-        %obj.unmountImage(%slot);
+        %obj.unmountImage(%tool.image.mountPoint);
+        fixArmReady(%obj);
     }
 
     //Remove the item from the player's inventory.
     %obj.weaponCount--;
-    %obj.decInventory(%obj.tool[%slot], 1);
+    %obj.decInventory(%tool, 1);
     %obj.tool[%slot] = 0;
     %client = %obj.client;
 	if(isObject(%client)) 
