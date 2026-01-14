@@ -1,4 +1,13 @@
 //
+// Preferences.
+//
+
+$Pref::Eventide::EpoxyBomb::Range = 5;
+$Pref::Eventide::EpoxyBomb::TickRate = 250;
+$Pref::Eventide::EpoxyBomb::Damage = 30;
+$Pref::Eventide::EpoxyBomb::EffectDuration = 6000;
+
+//
 // Explosion/particles/player emitters.
 //
 
@@ -34,7 +43,7 @@ datablock ParticleEmitterData(epoxySmokeEmitter)
    phiReferenceVel  = 0;
    phiVariance      = 360;
    overrideAdvance = false;
-   particles = "epoxySmokeParticle";
+   particles = epoxySmokeParticle;
 };
 
 datablock ParticleData(epoxyExplosionParticle)
@@ -74,7 +83,7 @@ datablock ParticleEmitterData(epoxyExplosionEmitter)
    phiReferenceVel  = 0;
    phiVariance      = 360;
    overrideAdvance = false;
-   particles = "epoxyExplosionParticle";
+   particles = epoxyExplosionParticle;
 
    uiName = "Epoxy Explosion Smoke";
 };
@@ -113,7 +122,7 @@ datablock ParticleEmitterData(epoxyExplosionFlashEmitter)
 	phiReferenceVel  = 0;
 	phiVariance      = 360;
 	overrideAdvance = false;
-	particles = "epoxyExplosionFlashParticle";
+	particles = epoxyExplosionFlashParticle;
 
 	useEmitterColors = true;
 	uiName = "Epoxy Explosion Flash";
@@ -224,7 +233,6 @@ datablock ExplosionData(epoxyExplosion)
 
 	impulseRadius = 5;
 	impulseForce = 5;
-
 };
 
 //
@@ -235,7 +243,7 @@ AddDamageType("Epoxy", '<bitmap:base/client/ui/ci/bomb> %1', '%2 <bitmap:base/cl
 datablock ProjectileData(epoxyProjectile)
 {
 	projectileShapeName = "base/data/shapes/empty.dts";
-	directDamage        = 30;
+	directDamage        = $Pref::Eventide::EpoxyBomb::Damage;
 	directDamageType    = $DamageType::Epoxy;
 	radiusDamageType    = $DamageType::Epoxy;
 
@@ -268,7 +276,7 @@ datablock ProjectileData(epoxyProjectile)
 function epoxyProjectile::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt)
 {
 	//Apply the epoxy status effect to the victim.
-	%col.epoxify(6000);
+	%col.epoxify($Pref::Eventide::EpoxyBomb::EffectDuration);
 
 	//Do push the victim as any normal explosion would.
 	parent::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt);
@@ -293,7 +301,7 @@ datablock ItemData(epoxyItem)
 	doColorShift = false;
 	colorShiftColor = "51 51 51 1";
 	image = epoxyImage;
-	candrop = true;
+	canDrop = true;
 	canPickup = true;
 	uiName = "Epoxy Bomb";
 	iconName = "./icon_epoxy";
@@ -432,13 +440,11 @@ function epoxyImage::attemptPlace(%this, %obj, %slot)
 // Epoxy trap object, placed by the image.
 //
 
-$Pref::Eventide::EpoxyBombRange = 5;
-
 //
 // Trigger data for sensing players around the epoxy bomb.
 datablock TriggerData(flatEpoxyTrigger)
 {
-    tickPeriodMS = 250;
+    tickPeriodMS = $Pref::Eventide::EpoxyBombTickRate;
     polyhedron = -($Pref::Eventide::EpoxyBombRange / 2) SPC
 				 -($Pref::Eventide::EpoxyBombRange / 2) SPC
 				 -($Pref::Eventide::EpoxyBombRange / 2) SPC
@@ -463,7 +469,6 @@ function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
 
 		//Approximate check to determine if the player isn't covered from the bomb.
 		%foundVictim = containerRaycast(%trigger.getPosition(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
-		talk("Found victim: " @ %foundVictim);
 		if(%foundVictim !$= "0" && %foundVictim == %target.getID())
 		{
 			//The victim is in view, explode the bomb.
@@ -514,15 +519,13 @@ function flatEpoxyShape::detonate(%this, %obj)
 		client = %obj.client;
 	}.explode();
 
-	//Get rid of the trigger so we stop detecting players.
-	%obj.trigger.delete();
-
 	//We're done, get rid of the epoxy bomb.
 	%obj.delete();
 }
 
 function flatEpoxyShape::onRemove(%this, %obj)
 {
+	//Get rid of the trigger so we stop detecting players.
 	%trigger = %obj.trigger;
 	if(isObject(%trigger))
 	{
@@ -545,6 +548,8 @@ datablock ShapeBaseImageData(playerEpoxifiedImage)
 	shapeFile = "base/data/shapes/empty.dts";
 
 	mountPoint = $BackSlot;
+	mountSlot = 3;
+
 	offset = "0 0.5 0";
 	eyeOffset = "0 0 -0.1";
 
@@ -574,7 +579,7 @@ function PlayerEpoxyEffect::beginStatusEffect(%this, %obj)
     %playerDatablock.setTempSpeed(%obj, 0.5);
 
 	//Attach a sticky emitter effect to the player.
-	%obj.mountImage(playerEpoxifiedImage, 3);
+	%obj.mountImage(playerEpoxifiedImage, playerEpoxifiedImage.mountSlot);
 }
 
 function PlayerEpoxyEffect::finalizeStatusEffect(%this, %obj)
@@ -591,9 +596,9 @@ function PlayerEpoxyEffect::finalizeStatusEffect(%this, %obj)
     %playerDatablock.setTempSpeed(%obj);
 
 	//Clear the sticky emitter.
-	if(%obj.getMountedImage(3) == playerEpoxifiedImage.getID())
+	if(%obj.getMountedImage(playerEpoxifiedImage.mountSlot) == playerEpoxifiedImage.getID())
 	{
-		%obj.unmountImage(3);
+		%obj.unmountImage(playerEpoxifiedImage.mountSlot);
 	}
 }
 
@@ -602,7 +607,7 @@ function Player::epoxify(%obj, %time)
     //Have the freeze time default to 1 second.
     if(%time $= "")
     {
-        %time = 1000;
+        %time = 6000;
     }
 
     //Have the player enter the stun.
