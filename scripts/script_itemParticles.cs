@@ -2,10 +2,14 @@
 // Creating a companion object.
 //
 
-function ItemData::createEmitter(%this, %obj, %emitterDatablock)
+function ItemData::createEmitter(%this, %obj, %emitterDatablock, %emitterOffset)
 {
-    %obj.emitterOffset = (%emitterDatablock.emitterOffset !$= "") ? %emitterDatablock.emitterOffset : "0 0 0";
-
+    if(%obj.emitterOffset $= "")
+    {
+        %emitterOffset = (%emitterOffset !$= "") ? %emitterOffset : "0 0 0";
+        %obj.emitterOffset = (%emitterDatablock.emitterOffset !$= "") ? %emitterDatablock.emitterOffset : %emitterOffset;
+    }
+    
     %emitter = %obj.emitter;
     if(%emitter)
     {
@@ -23,9 +27,13 @@ function ItemData::createEmitter(%this, %obj, %emitterDatablock)
     %obj.emitterLoop();
 }
 
-function ItemData::createLight(%this, %obj, %lightDatablock)
+function ItemData::createLight(%this, %obj, %lightDatablock, %lightOffset)
 {
-    %obj.lightOffset = (%lightDatablock.lightOffset !$= "") ? %lightDatablock.lightOffset : "0 0 0";
+    if(%obj.lightOffset $= "")
+    {
+        %lightOffset = (%lightOffset !$= "") ? %lightOffset : "0 0 0";
+        %obj.lightOffset = (%lightDatablock.lightOffset !$= "") ? %lightDatablock.lightOffset : %lightOffset;
+    }
 
     %light = %obj.light;
     if(%light)
@@ -84,7 +92,7 @@ function Item::stopEmitter(%obj)
 
 function Item::lightLoop(%obj)
 {
-	%obj.updateLight();
+	%obj.Datablock.updateLight(%obj);
     %obj.lightLoopSchedule = %obj.schedule(33, lightLoop);
 }
 
@@ -119,13 +127,13 @@ package Script_ItemParticles
         %emitterDatablock = %this.emitterDatablock;
         if(%emitterDatablock !$= "")
         {
-            %obj.createEmitter(%obj, %emitterDatablock);
+            %this.createEmitter(%obj, %emitterDatablock);
         }
 
         %lightDatablock = %this.lightDatablock;
         if(%lightDatablock !$= "")
         {
-            %obj.createLight(%obj, %lightDatablock);
+            %this.createLight(%obj, %lightDatablock);
         }
 	}
 
