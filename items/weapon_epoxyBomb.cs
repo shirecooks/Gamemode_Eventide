@@ -275,6 +275,11 @@ datablock ProjectileData(epoxyProjectile)
 //Activates the effects of the epoxy bomb on any players within range.
 function epoxyProjectile::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt)
 {
+	if(%obj.sourceObject == %col || !minigameCanDamage(%obj.sourceObject, %col))
+	{
+		return parent::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt);
+	}
+
 	//Apply the epoxy status effect to the victim, if unobstructed.
 	%typemask = ($TypeMasks::FxBrickObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::StaticShapeObjectType);
 	%obstruction = ContainerRayCast(%pos, %col.getPosition(), %typemask);
@@ -284,7 +289,7 @@ function epoxyProjectile::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos
 	}
 
 	//Do push the victim as any normal explosion would.
-	parent::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt);
+	return parent::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt);
 }
 
 //
@@ -465,7 +470,7 @@ function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
 		%target = %trigger.getObject(%i);
 
 		//If it isn't a player or we can't damage them, ignore.
-		if(!(%target.getType() & $TypeMasks::PlayerObjectType) || !minigameCanDamage(%trigger.client, %target))
+		if(!(%target.getType() & $TypeMasks::PlayerObjectType) || %trigger.player == %target || !minigameCanDamage(%trigger.client, %target))
 		{
 			continue;
 		}
@@ -511,7 +516,6 @@ function flatEpoxyShape::onAdd(%this, %obj)
 function flatEpoxyShape::updateTrigger(%this, %obj)
 {
 	%obj.trigger.setTransform(%obj.getTransform());
-	%obj.trigger.adjustObjectScopeToAll(true);
 }
 
 function flatEpoxyShape::detonate(%this, %obj)
