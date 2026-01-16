@@ -461,6 +461,115 @@ function Player::drunkify(%obj, %time)
 }
 
 //
+// Tumble mechanic: instead of taking damage, get launched.
+//
+
+datablock WheeledVehicleData(betterTumbleVehicle)
+{
+	//Basic Settings
+	category = "Vehicles";
+	shapeFile = "Add-Ons/Item_Skis/deathVehicle.dts";
+	emap = true;
+
+	//Vehicle Settings
+	numMountPoints = 1;
+	maxDamage = 999999;
+	destroyedLevel = 200;
+
+	//Rigid Body
+	mass = 200;
+	massCenter = "0 0.1 0.7";	// Center of mass for rigid body
+	massBox = "0.6 0.8 1";	// Size of box used for moment of inertia
+
+	//Physics
+	drag = 0.2;
+	density = 1;
+	integration = 4; 			// Physics integration: Tick Sec/Rate
+	bodyFriction = 1;
+	bodyRestitution = 0.0;
+
+	//Collision
+	minImpactSpeed = 0.1;		// Impacts over this invoke the script callback
+//	minRunOverSpeed = 100;  	// how fast you need to be going to run someone over (do damage)
+	minRunOverSpeed = 1;  	// how fast you need to be going to run someone over (do damage)
+	runOverDamageScale = 100; //how much damage running over does
+	collisionTol = 0.4;			// Collision distance tolerance (was 0.25)
+
+	isSled = true;				//if its a sled, the wing surfaces dont work unless its on the ground
+};
+
+function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
+{
+	%speed = VectorLen(%obj.getVelocity());
+
+	//If we're stopped, end the tumble.
+	if(%speed < 0.01)
+	{
+		%player = %obj.player;
+		
+		//End the cutscene.
+		%player.lockInputs = false;
+		%player.restoreCameraFromOrbit();
+
+		//Exit the player from the tumble.
+		%player.canDismount = true;
+		%obj.delete();
+
+		return false;
+	}
+	else if(%col.getType() & $TypeMasks::PlayerObjectType)
+	{
+		%col.applyDamage(%speed * 0.5);
+		%impactReverseNormal = VectorNormalize(VectorSub(%col.getPosition(), %obj.getPosition()));
+		%inheritedVelocity = VectorScale(%impactReverseNormal, %speed * 0.75);
+		%col.betterTumble(%inheritedVelocity);
+		return false;
+	}
+
+	return true;
+}
+
+function Player::betterTumble(%obj, %velocity)
+{
+	//Reset any animations that might be playing.
+	%obj.setActionThread(root); //Movement thread.
+	%obj.playThread(3, root); //Default death animation thread.
+	%obj.playThread(2, root);
+	%obj.playThread(1, root);
+	%obj.playThread(0, root);
+
+	%playerInitialTransform = %obj.getTransform();
+	%playerInitialPosition = VectorAdd(posFromTransform(%playerInitialTransform), "0 0 0.1");
+	%playerInitialRotation = rotFromTransform(%playerInitialTransform);
+
+	%playerInitialVelocity = %obj.getVelocity();
+	%tumbleVelocity = VectorAdd(%playerInitialVelocity, %velocity);
+
+	//Create the tumble vehicle, match the invitial position/rotation/velocity of the player.
+	%obj.canDismount = false; //Prevent dismounting while tumbling.
+	%tumbleVehicle = new WheeledVehicle()
+	{
+		dataBlock = betterTumbleVehicle;
+		player = %obj;
+		position = %playerInitialPosition;
+	};
+	%obj.tumbleVehicle = %tumbleVehicle;
+	%tumbleVehicle.mountObject(%obj, 0);
+	%tumbleVehicle.setTransform(%playerInitialTransform);
+	%tumbleVehicle.setVelocity(%tumbleVelocity);
+
+	//Special calculations for the angular velocity, to make the tumble look better.
+    %angularAxis = VectorNormalize(%velocity);
+    %angularSpeed = VectorLen(%velocity) * 0.5;
+    %angularVelocity = VectorScale(%angularAxis, %angularSpeed);
+	%tumbleVehicle.setAngularVelocity(%angularVelocity);
+	
+	//Cutscene.
+	%obj.lockInputs = true;
+	%obj.createCameraOrbit();
+}
+
+//
 // Package to make drunk players take less damage.
 //
 
@@ -533,6 +642,26 @@ package Item_Rum
 			return Parent::Damage(%this, %obj, %sourceObject, %position, %damage, %damageType);
 		}
 
+		%tumbleChance = getRandom(1, 4);
+		if(%tumbleChance == 1 || %obj.damagedSinceTumble == 4)
+		{
+			//Guarantee the player will tumble at least every 4th hit.
+			%obj.damagedSinceTumble = 0;
+
+			//Launch the player instead of damaging them.
+			%impactNormal = VectorNormalize(VectorSub(%obj.getPosition(), %sourceObject.getPosition()));
+			%inheritedVelocity = VectorScale(%impactNormal, %damage * 0.5);
+			%obj.betterTumble(%inheritedVelocity);
+
+			//Play a voice line.
+			//TODO: Need this for individual voice packs.
+			serverPlay3D("drunk_tumble" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
+
+			//No damage taken.
+			return 0;
+		}
+		%obj.damagedSinceTumble++;
+
 		//If the damage is enough to kill the player, remove the drunk effect first.
 		if((%obj.getDamageLevel() + %damage) >= %obj.Datablock.maxDamage)
 		{
@@ -544,6 +673,15 @@ package Item_Rum
 
 		//Let the damage occur, but reduced.
 		return Parent::Damage(%this, %obj, %sourceObject, %position, %damage, %damageType);
+	}
+
+	function Player::onRemove(%this, %obj)
+	{
+		%tumbleVehicle = %obj.tumbleVehicle;
+		if(isObject(%tumbleVehicle))
+		{
+			%tumbleVehicle.delete();
+		}
 	}
 };
 if(isPackage(Item_Rum))
