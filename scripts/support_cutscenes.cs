@@ -149,7 +149,7 @@ datablock ExplosionData(camShakeExplosion)
    camShakeFreq = "10.0 10.0 10.0";
    camShakeAmp = "10.0 10.0 10.0";
    camShakeDuration = 0.5;
-   camShakeRadius = 1.0;
+   camShakeRadius = 0.1;
 
    damageRadius = 0;
    radiusDamage = 0;
