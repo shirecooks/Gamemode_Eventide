@@ -75,6 +75,7 @@ package Script_NoItemDespawn
     function MiniGameSO::endGame(%obj)
     {
         %obj.spawnedItems.delete();
+        parent::endGame(%obj);
     }
 };
 if(isPackage(Script_NoItemDespawn))
