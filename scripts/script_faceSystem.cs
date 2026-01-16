@@ -140,16 +140,6 @@ function createFaceConfig(%facePack)
         facePack = %facePack;
         currentFace = "";
         face["isFaceConfigArray"] = true;
-        face["Blink"] = %facePack.getFaceData();
-        face["Neutral"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Neutral"));
-        face["Oh"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Oh"));
-        face["Scared"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Scared"));
-        face["Smiley"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Smiley"));
-        face["Smirk"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Smirk"));
-        face["SmirkSquint"] = %facePack.getFaceData(compileFaceDataName(%facePack, "SmirkSquint"));
-        face["Tooth"] = %facePack.getFaceData(compileFaceDataName(%facePack, "Tooth"));
-
-        face["Pain"] = %facePack.getFaceData(%facePack.category @ "Pain");
         face["Pain", "length"] = 2000;
     };
 
@@ -195,8 +185,17 @@ function FaceConfig::getFacePack(%obj)
 
 function FaceConfig::setFacePack(%obj, %facePack)
 {
-    %obj.previousFacePack = %obj.facePack.getID();
+    %obj.previousFacePack = %obj.getFacePack().getID();
     %obj.facePack = %facePack;
+    %obj.category = %facePack.category;
+    %obj.invalidateCache();
+
+    //Hot-swap the current face for the one in the new face pack.
+    %player = %obj.player;
+    if(isObject(%player))
+    {
+        %player.faceConfigShowFaceTimed(%obj.currentFace.getSimpleName(), 0);
+    }
 }
 
 function FaceConfig::cacheFace(%obj, %name)
@@ -207,24 +206,39 @@ function FaceConfig::cacheFace(%obj, %name)
     {
         %face.setSimpleName(%name);
         %obj.face[%name] = %face;
+        return;
     }
     else if(%facePack.getFaceData(%facePack.category @ %name) !$= "")
     {
         %faceData =  %facePack.getFaceData(%facePack.category @ %name);
-        %faceData.setSimpleName(%name);
-        %obj.face[%name] = %faceData;
     }
     else if(%facePack.getFaceData(compileFaceDataName(%facePack, %name)) !$= "")
     {
         %faceData = %facePack.getFaceData(compileFaceDataName(%facePack, %name));
-        %faceData.setSimpleName(%name);
-        %obj.face[%name] = %faceData;
     }
     else
     {
         //Fallback, no face found.
         return "smiley"; 
     }
+
+    %faceData.setSimpleName(%name);
+    %obj.face[%name] = %faceData;
+    if(strstr(%obj.faceIndex, %name) == -1)
+    {
+        %obj.faceIndex = (%obj.faceIndex $= "") ? %name : %obj.faceIndex SPC %name;
+    }
+}
+
+function FaceConfig::invalidateCache(%obj)
+{
+    //Clears all cached faces, forcing a reload on next access.
+    for(%i = 0; %i < getWordCount(%obj.faceIndex); %i++)
+    {
+        %face = getWord(%obj.faceIndex, %i);
+        %obj.face[%face] = "";
+    }
+    %obj.faceIndex = "";
 }
 
 function FaceConfig::getFace(%obj, %name)
@@ -336,7 +350,7 @@ function parseFacePacks(%startingDirectory)
 
 function Player::faceConfigSanityCheck(%player)
 {
-    return isObject(%player) && isObject(%player.faceConfig) && %player.getDamagePercent() < 1;
+    return isObject(%player) && isObject(%player.faceConfig) && %player.getState() !$= "Dead";
 }
 
 function Player::createFaceConfig(%player, %facePack)
@@ -352,7 +366,10 @@ function Player::createFaceConfig(%player, %facePack)
         %player.faceConfig.delete();
     }
 
-    %player.faceConfig = createFaceConfig(%facePack);
+    %faceConfig = createFaceConfig(%facePack);
+    %faceConfig.player = %player;
+    %player.faceConfig = %faceConfig;
+
     %player.beginFaceConfigBlinkSchedule();
 }
 
@@ -615,16 +632,6 @@ function Player::faceConfigTalkAnimation(%player, %message)
                 %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Smirk", %speakingTime); //Relaxed lips.
             }
         }
-        else if(%currentLetter $= "." || %currentLetter $= "?")
-        {
-            %speakingTime = 350;
-            %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Neutral", %speakingTime); //Not talking.
-        }
-        else if(%currentLetter $= "," || %currentLetter $= ":" || %currentLetter $= ";")
-        {
-            %speakingTime = 200;
-            %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Neutral", %speakingTime); //Not talking.
-        }
         else
         {
             if(%player.faceConfig.isFace("Smiley"))
@@ -732,7 +739,14 @@ package Gamemode_Eventide_FaceSystem
     {
         //If hurt, change their face pack. If no longer hurt, change it back to normal.
         Parent::addHealth(%obj, %amount);
-        if(isObject(%obj.faceConfig))
+        if(%amount < 0 && isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
+        {
+            if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
+            {
+                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+            }
+        }
+        else if(%amount > 0 && isObject(%obj.faceConfig))
         {
             if(%obj.getDamagePercent() < 0.33 && %obj.faceConfig.subCategory $= "Hurt")
             {
@@ -744,7 +758,7 @@ package Gamemode_Eventide_FaceSystem
     {
         //If hurt, change their face pack. If no longer hurt, change it back to normal.
         Parent::setHealth(%obj, %amount);
-        if(isObject(%obj.faceConfig))
+        if(%amount > 0 && isObject(%obj.faceConfig))
         {
             if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
             {
@@ -759,7 +773,7 @@ package Gamemode_Eventide_FaceSystem
     function Player::setDamageLevel(%obj, %amount)
     {
         Parent::setDamageLevel(%obj, %amount);
-        if(isObject(%obj.faceConfig))
+        if(isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
         {
             if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
             {
