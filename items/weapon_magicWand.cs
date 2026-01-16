@@ -52,7 +52,7 @@ datablock ParticleEmitterData(wandGreenSparkleEmitter)
   useEmitterColors  = false;     
   orientParticles   = false;
   
-  particles         = "wandGreenSparkleParticle";
+  particles         = wandGreenSparkleParticle;
 };
 
 //Explosions and Projectiles
@@ -60,7 +60,7 @@ datablock ExplosionData(MagicWandExplosion)
 {
   lifeTimeMS = 500;  
   
-  soundProfile = MagicWandHit;
+  soundProfile = "magic_hit_sound";
   
   particleEmitter = wandGreenSparkleEmitter;
   particleDensity = 50;
@@ -92,7 +92,7 @@ datablock ExplosionData(MagicWandExplosion)
   lightHasCorona = true;
 };
 
-AddDamageType("MagicWand",   '<bitmap:add-ons/Item_Wand/Images/CI> %1',    '%2 <bitmap:add-ons/Item_Wand/Images/CI> %1',0.75,1);
+AddDamageType("MagicWand",'<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_wand> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_wand> %1', 0.75, 1);
 
 datablock ProjectileData(wandGreenProjectile)
 {   
@@ -145,7 +145,7 @@ datablock ItemData(MagicWandItem)
   emap = true;
 
   uiName = "Magic Wand";
-  iconName = "./Images/Icon";
+  iconName = "";
   doColorShift = false;
   colorShiftColor = "0 0.6 0";
   
