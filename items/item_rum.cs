@@ -506,7 +506,8 @@ function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
 	if(%speed < 0.01)
 	{
 		%player = %obj.player;
-		
+		%obj.isTumbling = false;
+
 		//End the cutscene.
 		%player.lockInputs = false;
 		%player.restoreCameraFromOrbit();
@@ -515,7 +516,7 @@ function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
 		%player.canDismount = true;
 		%obj.delete();
 
-		return false;
+		return true;
 	}
 	else if(%col.getType() & $TypeMasks::PlayerObjectType)
 	{
@@ -531,6 +532,12 @@ function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
 
 function Player::betterTumble(%obj, %velocity)
 {
+	if(%obj.isTumbling)
+	{
+		return;
+	}
+	%obj.isTumbling = true;
+
 	//Reset any animations that might be playing.
 	%obj.setActionThread(root); //Movement thread.
 	%obj.playThread(3, root); //Default death animation thread.
