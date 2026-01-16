@@ -228,7 +228,7 @@ datablock ExplosionData(epoxyExplosion)
 	lightStartColor = "1 1 0 1";
 	lightEndColor = "0 0 0 0";
 
-	damageRadius = 30;
+	damageRadius = $Pref::Eventide::EpoxyBomb::Range;
 	radiusDamage = 30;
 
 	impulseRadius = 5;
@@ -468,7 +468,7 @@ function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
 		%epoxyBomb = %trigger.epoxy;
 
 		//Approximate check to determine if the player isn't covered from the bomb.
-		%foundVictim = containerRaycast(%trigger.getPosition(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
+		%foundVictim = containerRaycast(%trigger.getWorldBoxCenter(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
 		if(%foundVictim !$= "0" && %foundVictim == %target.getID())
 		{
 			//The victim is in view, explode the bomb.
@@ -505,6 +505,7 @@ function flatEpoxyShape::onAdd(%this, %obj)
 function flatEpoxyShape::updateTrigger(%this, %obj)
 {
 	%obj.trigger.setTransform(%obj.getTransform());
+	%obj.trigger.adjustObjectScopeToAll(true);
 }
 
 function flatEpoxyShape::detonate(%this, %obj)
