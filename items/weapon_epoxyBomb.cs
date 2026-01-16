@@ -667,7 +667,6 @@ package Gamemode_Eventide_EpoxyBomb
 
 	function ProjectileData::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity)
 	{
-		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 		if(%col.getType() & $TypeMasks::StaticShapeObjectType)
 		{
 			if(%col.Datablock == flatEpoxyShape)
@@ -678,6 +677,7 @@ package Gamemode_Eventide_EpoxyBomb
 				}
 			}
 		}
+		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 	}
 };
 if(isPackage(Gamemode_Eventide_EpoxyBomb))
