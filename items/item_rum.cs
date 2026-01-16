@@ -520,7 +520,12 @@ function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
 	}
 	else if(%col.getType() & $TypeMasks::PlayerObjectType)
 	{
-		%col.applyDamage(%speed * 0.5);
+		%col.applyDamage(%speed * 0.25);
+		if(%col.getState() !$= "Dead")
+		{
+			return false;
+		}
+		
 		%impactReverseNormal = VectorNormalize(VectorSub(%col.getPosition(), %obj.getPosition()));
 		%inheritedVelocity = VectorScale(%impactReverseNormal, %speed * 0.75);
 		%col.betterTumble(%inheritedVelocity);
@@ -657,7 +662,7 @@ package Item_Rum
 
 			//Launch the player instead of damaging them.
 			%impactNormal = VectorNormalize(VectorSub(%obj.getPosition(), %sourceObject.getPosition()));
-			%inheritedVelocity = VectorScale(%impactNormal, %damage * 0.5);
+			%inheritedVelocity = VectorScale(%impactNormal, %damage * 0.75);
 			%obj.betterTumble(%inheritedVelocity);
 
 			//Play a voice line.
