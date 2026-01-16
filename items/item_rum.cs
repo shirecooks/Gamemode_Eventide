@@ -506,7 +506,7 @@ package Item_Rum
 	function serverCmdMessageSent(%client, %message)
 	{
 		%player = %client.player;
-		if(isObject(%player))
+		if(isObject(%player) && %player.hasStatusEffect("PlayerRumEffect", "Powerup"))
 		{
 			%message = adjustDrunkMessage(%message);
 		}
@@ -517,7 +517,7 @@ package Item_Rum
 	function serverCmdTeamMessageSent(%client, %message)
 	{
 		%player = %client.player;
-		if(isObject(%player))
+		if(isObject(%player) && %player.hasStatusEffect("PlayerRumEffect", "Powerup"))
 		{
 			%message = adjustDrunkMessage(%message);
 		}
