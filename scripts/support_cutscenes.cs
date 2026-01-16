@@ -53,7 +53,7 @@ function Player::checkToolsLocked(%obj)
 {
     %client = %obj.client;
 
-    return (!%player || %player.lockTools || (%client && %client.lockTools));
+    return (!%obj || %obj.lockTools || (%client && %client.lockTools));
 }
 
 package Support_Client
