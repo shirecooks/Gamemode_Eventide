@@ -468,7 +468,7 @@ function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
 		%epoxyBomb = %trigger.epoxy;
 
 		//Approximate check to determine if the player isn't covered from the bomb.
-		%foundVictim = containerRaycast(%trigger.getWorldBoxCenter(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
+		%foundVictim = containerRaycast(%trigger.getPosition(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
 		if(%foundVictim !$= "0" && %foundVictim == %target.getID())
 		{
 			//The victim is in view, explode the bomb.
