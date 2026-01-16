@@ -231,8 +231,8 @@ datablock ExplosionData(epoxyExplosion)
 	damageRadius = $Pref::Eventide::EpoxyBomb::Range;
 	radiusDamage = 30;
 
-	impulseRadius = 5;
-	impulseForce = 5;
+	impulseRadius = $Pref::Eventide::EpoxyBomb::Range;
+	impulseForce = $Pref::Eventide::EpoxyBomb::Range;
 };
 
 //
@@ -275,8 +275,13 @@ datablock ProjectileData(epoxyProjectile)
 //Activates the effects of the epoxy bomb on any players within range.
 function epoxyProjectile::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt)
 {
-	//Apply the epoxy status effect to the victim.
-	%col.epoxify($Pref::Eventide::EpoxyBomb::EffectDuration);
+	//Apply the epoxy status effect to the victim, if unobstructed.
+	%typemask = ($TypeMasks::FxBrickObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::StaticShapeObjectType);
+	%obstruction = ContainerRayCast(%pos, %col.getPosition(), %typemask);
+	if(%obstruction $= "0")
+	{
+		%col.epoxify($Pref::Eventide::EpoxyBomb::EffectDuration);
+	}
 
 	//Do push the victim as any normal explosion would.
 	parent::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos, %impulseAmt, %verticalAmt);
@@ -445,12 +450,12 @@ function epoxyImage::attemptPlace(%this, %obj, %slot)
 datablock TriggerData(flatEpoxyTrigger)
 {
     tickPeriodMS = $Pref::Eventide::EpoxyBombTickRate;
-    polyhedron = -($Pref::Eventide::EpoxyBombRange / 2) SPC
-				 -($Pref::Eventide::EpoxyBombRange / 2) SPC
-				 -($Pref::Eventide::EpoxyBombRange / 2) SPC
-             	 $Pref::Eventide::EpoxyBombRange @ " 0 0" SPC
-             	 "0 " @ $Pref::Eventide::EpoxyBombRange @ " 0" SPC
-             	 "0 0 " @ $Pref::Eventide::EpoxyBombRange;
+    polyhedron = -($Pref::Eventide::EpoxyBomb::Range / 2) SPC
+				 -($Pref::Eventide::EpoxyBomb::Range / 2) SPC
+				 -($Pref::Eventide::EpoxyBomb::Range / 2) SPC
+             	 $Pref::Eventide::EpoxyBomb::Range @ " 0 0" SPC
+             	 "0 " @ $Pref::Eventide::EpoxyBomb::Range @ " 0" SPC
+             	 "0 0 " @ $Pref::Eventide::EpoxyBomb::Range;
 };
 
 function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
@@ -468,13 +473,14 @@ function flatEpoxyTrigger::onTickTrigger(%this, %trigger)
 		%epoxyBomb = %trigger.epoxy;
 
 		//Approximate check to determine if the player isn't covered from the bomb.
-		%foundVictim = containerRaycast(%trigger.getPosition(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
+		%foundVictim = containerRaycast(%epoxyBomb.getPosition(), %target.getHackPosition(), $TypeMasks::PlayerObjectType, %epoxyBomb);
 		if(%foundVictim !$= "0" && %foundVictim == %target.getID())
 		{
 			//The victim is in view, explode the bomb.
 			%epoxyBomb.Datablock.detonate(%epoxyBomb);
 			return;
 		}
+		%epoxyBomb.Datablock.detonate(%epoxyBomb);
 	}
 }
 
