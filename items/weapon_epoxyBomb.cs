@@ -667,27 +667,17 @@ package Gamemode_Eventide_EpoxyBomb
 
 	function ProjectileData::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity)
 	{
+		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 		if(%col.getType() & $TypeMasks::StaticShapeObjectType)
 		{
-			talk("Static shape test passed...");
 			if(%col.Datablock == flatEpoxyShape)
 			{
-				talk("It's an epoxy bomb...");
 				if(minigameCanDamage(%obj.sourceObject, %col.sourceObject))
 				{
 					%col.Datablock.detonate(%col);
 				}
-				else
-				{
-					talk("Cannot damage the owner of the epoxy bomb.");
-				}
-			}
-			else
-			{
-				talk("Not an epoxy bomb.");
 			}
 		}
-		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 	}
 };
 if(isPackage(Gamemode_Eventide_EpoxyBomb))
