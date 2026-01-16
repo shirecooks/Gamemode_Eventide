@@ -664,6 +664,21 @@ package Gamemode_Eventide_EpoxyBomb
 
 		Parent::onRemove(%this, %obj);
 	}
+
+	function ProjectileData::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity)
+	{
+		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
+		if(%col.getType() & $TypeMasks::StaticShapeObjectType)
+		{
+			if(%col.Datablock == flatEpoxyShape)
+			{
+				if(minigameCanDamage(%obj.sourceObject, %col.sourceObject))
+				{
+					%col.Datablock.detonate(%col);
+				}
+			}
+		}
+	}
 };
 if(isPackage(Gamemode_Eventide_EpoxyBomb))
 {
