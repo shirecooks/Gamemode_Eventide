@@ -24,9 +24,15 @@ datablock ShapeBaseImageData(foilJacketImage)
 function foilJacketImage::onMount(%this, %obj, %slot)
 {
     %obj.playAudio(1, "foilJacket_on" @ getRandom(1, 5) @ "_sound");
+
+	%obj.playThread(3, activate2);
+	%obj.playThread(2, plant);
 }
 
 function foilJacketImage::onUnMount(%this, %obj, %slot)
 {
     %obj.playAudio(1, "foilJacket_off" @ getRandom(1, 4) @ "_sound");
+
+	%obj.playThread(3, activate2);
+	%obj.playThread(2, jump);
 }
