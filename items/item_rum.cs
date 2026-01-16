@@ -506,7 +506,7 @@ function betterTumbleVehicle::onObjectCollision(%this, %obj, %col)
 	if(%speed < 0.01)
 	{
 		%player = %obj.player;
-		%obj.isTumbling = false;
+		%player.isTumbling = false;
 
 		//End the cutscene.
 		%player.lockInputs = false;
