@@ -17,11 +17,12 @@ exec("./scripts/support_objectCollision.cs");
 exec("./scripts/support_cutscenes.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/script_itemParticles.cs");
-exec("./scripts/status_stun.cs");
-exec("./scripts/status_frozen.cs");
-exec("./scripts/status_fear.cs");
-exec("./scripts/status_deafen.cs");
-exec("./scripts/status_nearSight.cs");
+
+exec("./statusEffects/status_stun.cs");
+exec("./statusEffects/status_frozen.cs");
+exec("./statusEffects/status_fear.cs");
+exec("./statusEffects/status_deafen.cs");
+exec("./statusEffects/status_nearSight.cs");
 
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
