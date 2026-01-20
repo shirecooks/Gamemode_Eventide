@@ -39,6 +39,7 @@ exec("./items/item_book.cs");
 exec("./items/item_wrench.cs");
 exec("./items/item_pickaxe.cs");
 exec("./items/item_rum.cs");
+exec("./items/item_camera.cs");
 
 exec("./items/base_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
