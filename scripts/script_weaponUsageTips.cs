@@ -38,7 +38,7 @@ package Support_WeaponUsageTips
             if(getSimTime() < %hintEndTime)
             {
                 //The hint message is still being displayed, clear it.
-                switch(strlwr(%textStyle.printChannel))
+                switch$(strlwr(%textStyle.printChannel))
                 {
                     case "bottomprint":
                         clearBottomPrint(%client);
