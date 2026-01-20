@@ -52,9 +52,16 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
 //Take advantage of `eval` and the lax-arity function model of TorqueScript to define a function that calls the equivalent parent function.
 //Optional pref to prevent console spam by clearing it after the function is run. No other way to accomplish that without engine modification.
 $Pref::OOP::Debug = ($Pref::OOP::Debug !$= "") ? $Pref::OOP::Debug : false;
-function SimObject::inheritFunctionsFromSuperClass(%this)
+function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 {
-    %superClass = %this.superClass;
+    if(%superClass $= "")
+    {
+        %superClass = %this.superClass;
+    }
+    else
+    {
+        %this.superClass = %superClass;
+    }
 
     %superClassID = nameToID(%this.superClass);
     if(!isObject(%superClassID))
