@@ -1,4 +1,4 @@
-function Player::removeItemFromInventory(%obj, %slot)
+function Player::removeItemFromInventory(%obj, %slot, %noUnmount)
 {
     %currentTool = %obj.currTool;
 
@@ -17,7 +17,7 @@ function Player::removeItemFromInventory(%obj, %slot)
     }
 
     //If the player is currently holding that tool, forcibly unequip it.
-    if(%slot == %currentTool)
+    if(%slot == %currentTool && !%noUnmount)
     {
         %obj.unmountImage(%tool.image.mountPoint);
         fixArmReady(%obj);
