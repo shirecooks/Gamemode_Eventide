@@ -311,12 +311,12 @@ datablock ShapeBaseImageData(throwingSpearImage)
 // Sequence callbacks.
 //
 
-function throwingSpearImage::onCharge(%this, %obj, %slot)
+function throwingSpearImage::onCharge(%this, %obj)
 {
 	%obj.playThread(2, spearReady);
 }
 
-function throwingSpearImage::onAbortCharge(%this, %obj, %slot)
+function throwingSpearImage::onAbortCharge(%this, %obj)
 {
 	%obj.playThread(2, root);
 }
@@ -327,8 +327,8 @@ function throwingSpearImage::onFire(%this, %obj, %slot)
 	Parent::onFire(%this, %obj, %slot);
 
     //Play a spear-throwing sound. Can't be a stateSound, as we un-equip it too fast and the sound gets cut off.
-    serverPlay3D("throwingSpear_throw_sound", %obj.getMuzzlePoint($RightHandSlot));
+    serverPlay3D("throwingSpear_throw_sound", %obj.getMuzzlePoint(%this.mountPoint));
 
     //Remove the spear from the player's inventory, as it is single use.
-    %obj.removeItemFromInventory(%obj.currTool);
+    %obj.removeItemFromInventory();
 }

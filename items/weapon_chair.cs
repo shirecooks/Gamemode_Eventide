@@ -246,13 +246,13 @@ datablock ShapeBaseImageData(chairImage)
 // Sequence callbacks.
 //
 
-function chairImage::onSwing(%this, %obj, %slot)
+function chairImage::onSwing(%this, %obj)
 {
 	%obj.playThread(3, shiftDown);
-	serverPlay3D("generic_heavyswing" @ getRandom(1, 2) @ "_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("generic_heavyswing" @ getRandom(1, 2) @ "_sound", %obj.getMuzzlePoint(%this.mountPoint));
 }
 
-function chairImage::onFire(%this, %obj, %slot)
+function chairImage::onFire(%this, %obj)
 {
 	//Can't swing the chair if we're dead.
 	if(!isObject(%obj) || %obj.getState() $= "Dead") 
@@ -260,14 +260,7 @@ function chairImage::onFire(%this, %obj, %slot)
 		return;
 	}
 
-	//Not a clue what this is doing, honestly.
-	for(%i = 0; %i <= %obj.getDataBlock().maxTools; %i++)
-	{
-		if(%obj.tool[%i] $= %this.item.getID())
-		{
-			%itemslot = %i;
-		}
-	}
+	%slot = %obj.currTool;
 
 	%startpos = %obj.getMuzzlePoint($RightHandSlot);
 	%endpos = %obj.getMuzzleVector($RightHandSlot);
@@ -334,8 +327,8 @@ function chairImage::onFire(%this, %obj, %slot)
 			//Unequip chair from the player's inventory.
 			if(isObject(%obj.client))
 			{
-				%obj.tool[%itemslot] = 0;
-				messageClient(%obj.client,'MsgItemPickup', '', %itemslot, 0);
+				%obj.tool[%slot] = 0;
+				messageClient(%obj.client,'MsgItemPickup', '', %slot, 0);
 			}
 
 			if(isObject(%obj.getMountedImage(%this.mountPoint))) 
@@ -348,14 +341,14 @@ function chairImage::onFire(%this, %obj, %slot)
 	}
 }
 
-function chairImage::onMount(%this, %obj ,%slot)
+function chairImage::onMount(%this, %obj)
 {
-	parent::onMount(%this, %obj, %slot);
+	parent::onMount(%this, %obj);
 	%obj.playThread(2, armReadyLeft);
 }
 
-function chairImage::onUnMount(%this, %obj, %slot)
+function chairImage::onUnMount(%this, %obj)
 {
 	%obj.playThread(2, root);
-	parent::onUnMount(%this, %obj, %slot);
+	parent::onUnMount(%this, %obj);
 }

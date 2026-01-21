@@ -84,9 +84,9 @@ frailSwordImage.inheritFunctionsFromSuperClass();
 // Sequence callbacks.
 //
 
-function frailSwordImage::onSwing(%this, %obj, %slot)
+function frailSwordImage::onSwing(%this, %obj)
 {	
-	%this.super("onSwing", %this, %obj, %slot);
+	%this.super("onSwing", %this, %obj);
 
 	%hits = %Obj.getImageAttribute("hits");
 	%victim = %obj.getImageAttribute("lastPersonHit");
@@ -112,7 +112,7 @@ function frailSwordImage::onSwing(%this, %obj, %slot)
 		{
 			%victimPosition = %victim.getPosition();
 
-			%victim.applyImpulse(%victimPosition, VectorAdd(VectorScale(%obj.getMuzzleVector(0), 1000), "0 0 1000"));
+			%victim.applyImpulse(%victimPosition, VectorAdd(VectorScale(%obj.getMuzzleVector(%this.mountPoint), 1000), "0 0 1000"));
 			%victim.Damage(%obj, %victimPosition, 50, $DamageType::frailSword);
 			%victim.stun();
 		}

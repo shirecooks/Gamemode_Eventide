@@ -151,8 +151,6 @@ function redSodaImage::onDrink(%this, %obj)
 
 function redSodaImage::onDiscard(%this, %obj)
 {
-	%slot = %obj.currTool;
-
     //Play a can dropping animation.
     %obj.playThread(0, shiftTo);
     %obj.playThread(2, plant);
@@ -172,5 +170,5 @@ function redSodaImage::onDiscard(%this, %obj)
     %sodaDebris.explode();
 
     //Remove the leftover image from the player's hand and communicate to the client.
-    %obj.unmountImage(%slot);
+    %obj.unmountImage(%this.mountPoint);
 }

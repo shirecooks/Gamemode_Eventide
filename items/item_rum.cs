@@ -237,11 +237,11 @@ function rumBottleImage::onCooldownCheck(%this, %obj)
 	%currentTime = getSimTime();
     if(%cooldownEndTime > %currentTime)
     {
-        %obj.setImageAmmo(%obj.currTool, true);
+        %obj.setImageAmmo(%this.mountPoint, true);
     }
     else
     {
-        %obj.setImageAmmo(%obj.currTool, false);
+        %obj.setImageAmmo(%this.mountPoint, false);
     }
 }
 
@@ -271,7 +271,7 @@ function rumBottleImage::onReady(%this, %obj)
 function rumBottleImage::onOpen(%this, %obj)
 {
 	//Play the sound of the rum opening.
-	serverPlay3D("rum_open_sound", %obj.getMuzzlePoint(rumBottleImage.mountPoint));
+	serverPlay3D("rum_open_sound", %obj.getMuzzlePoint(%this.mountPoint));
 
 	//Raise the bottle so it is ready to drink.
 	%obj.playThread(1, armReadyRight);
@@ -283,7 +283,7 @@ function rumBottleImage::onOpen(%this, %obj)
 	new Projectile()
 	{
 		dataBlock = rumBottleCorkProjectile;
-		initialPosition = %obj.getMuzzlePoint(rumBottleImage.mountPoint);
+		initialPosition = %obj.getMuzzlePoint(%this.mountPoint);
 	}.explode();
 }
 
@@ -324,7 +324,7 @@ function rumBottleImage::onDiscard(%this, %obj)
     %rumDebris.explode();
 
     //Remove the leftover image from the player's hand and communicate to the client.
-    %obj.unmountImage(%obj.currTool);
+    %obj.unmountImage(%this.mountPoint);
 }
 
 //

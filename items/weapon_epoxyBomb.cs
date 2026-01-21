@@ -320,8 +320,10 @@ datablock ItemData(epoxyItem)
 datablock ShapeBaseImageData(epoxyImage)
 {
 	item = epoxyItem;
-
 	shapeFile = "./models/epoxyBomb/uprightEpoxyBomb.dts";
+
+	hintStyle = "hint";
+	hintMessage = "This bomb will slow down enemies that walk near it. Place it on a flat surface.";
 
 	emap = true;
 	mountPoint = 0;
@@ -351,7 +353,7 @@ datablock ShapeBaseImageData(epoxyImage)
 	stateTransitionOnTriggerUp[2] = "Ready";
 };
 
-function epoxyImage::attemptPlace(%this, %obj, %slot)
+function epoxyImage::attemptPlace(%this, %obj)
 {
 	%start = %obj.getEyePoint();
 	%aimVector = VectorNormalize(%obj.getLookVector());
@@ -553,7 +555,6 @@ datablock ParticleEmitterData(playerEpoxifiedEmitter : epoxyDebrisTrailEmitter)
    ejectionPeriodMS = 20;
 };
 
-
 datablock ShapeBaseImageData(playerEpoxifiedImage)
 {
 	shapeFile = "base/data/shapes/empty.dts";
@@ -670,7 +671,7 @@ package Gamemode_Eventide_EpoxyBomb
 		Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %velocity);
 		if(%col.getType() & $TypeMasks::StaticShapeObjectType)
 		{
-			if(%col.Datablock == flatEpoxyShape)
+			if(%col.Datablock.getID() == flatEpoxyShape.getID())
 			{
 				if(minigameCanDamage(%obj.sourceObject, %col.sourceObject))
 				{

@@ -169,20 +169,20 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
     chargeTime = 2000;
 };
 
-function wrathfulChargeAbilityImage::onCooldownCheck(%this, %obj, %slot)
+function wrathfulChargeAbilityImage::onCooldownCheck(%this, %obj)
 {
     %chargeCooldown = (%obj.getDatablock().chargeCooldown $= "") ? 24000 : %obj.getDatablock().chargeCooldown;
 	if((%obj.lastChargeTime + %chargeCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function wrathfulChargeAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+function wrathfulChargeAbilityImage::onCooldownCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -196,7 +196,7 @@ function wrathfulChargeAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	}
 }
 
-function wrathfulChargeAbilityImage::onCharge(%this, %obj, %slot)
+function wrathfulChargeAbilityImage::onCharge(%this, %obj)
 {
     %obj.applyStatusEffect("WrathfulChargeEffect", "Wrathful", PlayerWrathful.chargeTime);
 }
@@ -271,20 +271,20 @@ datablock ShapeBaseImageData(wrathfulRageAbilityImage)
 	stateTransitionOnTimeout[5] = "Ready";
 };
 
-function wrathfulRageAbilityImage::onCooldownCheck(%this, %obj, %slot)
+function wrathfulRageAbilityImage::onCooldownCheck(%this, %obj)
 {
     %rageCooldown = (%obj.getDatablock().rageCooldown $= "") ? 60000 : %obj.getDatablock().rageCooldown;
 	if((%obj.lastRageTime + %rageCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function wrathfulRageAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+function wrathfulRageAbilityImage::onCooldownCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -298,7 +298,7 @@ function wrathfulRageAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	}
 }
 
-function wrathfulRageAbilityImage::onRage(%this, %obj, %slot)
+function wrathfulRageAbilityImage::onRage(%this, %obj)
 {
 	%obj.applyStatusEffect("WrathfulPreRageEffect", "Wrathful", 2500);
 }
@@ -316,7 +316,7 @@ datablock ShapeBaseImageData(MeleeWrathfulRageImage : MeleeWrathfulImage)
 };
 MeleeWrathfulRageImage.inheritFunctionsFromSuperClass();
 
-function MeleeWrathfulRageImage::onSwing(%this, %obj, %slot)
+function MeleeWrathfulRageImage::onSwing(%this, %obj)
 {
     %currentTime = getSimTime();
 	%killerDatablock = %obj.getDataBlock();
@@ -333,14 +333,14 @@ function MeleeWrathfulRageImage::onSwing(%this, %obj, %slot)
     //Hold Wrathful in place (animation breaks otherwise) and deal some damage, after a delay.
     %windupTime = 400;
     %obj.freeze(%windupTime);
-    %this.schedule(%windupTime, "afterWindup", %obj, %slot);
+    %this.schedule(%windupTime, "afterWindup", %obj);
 
     //Play a punching animation.
     %obj.setActionThread(root);
     %obj.playThread(1, "bigAttack1");
 }
 
-function MeleeWrathfulRageImage::afterWindup(%this, %obj, %slot)
+function MeleeWrathfulRageImage::afterWindup(%this, %obj)
 {
     if(%obj.getState() $= "Dead")
     {
@@ -475,20 +475,20 @@ datablock ShapeBaseImageData(wrathfulStompAbilityImage)
 	stateTransitionOnTimeout[5] = "Ready";
 };
 
-function wrathfulStompAbilityImage::onCooldownCheck(%this, %obj, %slot)
+function wrathfulStompAbilityImage::onCooldownCheck(%this, %obj)
 {
     %stompCooldown = (%obj.getDatablock().stompCooldown $= "") ? 36000 : %obj.getDatablock().stompCooldown;
 	if((%obj.lastStompTime + %stompCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function wrathfulStompAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+function wrathfulStompAbilityImage::onCooldownCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -502,7 +502,7 @@ function wrathfulStompAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	}
 }
 
-function wrathfulStompAbilityImage::onStomp(%this, %obj, %slot)
+function wrathfulStompAbilityImage::onStomp(%this, %obj)
 {
     %obj.applyStatusEffect("WrathfulStompEffect", "Wrathful", PlayerWrathful.stompDelay);
 }

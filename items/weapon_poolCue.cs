@@ -240,7 +240,7 @@ function poolCueImage::onFire(%this, %obj, %slot)
 			{
 				%hit.stun(2500);
 				%hit.Damage(%obj, %hit.getPosition(), 50, $DamageType::poolCue);
-				%hit.applyImpulse(%hit.getposition(), VectorAdd(VectorScale(%obj.getMuzzleVector($RightHandSlot), 1500), "0 0 750"));			
+				%hit.applyImpulse(%hit.getposition(), VectorAdd(VectorScale(%obj.getMuzzleVector(%this.mountPoint), 1500), "0 0 750"));			
 			}			
 			
 			%obj.poolcuehit = 0;

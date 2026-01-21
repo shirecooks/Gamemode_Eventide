@@ -236,19 +236,19 @@ datablock ShapeBaseImageData(renownedPossessAbilityImage)
 	stateTransitionOnTimeout[7] = "Ready";
 };
 
-function renownedPossessAbilityImage::onEnergyCheck(%this, %obj, %slot)
+function renownedPossessAbilityImage::onEnergyCheck(%this, %obj)
 {
 	if(%obj.getEnergyPercent() == 1)
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function renownedPossessAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
+function renownedPossessAbilityImage::onEnergyCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -261,7 +261,7 @@ function renownedPossessAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
 	}
 }
 
-function renownedPossessAbilityImage::onAim(%this, %obj, %slot)
+function renownedPossessAbilityImage::onAim(%this, %obj)
 {
 	//Play a sound effect.
 	%obj.playManagedSound("Charged");
@@ -270,7 +270,7 @@ function renownedPossessAbilityImage::onAim(%this, %obj, %slot)
 	%obj.setNodeColor("rhand", "0.8 0.8 0.5 1");
 }
 
-function renownedPossessAbilityImage::attemptPossess(%this, %obj, %slot)
+function renownedPossessAbilityImage::attemptPossess(%this, %obj)
 {
 	%start = %obj.getEyePoint();
 	%range = getWord(%obj.getScale(), 2) * 40;
@@ -382,7 +382,7 @@ datablock ShapeBaseImageData(renownedPossessedImage)
 	stateTransitionOnTimeout[0] = "Activate";
 };
 
-function renownedPossessedImage::onMount(%this, %obj, %slot)
+function renownedPossessedImage::onMount(%this, %obj)
 {
 	%client = %obj.client;
 	if(%client)
@@ -391,7 +391,7 @@ function renownedPossessedImage::onMount(%this, %obj, %slot)
 	}
 }
 
-function renownedPossessedImage::onUnMount(%this, %obj, %slot)
+function renownedPossessedImage::onUnMount(%this, %obj)
 {
 	%obj.resetControlObject();
 }

@@ -308,20 +308,20 @@ datablock ShapeBaseImageData(anglerCastAbilityImage)
 	stateTransitionOnTimeout[5] = "Ready";
 };
 
-function anglerCastAbilityImage::onCooldownCheck(%this, %obj, %slot)
+function anglerCastAbilityImage::onCooldownCheck(%this, %obj)
 {
     %castCooldown = (%obj.getDatablock().castCooldown $= "") ? 20000 : %obj.getDatablock().castCooldown;
 	if((%obj.lastCastTime + %castCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function anglerCastAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+function anglerCastAbilityImage::onCooldownCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -335,7 +335,7 @@ function anglerCastAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	}
 }
 
-function anglerCastAbilityImage::onCast(%this, %obj, %slot)
+function anglerCastAbilityImage::onCast(%this, %obj)
 {
     %obj.lastCastTime = getSimTime();
 
