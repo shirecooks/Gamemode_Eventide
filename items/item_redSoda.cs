@@ -119,12 +119,12 @@ datablock ShapeBaseImageData(redSodaImage)
 // Sequence callbacks.
 //
 
-function redSodaImage::onReady(%this, %obj, %slot)
+function redSodaImage::onReady(%this, %obj)
 {
 
 }
 
-function redSodaImage::onOpen(%this, %obj, %slot)
+function redSodaImage::onOpen(%this, %obj)
 {
 	//Play the sound of the soda opening.
 	serverPlay3D("soda_can_open_sound", %obj.getPosition());
@@ -136,21 +136,23 @@ function redSodaImage::onOpen(%this, %obj, %slot)
 	%obj.playThread(2, shiftleft);
 }
 
-function redSodaImage::onDrink(%this, %obj, %slot)
+function redSodaImage::onDrink(%this, %obj)
 {
 	//Play the soda drinking sound and animation.
-	serverPlay3D("soda_gulp" @ getRandom(1,3) @ "_sound", %obj.getPosition());
+	serverPlay3D("soda_gulp" @ getRandom(1, 3) @ "_sound", %obj.getPosition());
 	%obj.playThread(2, shiftUp);
 
 	//Apply the speed boost status effect.
 	%obj.applyStatusEffect("SpeedSodaEffect", "Powerup", 6000);
 
     //Remove the tool from the player's object, so they can't cancel out and re-equip for infinite speed boosts.
-    %obj.tool[%obj.currTool] = "";
+    %obj.removeToolFromInventory("", true);
 }
 
-function redSodaImage::onDiscard(%this, %obj, %slot)
+function redSodaImage::onDiscard(%this, %obj)
 {
+	%slot = %obj.currTool;
+
     //Play a can dropping animation.
     %obj.playThread(0, shiftTo);
     %obj.playThread(2, plant);
@@ -171,9 +173,4 @@ function redSodaImage::onDiscard(%this, %obj, %slot)
 
     //Remove the leftover image from the player's hand and communicate to the client.
     %obj.unmountImage(%slot);
-    %client = %obj.client;
-	if(isObject(%client)) 
-    {
-        messageClient(%client, 'MsgItemPickup', '', %obj.currtool, 0, true);
-    }
 }
