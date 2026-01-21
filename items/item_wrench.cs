@@ -40,7 +40,6 @@ datablock ShapeBaseImageData(MonkeyWrenchImage)
 
 	stateName[1]					= "Ready";
 	stateAllowImageChange[1]		= true;
-	stateScript[1]					= "onReady";
 	stateTransitionOnTriggerDown[1]	= "Use";
 	
 	stateName[2]					= "Use";
@@ -48,18 +47,7 @@ datablock ShapeBaseImageData(MonkeyWrenchImage)
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
 
-function MonkeyWrenchImage::onUse(%this, %obj, %slot)
+function MonkeyWrenchImage::onUse(%this, %obj)
 {
 	%obj.activateStuff();
 }
-
-function MonkeyWrenchImage::onMount(%this, %obj, %slot)
-{
-	%obj.playThread(0, "armReady");
-}
-
-function MonkeyWrenchImage::onUnMount(%this, %obj, %slot)
-{
-	%obj.playThread(0, "root");
-}
-
