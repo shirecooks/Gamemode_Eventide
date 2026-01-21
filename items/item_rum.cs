@@ -226,7 +226,7 @@ datablock ShapeBaseImageData(rumBottleImage)
 //
 // Sequence callbacks.
 
-function rumBottleImage::onCooldownCheck(%this, %obj, %slot)
+function rumBottleImage::onCooldownCheck(%this, %obj)
 {
     //The rum's animation always needs to be reset at this point.
     %obj.playThread(2, root);
@@ -237,15 +237,15 @@ function rumBottleImage::onCooldownCheck(%this, %obj, %slot)
 	%currentTime = getSimTime();
     if(%cooldownEndTime > %currentTime)
     {
-        %obj.setImageAmmo(%slot, true);
+        %obj.setImageAmmo(%obj.currTool, true);
     }
     else
     {
-        %obj.setImageAmmo(%slot, false);
+        %obj.setImageAmmo(%obj.currTool, false);
     }
 }
 
-function rumBottleImage::onCooldown(%this, %obj, %slot)
+function rumBottleImage::onCooldown(%this, %obj)
 {
 	//The rum bottle was raised during the drinking animation, lower it again.
 	%obj.playThread(1, root);
@@ -257,18 +257,18 @@ function rumBottleImage::onCooldown(%this, %obj, %slot)
 	}
 }
 
-function rumBottleImage::onCooldownRevert(%this, %obj, %slot)
+function rumBottleImage::onCooldownRevert(%this, %obj)
 {
     //Raise the arm back up after being lowered.
     fixArmReady(%obj);
 }
 
-function rumBottleImage::onReady(%this, %obj, %slot)
+function rumBottleImage::onReady(%this, %obj)
 {
 
 }
 
-function rumBottleImage::onOpen(%this, %obj, %slot)
+function rumBottleImage::onOpen(%this, %obj)
 {
 	//Play the sound of the rum opening.
 	serverPlay3D("rum_open_sound", %obj.getMuzzlePoint(rumBottleImage.mountPoint));
@@ -280,15 +280,14 @@ function rumBottleImage::onOpen(%this, %obj, %slot)
 	%obj.playThread(2, shiftleft);
 
 	//Spawn a cork.
-	%corkDebris = new Projectile()
+	new Projectile()
 	{
 		dataBlock = rumBottleCorkProjectile;
 		initialPosition = %obj.getMuzzlePoint(rumBottleImage.mountPoint);
-	};
-	%corkDebris.explode();
+	}.explode();
 }
 
-function rumBottleImage::onDrink(%this, %obj, %slot)
+function rumBottleImage::onDrink(%this, %obj)
 {
 	//Play the rum drinking sound and animation.
 	serverPlay3D("soda_gulp" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
@@ -298,13 +297,13 @@ function rumBottleImage::onDrink(%this, %obj, %slot)
 	%obj.applyStatusEffect("PlayerRumEffect", "Powerup", 45000);
 
     //Remove the tool from the player's object, so they can't cancel out and re-equip for infinite intoxication.
-    %obj.tool[%obj.currTool] = "";
+    %obj.removeItemFromInventory("", true);
 
 	//Prevent the rum from being used again until the cooldown expires.
 	%obj.lastRumTime = getSimTime();
 }
 
-function rumBottleImage::onDiscard(%this, %obj, %slot)
+function rumBottleImage::onDiscard(%this, %obj)
 {
     //Play a bottle dropping animation.
     %obj.playThread(0, shiftTo);
@@ -325,12 +324,7 @@ function rumBottleImage::onDiscard(%this, %obj, %slot)
     %rumDebris.explode();
 
     //Remove the leftover image from the player's hand and communicate to the client.
-    %obj.unmountImage(%slot);
-    %client = %obj.client;
-	if(isObject(%client)) 
-    {
-        messageClient(%client, 'MsgItemPickup', '', %obj.currtool, 0, true);
-    }
+    %obj.unmountImage(%obj.currTool);
 }
 
 //
@@ -368,16 +362,33 @@ function PlayerRumEffect::beginStatusEffect(%this, %obj)
 		return;
 	}
 
-	//Add color correction (vignette multiply) to simulate drunken euphoria.
 	%client = %obj.client;
-	if(isObject(%client))
+	%isClient = isObject(%client);
+
+	if(%isClient)
 	{
+		//Add color correction (vignette multiply) to simulate drunken euphoria.
 		%this.client = %client;
-		commandToClient(%obj.client, 'SetVignette', 1, "0.750 0.5 0.0 1.0");
+		commandToClient(%client, 'SetVignette', 1, "0.750 0.5 0.0 1.0");
+
+		//Flush the player's face.
+		%originalHeadColor = %client.headColor;
+		%r = getWord(%originalHeadColor, 0);
+		%g = getWord(%originalHeadColor, 1);
+		%b = getWord(%originalHeadColor, 2);
+		%a = getWord(%originalHeadColor, 3);
+		if((%r + 0.2) <= 1.0)
+		{
+			%obj.setNodeColor("headSkin", setWord(%originalHeadColor, 0, %r + 0.2));
+		}
+		else if((%g - 0.2) >= 0.0 && (%b - 0.2) >= 1.0)
+		{
+			%obj.setNodeColor("headSkin", %r SPC (%g - 0.2) SPC (%b - 0.2) SPC %a);
+		}
 	}
 
 	//Give the player a drunken-looking face, use the "Mender" face pack for now until a proper one is made.
-	%facePack = (isObject(%client) && %client.chest) ? $Eventide_FacePacks["menderF"] : $Eventide_FacePacks["menderM"];
+	%facePack = (%isClient && %client.chest) ? $Eventide_FacePacks["menderF"] : $Eventide_FacePacks["menderM"];
 	%obj.faceConfig.setFacePack(%facePack);
 
 	//Add a cartoony visual effect.
@@ -419,9 +430,11 @@ function PlayerRumEffect::finalizeStatusEffect(%this, %obj)
 {
 	//Reset the color correction.
 	%client = %this.client;
-	if(isObject(%client))
+	%isClient = isObject(%client);
+
+	if(%isClient)
 	{
-		commandToClient(%obj.client, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
+		commandToClient(%client, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
 	}
 
 	//If the player is dead, do nothing.
@@ -434,6 +447,11 @@ function PlayerRumEffect::finalizeStatusEffect(%this, %obj)
 	%faceConfig = %obj.faceConfig;
 	%faceConfig.setFacePack(%faceConfig.previousFacePack);
 	%obj.faceConfigShowFaceTimed("Blink", 300);
+	if(%isClient)
+	{
+		//Revert the flushed face.
+		%obj.setNodeColor("headSkin", %client.headColor);
+	}
 
 	//Have the player shake themselves awake.
 	%obj.playThread(3, undo);
@@ -667,7 +685,7 @@ package Item_Rum
 
 			//Play a voice line.
 			//TODO: Need this for individual voice packs.
-			serverPlay3D("drunk_tumble" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
+			%obj.playAudio(3, "drunk_tumble" @ getRandom(1, 3) @ "_sound");
 
 			//No damage taken.
 			return 0;
