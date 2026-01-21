@@ -21,7 +21,7 @@ datablock ShapeBaseImageData(foilJacketImage)
 	stateName[1] = "Ready";
 };
 
-function foilJacketImage::onMount(%this, %obj, %slot)
+function foilJacketImage::onMount(%this, %obj)
 {
     %obj.playAudio(1, "foilJacket_on" @ getRandom(1, 5) @ "_sound");
 
@@ -29,7 +29,7 @@ function foilJacketImage::onMount(%this, %obj, %slot)
 	%obj.playThread(2, plant);
 }
 
-function foilJacketImage::onUnMount(%this, %obj, %slot)
+function foilJacketImage::onUnMount(%this, %obj)
 {
     %obj.playAudio(1, "foilJacket_off" @ getRandom(1, 4) @ "_sound");
 

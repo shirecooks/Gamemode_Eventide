@@ -55,7 +55,7 @@ datablock ShapeBaseImageData(eventideMeleeImage)
 	stateTransitionOnTimeout[2] = "Ready";
 };
 
-function eventideMeleeImage::onSwing(%this, %obj, %slot)
+function eventideMeleeImage::onSwing(%this, %obj)
 {	
 	%currentTime = getSimTime();
 	%killerDatablock = %obj.getDataBlock();

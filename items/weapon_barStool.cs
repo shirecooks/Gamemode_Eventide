@@ -144,7 +144,7 @@ datablock ShapeBaseImageData(barStoolImage)
 // Sequence callbacks.
 //
 
-function barStoolImage::onSwing(%this, %obj, %slot)
+function barStoolImage::onSwing(%this, %obj)
 {
 	%obj.playThread(3, shiftDown);
 	serverPlay3D("generic_heavyswing" @ getRandom(1, 2) @ "_sound", %obj.getMuzzlePoint(0));
@@ -155,9 +155,6 @@ function barStoolImage::onFire(%this, %obj, %slot)
 	if(!isObject(%obj) || %obj.getState() $= "Dead") return;
 	%startpos = %obj.getMuzzlePoint(0);
 	%endpos = %obj.getMuzzleVector(0);
-
-	for(%i = 0; %i <= %obj.getDataBlock().maxTools; %i++)
-	if(%obj.tool[%i] $= %this.item.getID()) %itemslot = %i;
 	
 	%hit = containerRayCast(%startpos, vectorAdd(%startpos, VectorScale(%endpos, 3)), $TypeMasks::PlayerObjectType | $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType, %obj);
 	if(isObject(%hit))
@@ -206,8 +203,8 @@ function barStoolImage::onFire(%this, %obj, %slot)
 
 			if(isObject(%obj.client))
 			{
-				%obj.tool[%itemslot] = 0;
-				messageClient(%obj.client, 'MsgItemPickup', '', %itemslot, 0);
+				%obj.tool[%slot] = 0;
+				messageClient(%obj.client, 'MsgItemPickup', '', %slot, 0);
 			}
 			if(isObject(%obj.getMountedImage(%this.mountPoint))) %obj.unmountImage(%this.mountPoint);
 			%obj.barstoolhit = 0;
@@ -215,14 +212,14 @@ function barStoolImage::onFire(%this, %obj, %slot)
 	}
 }
 
-function barStoolImage::onMount(%this, %obj, %slot)
+function barStoolImage::onMount(%this, %obj)
 {
-	parent::onMount(%this, %obj, %slot);
+	parent::onMount(%this, %obj);
 	%obj.playThread(2, armReadyLeft);
 }
 
-function barStoolImage::onUnMount(%this, %obj, %slot)
+function barStoolImage::onUnMount(%this, %obj)
 {
 	%obj.playThread(2, root);
-	parent::onUnMount(%this, %obj, %slot);
+	parent::onUnMount(%this, %obj);
 }

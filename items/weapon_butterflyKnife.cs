@@ -263,7 +263,7 @@ datablock ShapeBaseImageData(butterflyKnifeImage)
 // Animations and damage logic.
 //
 
-function butterflyKnifeImage::onCooldownCheck(%this, %obj, %slot)
+function butterflyKnifeImage::onCooldownCheck(%this, %obj)
 {
     //The knife's animation always needs to be reset at this point.
     %obj.playThread(2, root);
@@ -272,41 +272,43 @@ function butterflyKnifeImage::onCooldownCheck(%this, %obj, %slot)
     //Otherwise, transition to the "Ready" state.
     if((%obj.lastKnifeTime + %this.cooldown) > getSimTime())
     {
-        %obj.setImageAmmo(%slot, 1);
+        %obj.setImageAmmo(%this.mountPoint, 1);
     }
     else
     {
-        %obj.setImageAmmo(%slot, 0);
+        %obj.setImageAmmo(%this.mountPoint, 0);
     }
 }
 
-function butterflyKnifeImage::onCooldown(%this, %obj, %slot)
+function butterflyKnifeImage::onCooldown(%this, %obj)
 {
     //Lower the knife, it cannot be used.
     %obj.playThread(1, root);
 }
 
-function butterflyKnifeImage::onCooldownRevert(%this, %obj, %slot)
+function butterflyKnifeImage::onCooldownRevert(%this, %obj)
 {
     //Raise the arm back up after being lowered.
     fixArmReady(%obj);
 }
 
-function butterflyKnifeImage::onReady(%this, %obj, %slot)
+function butterflyKnifeImage::onReady(%this, %obj)
 {
 
 }
 
-function butterflyKnifeImage::onRaising(%this, %obj, %slot)
+function butterflyKnifeImage::onRaising(%this, %obj)
 {
     //Play the raising animation.
-	%obj.playthread(2, spearReady);
+	%obj.playThread(2, spearReady);
 }
 
-function butterflyKnifeImage::unchargedStab(%this, %obj, %slot)
+function butterflyKnifeImage::unchargedStab(%this, %obj)
 {
+    %slot = %obj.currTool;
+    
     //Play the weak jabbing animation.
-	%obj.playthread(2, armattack);
+	%obj.playThread(2, armattack);
 
     //Knife projectile velocity determination.
     %aimVector = %obj.getMuzzleVector(%slot);
@@ -328,8 +330,10 @@ function butterflyKnifeImage::unchargedStab(%this, %obj, %slot)
     };
 }
 
-function butterflyKnifeImage::onFire(%this, %obj, %slot)
+function butterflyKnifeImage::onFire(%this, %obj)
 {
+    %slot = %obj.currTool;
+    
     //Play the overhand stabbing animation.
 	%obj.playthread(2, spearThrow);
 

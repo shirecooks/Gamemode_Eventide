@@ -400,20 +400,20 @@ datablock ShapeBaseImageData(shireHowlAbilityImage)
 	stateTransitionOnTimeout[5] = "Ready";
 };
 
-function shireHowlAbilityImage::onCooldownCheck(%this, %obj, %slot)
+function shireHowlAbilityImage::onCooldownCheck(%this, %obj)
 {
     %howlCooldown = (%obj.getDatablock().howlCooldown $= "") ? 45000 : %obj.getDatablock().howlCooldown;
 	if((%obj.lastHowlTime + %howlCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function shireHowlAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
+function shireHowlAbilityImage::onCooldownCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -427,7 +427,7 @@ function shireHowlAbilityImage::onCooldownCheckFail(%this, %obj, %slot)
 	}
 }
 
-function shireHowlAbilityImage::onHowl(%this, %obj, %slot)
+function shireHowlAbilityImage::onHowl(%this, %obj)
 {
     %obj.lastHowlTime = getSimTime();
     
@@ -556,20 +556,20 @@ datablock ShapeBaseImageData(shireCurseAbilityImage)
 	stateTransitionOnTimeout[7] = "Ready";
 };
 
-function shireCurseAbilityImage::onEnergyCheck(%this, %obj, %slot)
+function shireCurseAbilityImage::onEnergyCheck(%this, %obj)
 {
     %curseCooldown = (%obj.getDatablock().curseCooldown $= "") ? 40000 : %obj.getDatablock().curseCooldown;
 	if((%obj.lastCurseTime + %curseCooldown) < getSimTime())
 	{
-		%obj.setImageAmmo(0, true);
+		%obj.setImageAmmo(%this.mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(0, false);
+		%obj.setImageAmmo(%this.mountPoint, false);
 	}
 }
 
-function shireCurseAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
+function shireCurseAbilityImage::onEnergyCheckFail(%this, %obj)
 {
 	//Play a fail animation.
 	%obj.playThread(2, "undo");
@@ -583,7 +583,7 @@ function shireCurseAbilityImage::onEnergyCheckFail(%this, %obj, %slot)
 	}
 }
 
-function shireCurseAbilityImage::onAim(%this, %obj, %slot)
+function shireCurseAbilityImage::onAim(%this, %obj)
 {
 	//Make the hand "glow."
 	%obj.setNodeColor("rhand", "0.8 0.8 0.5 1");
@@ -592,7 +592,7 @@ function shireCurseAbilityImage::onAim(%this, %obj, %slot)
     %obj.mountImage("shireGlowingFaceImage", 1);	
 }
 
-function shireCurseAbilityImage::attemptCurse(%this, %obj, %slot)
+function shireCurseAbilityImage::attemptCurse(%this, %obj)
 {
     %obj.lastCurseTime = getSimTime();
 

@@ -381,42 +381,44 @@ datablock ShapeBaseImageData(revolverImage)
 // Sequence callbacks.
 //
 
-function revolverImage::onCooldownCheck(%this, %obj, %slot)
+function revolverImage::onCooldownCheck(%this, %obj)
 {
    //If the revolver has not passed it's cooldown time limit, transition to the "Cooldown" state.
    //Otherwise, transition to the "Ready" state.
    if((%obj.lastRevolverTime + %this.cooldown) > getSimTime())
    {
-      %obj.setImageAmmo(%slot, 1);
+      %obj.setImageAmmo(%this.mountPoint, 1);
    }
    else
    {
-      %obj.setImageAmmo(%slot, 0);
+      %obj.setImageAmmo(%this.mountPoint, 0);
    }
 }
 
-function revolverImage::onCooldown(%this, %obj, %slot)
+function revolverImage::onCooldown(%this, %obj)
 {
    //Lower the revolver, it cannot be used.
    %obj.playThread(1, root);
 }
 
-function revolverImage::onCooldownRevert(%this, %obj, %slot)
+function revolverImage::onCooldownRevert(%this, %obj)
 {
    //Raise the arm back up after being lowered.
    fixArmReady(%obj);
 
    //Since we have a new bullet, play a reloading sound.
-   %obj.playAudio(0, "revolver_reload_sound");
+   %obj.playAudio(3, "revolver_reload_sound");
 }
 
-function revolverImage::onReady(%this, %obj, %slot)
+function revolverImage::onReady(%this, %obj)
 {
    
 }
 
-function revolverImage::onFire(%this, %obj, %slot)
+function revolverImage::onFire(%this, %obj)
 {
+   %slot = %obj.currTool;
+
    //Play a firing animation.
    %obj.playThread(2, jump);
 
@@ -439,5 +441,5 @@ function revolverImage::onFire(%this, %obj, %slot)
    %cooldown = mCeil(%this.cooldown / 1000);
    %obj.weaponCooldown(%slot, "The bullet was spent, and you won't get another for " @ %cooldown @ " seconds.", "You have a new bullet, and your revolver is ready to fire!", 6);
 
-	Parent::onFire(%this, %obj, %slot);	
+	Parent::onFire(%this, %obj);
 }

@@ -197,10 +197,11 @@ datablock ItemData(shotgunSlugItem)
 function shotgunSlugItem::onPickup(%this, %obj, %user, %amount)
 {
 	%pickedUp = Parent::onPickup(%this, %obj, %user, %amount);
-	if(%pickedUp && (%user.getMountedImage(shotgunImage.mountPoint) == shotgunImage.getID()) && (%user.getImageLoaded(0) == false))
+	%shotgunMountPoint = shotgunImage.mountPoint;
+	if(%pickedUp && (%user.getMountedImage(%shotgunMountPoint) == shotgunImage.getID()) && (%user.getImageLoaded(%shotgunMountPoint) == false))
 	{
 		//If the user has the shotgun equipped and it isn't loaded, set a flag so it reloads.
-		%user.setImageAmmo(0, true);
+		%user.setImageAmmo(%shotgunMountPoint, true);
 	}
 	return %pickedUp;
 }
@@ -340,60 +341,64 @@ datablock shapeBaseImageData(shotgunImage)
 // Sequence callbacks.
 //
 
-function shotgunImage::onAmmoCheck(%this, %obj, %slot)
+function shotgunImage::onAmmoCheck(%this, %obj)
 {
+	%mountPoint = this.mountPoint;
+
 	if(%obj.getImageAttribute("loaded") == true)
 	{
-		%obj.setImageLoaded(%slot, true);
+		%obj.setImageLoaded(%mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageLoaded(%slot, false);
+		%obj.setImageLoaded(%mountPoint, false);
 	}
 
-	if(%obj.getInventory(shotgunSlugItem) >= 1 && %obj.getImageLoaded(%slot) == false)
+	if(%obj.getInventory(shotgunSlugItem) >= 1 && %obj.getImageLoaded(%mountPoint) == false)
 	{
-		%obj.setImageAmmo(%slot, true);
+		%obj.setImageAmmo(%mountPoint, true);
 	}
 	else
 	{
-		%obj.setImageAmmo(%slot, false);
+		%obj.setImageAmmo(%mountPoint, false);
 	}
 }
 
-function shotgunImage::onReady(%this, %obj, %slot)
+function shotgunImage::onReady(%this, %obj)
 {
 
 }
 
-function shotgunImage::onFire(%this, %obj, %slot)
+function shotgunImage::onFire(%this, %obj)
 {
 	//Play the recoil animation.
 	%obj.playThread(2, "jump");
 	%obj.spawnExplosion("camShakeProjectile", %obj.getScale()); 
 
+	%mountPoint = %this.mountPoint;
+
 	//Play a firing sound.
-	serverPlay3D("shotgun_fire_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("shotgun_fire_sound", %obj.getMuzzlePoint(%mountPoint));
 
 	//Disable loaded, so the gane can't immediately fire again.
-	%obj.setImageLoaded(%slot, 0);
+	%obj.setImageLoaded(%mountPoint, 0);
 	%obj.setImageAttribute("loaded", false);
 
-	Parent::onFire(%this, %obj, %slot);
+	Parent::onFire(%this, %obj);
 }
 
-function shotgunImage::onDryFire(%this, %obj, %slot)
+function shotgunImage::onDryFire(%this, %obj)
 {
-	serverPlay3D("flaregun_dryfire_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("flaregun_dryfire_sound", %obj.getMuzzlePoint(%this.mountPoint));
 }
 
-function shotgunImage::onReloadPhase1(%this, %obj, %slot)
+function shotgunImage::onReloadPhase1(%this, %obj)
 {
 	%obj.playThread(2, "shiftLeft");
-	serverPlay3D("shotgun_break_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("shotgun_break_sound", %obj.getMuzzlePoint(%this.mountPoint));
 }
 
-function shotgunImage::onReloadPhase2(%this, %obj, %slot)
+function shotgunImage::onReloadPhase2(%this, %obj)
 {
 	%obj.playThread(2, "jump");
 
@@ -401,15 +406,17 @@ function shotgunImage::onReloadPhase2(%this, %obj, %slot)
 	schedule(400, 0, "serverPlay3D", "shotgun_shellDrop" @ getRandom(1, 2) @ "_sound", MatrixMulPoint(%obj.getTransform(), "-1 -2 0"));
 }
 
-function shotgunImage::onReloadPhase3(%this, %obj, %slot)
+function shotgunImage::onReloadPhase3(%this, %obj)
 {
-	serverPlay3D("shotgun_load_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("shotgun_load_sound", %obj.getMuzzlePoint(%this.mountPoint));
 }
 
-function shotgunImage::onReloadPhase4(%this, %obj, %slot)
+function shotgunImage::onReloadPhase4(%this, %obj)
 {
+	%mountPoint = %this.mountPoint;
+	
 	%obj.playThread(2, "shiftRight");
-	serverPlay3D("shotgun_unbreak_sound", %obj.getMuzzlePoint($RightHandSlot));
+	serverPlay3D("shotgun_unbreak_sound", %obj.getMuzzlePoint(%mountPoint));
 
 	//Remove a shotgun slug from the player's inventory.
 	for(%i = 0; %i < %obj.getDatablock().maxTools; %i++)
@@ -421,7 +428,7 @@ function shotgunImage::onReloadPhase4(%this, %obj, %slot)
 		}
 	}
 
-	%obj.setImageAmmo(%slot, false); //Disable ammo to flag that the gun does not need to reload.
-	%obj.setImageLoaded(%slot, true); //Enable loaded to flag that the gun can fire.
+	%obj.setImageAmmo(%mountPoint, false); //Disable ammo to flag that the gun does not need to reload.
+	%obj.setImageLoaded(%mountPoint, true); //Enable loaded to flag that the gun can fire.
 	%obj.setImageAttribute("loaded", true); //In case the gun is unequipped, store a variable on the player marking it as loaded.
 }

@@ -106,7 +106,7 @@ datablock ShapeBaseImageData(blueSodaImage)
 // Sequence callbacks.
 //
 
-function blueSodaImage::onCooldownCheck(%this, %obj, %slot)
+function blueSodaImage::onCooldownCheck(%this, %obj)
 {
     //The soda's animation always needs to be reset at this point.
     %obj.playThread(2, root);
@@ -117,32 +117,32 @@ function blueSodaImage::onCooldownCheck(%this, %obj, %slot)
 	%currentTime = getSimTime();
     if(%cooldownEndTime > %currentTime)
     {
-        %obj.setImageAmmo(%slot, true);
+        %obj.setImageAmmo(%this.mountPoint, true);
     }
     else
     {
-        %obj.setImageAmmo(%slot, false);
+        %obj.setImageAmmo(%this.mountPoint, false);
     }
 }
 
-function blueSodaImage::onCooldown(%this, %obj, %slot)
+function blueSodaImage::onCooldown(%this, %obj)
 {
 	//The soda can was raised during the drinking animation, lower it again.
 	%obj.playThread(1, root);
 }
 
-function blueSodaImage::onCooldownRevert(%this, %obj, %slot)
+function blueSodaImage::onCooldownRevert(%this, %obj)
 {
     //Raise the arm back up after being lowered.
     fixArmReady(%obj);
 }
 
-function blueSodaImage::onReady(%this, %obj, %slot)
+function blueSodaImage::onReady(%this, %obj)
 {
 
 }
 
-function blueSodaImage::onOpen(%this, %obj, %slot)
+function blueSodaImage::onOpen(%this, %obj)
 {
 	//Play the sound of the soda opening.
 	serverPlay3D("soda_can_open_sound", %obj.getPosition());
@@ -154,8 +154,10 @@ function blueSodaImage::onOpen(%this, %obj, %slot)
 	%obj.playThread(2, shiftleft);
 }
 
-function blueSodaImage::OnDrink(%this, %obj, %slot)
+function blueSodaImage::OnDrink(%this, %obj)
 {
+	%slot = %obj.currTool;
+	
 	//Play the soda drinking sound and animation.
 	serverPlay3D("soda_gulp" @ getRandom(1,3) @ "_sound", %obj.getPosition());
 	%obj.playThread(2, shiftUp);

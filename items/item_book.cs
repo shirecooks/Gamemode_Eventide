@@ -39,9 +39,9 @@ datablock ShapeBaseImageData(bookImage)
     stateName[0] = "Activate";
 };
 
-function bookImage::onMount(%this, %obj, %slot)
+function bookImage::onMount(%this, %obj)
 {    
-    Parent::onMount(%this, %obj, %slot);
+    Parent::onMount(%this, %obj);
 
-    %obj.playThread(1,"armReadyBoth");
+    %obj.playThread(1, armReadyBoth);
 }
