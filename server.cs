@@ -15,6 +15,7 @@ exec("./scripts/support_meleeTrails.cs");
 exec("./scripts/support_textStyles.cs");
 exec("./scripts/support_objectCollision.cs");
 exec("./scripts/support_cutscenes.cs");
+exec("./scripts/support_customCdn.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/script_itemParticles.cs");
 
