@@ -162,6 +162,7 @@ function createEmptyFaceConfig(%facePack)
         facePack = %facePack;
         currentFace = "";
         face["isFaceConfigArray"] = true;
+        blinkQueue = New_QueueSO(255);
     };
 
     %faceConfigName = "faceConfig_" @ %faceConfig.getID();
@@ -293,6 +294,11 @@ function FaceConfig::resetFaceSlot(%obj, %targetName)
     %obj.face[%targetName] = %facePack.getFaceData(compileFaceDataName(%facePack, %targetName));
 }
 
+function FaceConfig::onRemove(%obj)
+{
+    %obj.blinkQueue.delete();
+}
+
 //
 // Loading functions.
 //
@@ -394,8 +400,12 @@ function Player::createSubfaceConfig(%player, %subFacePackName)
         return;
     }
 
-    %player.faceConfig.delete();
-    %player.faceConfig = createFaceConfig(%subFacePack);
+    %currentFaceConfig = %player.faceConfig;
+    %newFaceConfig = createFaceConfig(%subFacePack);
+    %newFaceConfig.previousFacePack = %player.faceConfig.previousFacePack;
+    %currentFaceConfig.delete();
+    %player.faceConfig = %newFaceConfig;
+
     %player.beginFaceConfigBlinkSchedule();
 }
 
@@ -408,6 +418,11 @@ function Player::revertSubfaceConfig(%player)
     }
     
     %player.createFaceConfig($Eventide_FacePacks[%player.faceConfig.category]);
+}
+
+function Player::hasSubfacePack(%player, %subFacePackName)
+{
+    return $Eventide_FacePacks[%player.faceConfig.category, %subFacePackName] !$= "";
 }
 
 function Player::createEmptyFaceConfig(%player, %facePack)
@@ -640,6 +655,7 @@ function Player::faceConfigTalkAnimation(%player, %message)
             }
         }
 
+        %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Smiley", %speakingTime); //Open mouth.
         %milisecondTimeIndex += %speakingTime;
     }
 
@@ -741,16 +757,16 @@ package Gamemode_Eventide_FaceSystem
         Parent::addHealth(%obj, %amount);
         if(%amount < 0 && isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
         {
-            if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
+            if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+                %obj.createSubfaceConfig("Hurt");
             }
         }
         else if(%amount > 0 && isObject(%obj.faceConfig))
         {
-            if(%obj.getDamagePercent() < 0.33 && %obj.faceConfig.subCategory $= "Hurt")
+            if(%obj.getDamageLevel() < 33 && %obj.faceConfig.subCategory $= "Hurt")
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category]);
+                %obj.revertSubfaceConfig();
             }
         }
     }
@@ -760,13 +776,13 @@ package Gamemode_Eventide_FaceSystem
         Parent::setHealth(%obj, %amount);
         if(%amount > 0 && isObject(%obj.faceConfig))
         {
-            if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
+            if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+                %obj.createSubfaceConfig("Hurt");
             }
             else if(%obj.faceConfig.subCategory $= "Hurt")
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category]);
+                %obj.revertSubfaceConfig();
             }
         }
     }
@@ -775,13 +791,13 @@ package Gamemode_Eventide_FaceSystem
         Parent::setDamageLevel(%obj, %amount);
         if(isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
         {
-            if(%obj.getDamagePercent() > 0.33 && %obj.faceConfig.subCategory !$= "Hurt" && $Eventide_FacePacks[%obj.faceConfig.category, "Hurt"] !$= "")
+            if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category, "Hurt"]);
+                %obj.createSubfaceConfig("Hurt");
             }
             else if(%obj.faceConfig.subCategory $= "Hurt")
             {
-                %obj.createFaceConfig($Eventide_FacePacks[%obj.faceConfig.category]);
+                %obj.revertSubfaceConfig();
             }
         }
     }
