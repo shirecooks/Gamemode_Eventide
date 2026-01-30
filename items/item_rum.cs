@@ -43,8 +43,8 @@ datablock DebrisData(rumBottleDebris)
 	gravModifier = 0.9;
 	lifeTime = 5;
 	maxSpinSpeed = 1000;
-	numBounces = 2;
-    bounceVariance = 2;
+	numBounces = 0;
+    bounceVariance = 1;
 	fade = true;
 	snapOnMaxBounce = false;
 	staticOnMaxBounce = true;
@@ -180,7 +180,7 @@ datablock ShapeBaseImageData(rumBottleImage)
 	//The rum is on cooldown and cannot be used.
     stateName[3] = "Cooldown";
     stateScript[3] = "onCooldown";
-    stateAllowImageChange[3] = false;
+    stateAllowImageChange[3] = true;
     ////The cooldown ended while the rum was equipped, transition to the "Ready" state.
     stateTransitionOnNoAmmo[3] = "CooldownRevert";
 
@@ -323,6 +323,12 @@ function rumBottleImage::onDiscard(%this, %obj)
 	};
     %rumDebris.explode();
 
+	//After 200 milliseconds, play a shell-drop sound effect by the player's side, relative to where they are facing.
+	schedule(200, 0, "serverPlay3D", "rum_break" @ getRandom(1, 3) @ "_sound", MatrixMulPoint(%obj.getTransform(), "1 0 0"));
+
+	//If the player happens to be holding another rum bottle by the time they're sober, let them know they can drink again.
+	%obj.weaponCooldown(%this.mountPoint, "", "");
+
     //Remove the leftover image from the player's hand and communicate to the client.
     %obj.unmountImage(%this.mountPoint);
 }
@@ -372,24 +378,28 @@ function PlayerRumEffect::beginStatusEffect(%this, %obj)
 		commandToClient(%client, 'SetVignette', 1, "0.750 0.5 0.0 1.0");
 
 		//Flush the player's face.
+		%tintAmount = 0.3;
 		%originalHeadColor = %client.headColor;
 		%r = getWord(%originalHeadColor, 0);
 		%g = getWord(%originalHeadColor, 1);
 		%b = getWord(%originalHeadColor, 2);
 		%a = getWord(%originalHeadColor, 3);
-		if((%r + 0.2) <= 1.0)
+		if((%r + %tintAmount) <= 1.0)
 		{
-			%obj.setNodeColor("headSkin", setWord(%originalHeadColor, 0, %r + 0.2));
+			%obj.setNodeColor("headSkin", setWord(%originalHeadColor, 0, %r + %tintAmount));
 		}
-		else if((%g - 0.2) >= 0.0 && (%b - 0.2) >= 1.0)
+		else if((%g - %tintAmount) >= 0.0 && (%b - %tintAmount) >= 0.0)
 		{
-			%obj.setNodeColor("headSkin", %r SPC (%g - 0.2) SPC (%b - 0.2) SPC %a);
+			%obj.setNodeColor("headSkin", %r SPC (%g - %tintAmount) SPC (%b - %tintAmount) SPC %a);
 		}
 	}
 
 	//Give the player a drunken-looking face, use the "Mender" face pack for now until a proper one is made.
 	%facePack = (%isClient && %client.chest) ? $Eventide_FacePacks["menderF"] : $Eventide_FacePacks["menderM"];
-	%obj.faceConfig.setFacePack(%facePack);
+	if(isObject(%obj.faceConfig))
+	{
+		%obj.faceConfig.setFacePack(%facePack);
+	}
 
 	//Add a cartoony visual effect.
 	%obj.mountImage(playerDrunkImage, playerDrunkImage.mountSlot);
@@ -407,24 +417,34 @@ function PlayerRumEffect::tick(%this, %obj)
 	}
 
 	//I'm feeling a little woozy...
-	%obj.shakeCamera(0.12);
+	%playerVelocity = VectorLen(%obj.getVelocity());
+	if(%playerVelocity < 1.0)
+	{
+		%obj.shakeCamera(0.1);
+	}
+	else
+	{
+		//Vary the intensity of the camera-shaking when moving, to simulate the player staggering organically.
+		%obj.shakeCamera(getRandom(25, 40) / 100);
 
-	//"Blur" vision a little.
-	%obj.setWhiteOut(0.1);
+		//Add some sideways velocity to the player to mimic staggering as well.
+		%playerRelativeVelocity = mAbs(%obj.getRelativeVelocity());
+		if(%playerRelativeVelocity >= 1.0 && mAbs(getWord(%playerVelocity, 2)) < 1.0) //If the player is walking forward AND not falling...
+		{
+			//Make the player randomly step left or right.
+			%playerUpVector = %obj.getUpVector();
+			%playerForwardVector = %obj.getForwardVector();
+
+			//Stagger left, or stagger right?
+			%staggerVector = (getRandom(0, 1) ? VectorCross(%playerForwardVector, %playerUpVector) : VectorCross(%playerUpVector, %playerForwardVector));
+			%staggerVelocity = setWord(VectorScale(%staggerVector, 5), 2, 2); //Add two TU up, 5 to the left or right of the player.
+			%obj.AddVelocity(%staggerVelocity);
+		}
+	}
 
 	//Cycle until we're done.
-	%obj.drunkSchedule = %this.schedule(1000, "tick", %obj);
+	%obj.drunkSchedule = %this.schedule(500, "tick", %obj);
 }
-
-// function PlayerRumEffect::damage(%this, %data, %obj, %sourceObject, %pos, %damage, %damageType)
-// {
-// 	//Halve all damage taken.
-// 	%damage = %damage / 2.0;
-
-// 	//This function needs to return something to override the damage.
-// 	%parentCall = %data.damage(%obj, %sourceObject, %position, %damage, %damageType);
-// 	return (%parentCall $= "" ? %damage : %parentCall);
-// }
 
 function PlayerRumEffect::finalizeStatusEffect(%this, %obj)
 {
@@ -445,8 +465,11 @@ function PlayerRumEffect::finalizeStatusEffect(%this, %obj)
 
 	//Revert the drunken face.
 	%faceConfig = %obj.faceConfig;
-	%faceConfig.setFacePack(%faceConfig.previousFacePack);
-	%obj.faceConfigShowFaceTimed("Blink", 300);
+	if(isObject(%faceConfig))
+	{
+		%faceConfig.setFacePack(%faceConfig.previousFacePack);
+		%obj.faceConfigShowFaceTimed("Blink", 300);
+	}
 	if(%isClient)
 	{
 		//Revert the flushed face.
@@ -508,8 +531,7 @@ datablock WheeledVehicleData(betterTumbleVehicle)
 
 	//Collision
 	minImpactSpeed = 0.1;		// Impacts over this invoke the script callback
-//	minRunOverSpeed = 100;  	// how fast you need to be going to run someone over (do damage)
-	minRunOverSpeed = 1;  	// how fast you need to be going to run someone over (do damage)
+	minRunOverSpeed = 100;  	// how fast you need to be going to run someone over (do damage)
 	runOverDamageScale = 100; //how much damage running over does
 	collisionTol = 0.4;			// Collision distance tolerance (was 0.25)
 
@@ -679,7 +701,7 @@ package Item_Rum
 			%obj.damagedSinceTumble = 0;
 
 			//Launch the player instead of damaging them.
-			%impactNormal = VectorNormalize(VectorSub(%obj.getPosition(), %sourceObject.getPosition()));
+			%impactNormal = VectorNormalize(VectorSub(%obj.getHackPosition(), %position));
 			%inheritedVelocity = VectorScale(%impactNormal, %damage * 0.75);
 			%obj.betterTumble(%inheritedVelocity);
 
@@ -712,6 +734,14 @@ package Item_Rum
 		{
 			%tumbleVehicle.delete();
 		}
+
+		%client = %obj.client;
+		if(%obj.hasStatusEffect("PlayerRumEffect", "Powerup") && isObject(%client))
+		{
+			commandToClient(%client, 'SetVignette', $EnvGuiServer::VignetteMultiply, $EnvGuiServer::VignetteColor);
+		}
+
+		return parent::onRemove(%this, %obj);
 	}
 };
 if(isPackage(Item_Rum))
