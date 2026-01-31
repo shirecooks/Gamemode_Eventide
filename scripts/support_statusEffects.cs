@@ -5,6 +5,17 @@ function SimObject::applyStatusEffect(%obj, %class, %category, %duration)
     {
         %obj.statusEffects = new ScriptGroup();
     }
+    else
+    {
+        //If the player already has status effect, simply extend it.
+        %statusEffect = %obj.hasStatusEffect(%class, %category);
+        if(%statusEffect != 0)
+        {
+            cancel(%statusEffect.clearSchedule);
+            %statusEffect.clearSchedule = %obj.schedule(%duration, clearStatusEffect, %class, %category);
+            return %statusEffect;
+        }
+    }
 
     //Store the status effect object on the target SimObject.
     %statusEffect = new ScriptObject()
