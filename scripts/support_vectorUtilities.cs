@@ -63,3 +63,8 @@ function Player::getLookVector(%this)
 	
 	return vectorAdd(vectorScale(%forward, %magnitudePlane), %localZ);
 }
+
+function ShapeBase::getRelativeVelocity(%obj)
+{
+    return VectorDot(%obj.getVelocity(), %obj.getForwardVector());
+}
