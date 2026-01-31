@@ -1,8 +1,5 @@
 datablock ItemData(ritualItem)
 {
-	class = "ritualItem";
-	superClass = "";
-
 	category = "Weapon";
 	className = "Weapon";
 

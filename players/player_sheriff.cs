@@ -4,13 +4,10 @@
 
 datablock PlayerData(PlayerSheriff : PlayerSurvivor)
 {
-    class = "PlayerSheriff";
-    superClass = "PlayerSurvivor";
-
     uiName = "Sheriff";
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerSheriff.inheritFunctionsFromSuperClass();
+PlayerSheriff.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
 function PlayerSheriff::onNewDatablock(%this, %obj)
 {

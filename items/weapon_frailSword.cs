@@ -62,9 +62,6 @@ datablock ItemData(frailSwordItem)
 
 datablock ShapeBaseImageData(frailSwordImage : eventideMeleeImage)
 {
-	class = "frailSwordImage";
-    superClass = "eventideMeleeImage";
-
 	shapeFile = frailSwordItem.shapeFile;
 	item = frailSwordItem;
 
@@ -78,7 +75,7 @@ datablock ShapeBaseImageData(frailSwordImage : eventideMeleeImage)
 	swingSound = "generic_lightSwing";
 	swingSoundAmount = 5;
 };
-frailSwordImage.inheritFunctionsFromSuperClass();
+frailSwordImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 // Sequence callbacks.

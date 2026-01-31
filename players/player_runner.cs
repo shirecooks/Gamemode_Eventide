@@ -4,9 +4,6 @@
 
 datablock PlayerData(PlayerRunner : PlayerSurvivor)
 {
-    class = "PlayerRunner";
-    superClass = "PlayerSurvivor";
-
     maxForwardSpeed = (PlayerEventide.maxForwardSpeed * 1.1);
 	maxBackwardSpeed = (PlayerEventide.maxBackwardSpeed * 1.1);
 	maxSideSpeed = (PlayerEventide.maxSideSpeed * 1.1);
@@ -22,7 +19,7 @@ datablock PlayerData(PlayerRunner : PlayerSurvivor)
     uiName = "Runner";
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerRunner.inheritFunctionsFromSuperClass();
+PlayerRunner.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
 function PlayerRunner::onNewDatablock(%this, %obj)
 {

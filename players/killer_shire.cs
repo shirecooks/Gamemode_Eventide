@@ -316,9 +316,6 @@ datablock ShapeBaseImageData(ZombieBodyImage)
 // Baked-in melee weapon.
 datablock ShapeBaseImageData(MeleeShireAxeImage : eventideMeleeImage)
 {
-	class = "MeleeShireAxeImage";
-    superClass = "eventideMeleeImage";
-
    	shapeFile = "./models/axe/axe.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
@@ -328,7 +325,7 @@ datablock ShapeBaseImageData(MeleeShireAxeImage : eventideMeleeImage)
 	swingSound = "generic_lightSwing";
 	swingSoundAmount = 5;
 };
-MeleeShireAxeImage.inheritFunctionsFromSuperClass();
+MeleeShireAxeImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 //// Ability and item to initiate howl.
@@ -735,9 +732,6 @@ function Player::curse(%obj, %time)
 
 datablock PlayerData(PlayerShire : PlayerKiller) 
 {
-    class = "PlayerShire";
-    superClass = "PlayerKiller";
-
 	uiName = "Shire Player";	
 	
 	killerWeaponImage = MeleeShireAxeImage;
@@ -760,7 +754,7 @@ datablock PlayerData(PlayerShire : PlayerKiller)
     howlTime = 6000;
     curseTime = 5000;
 };
-PlayerShire.inheritFunctionsFromSuperClass();
+PlayerShire.inheritFunctionsFromSuperClass("PlayerKiller");
 
 //
 // Appearance.

@@ -54,9 +54,6 @@ datablock fxLightData(candleLight)
 
 datablock ItemData(candleItem : ritualItem)
 {
-	class = "candleItem";
-	superClass = "ritualItem";
-
 	shapeFile = "./models/candle/candle.dts";
 	mass = 1;
 	density = 0.2;
@@ -79,7 +76,7 @@ datablock ItemData(candleItem : ritualItem)
 	possibleOffset3 = "-3.25 1.1 0.375 0 0 0";
 	possibleOffset4 = "3.25 1.1 0.375 0 0 0";
 };
-candleItem.inheritFunctionsFromSuperClass();
+candleItem.inheritFunctionsFromSuperClass("ritualItem");
 
 datablock ShapeBaseImageData(candleImage)
 {

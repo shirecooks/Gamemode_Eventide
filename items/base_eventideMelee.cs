@@ -1,8 +1,5 @@
 datablock ShapeBaseImageData(eventideMeleeImage)
 {
-    class = "eventideMeleeImage";
-    superClass = "";
-
 	meleeTrailSkin = $Eventide_MeleeTrails["base.trail"];
 	meleeTrailTime = 1000;
 	meleeTrailOffset = "0.3 1.4 0.7"; 

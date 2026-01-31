@@ -1,8 +1,5 @@
 datablock PlayerData(PlayerKiller : PlayerEventide) 
 {
-    class = "PlayerKiller";
-    superClass = "PlayerEventide";
-
 	uiName = "";
     isKiller = true;
     firstPersonOnly = true;
@@ -21,7 +18,7 @@ datablock PlayerData(PlayerKiller : PlayerEventide)
 	killerLoopTick = 200;
 };
 //Inherit functions from `PlayerEventide`.
-PlayerKiller.inheritFunctionsFromSuperClass();
+PlayerKiller.inheritFunctionsFromSuperClass("PlayerEventide");
 
 function PlayerKiller::onNewDatablock(%this, %obj)
 {

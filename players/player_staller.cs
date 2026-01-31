@@ -142,9 +142,6 @@ datablock ProjectileData(stallerCloakProjectile)
 
 datablock PlayerData(PlayerStaller : PlayerSurvivor)
 {
-    class = "PlayerStaller";
-    superClass = "PlayerSurvivor";
-
     uiName = "Staller";
 	hoodMountPoint = 3;
 
@@ -152,7 +149,7 @@ datablock PlayerData(PlayerStaller : PlayerSurvivor)
 	facePack = "";
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerStaller.inheritFunctionsFromSuperClass();
+PlayerStaller.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
 function PlayerStaller::onNewDatablock(%this, %obj)
 {
@@ -237,9 +234,6 @@ function PlayerStaller::spawnCloakEffect(%this, %obj)
 
 datablock PlayerData(PlayerStallerCloaked : PlayerStaller)
 {
-    class = "PlayerStallerCloaked";
-    superClass = "PlayerStaller";
-
 	maxForwardCrouchSpeed = PlayerStaller.maxForwardSpeed;
 	maxSideCrouchSpeed = PlayerStaller.maxSideSpeed;
 	maxBackwardCrouchSpeed = PlayerStaller.maxBackwardSpeed;
@@ -251,7 +245,7 @@ datablock PlayerData(PlayerStallerCloaked : PlayerStaller)
 	rechargeRate = -0.4375; //32 ticks per second * 14 = 8 seconds of cloak at full energy.
 };
 //Inherits functions from `PlayerStaller`.
-PlayerStallerCloaked.inheritFunctionsFromSuperClass();
+PlayerStallerCloaked.inheritFunctionsFromSuperClass("PlayerStaller");
 
 function PlayerStallerCloaked::eventideBodyParts(%this, %obj)
 {

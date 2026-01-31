@@ -4,15 +4,12 @@
 
 datablock PlayerData(PlayerHoarder : PlayerSurvivor)
 {
-    class = "PlayerHoarder";
-    superClass = "PlayerSurvivor";
-
     uiName = "Hoarder";
     maxWeapons = 5;
 	maxTools = 5;
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerHoarder.inheritFunctionsFromSuperClass();
+PlayerHoarder.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
 function PlayerHoarder::eventideBodyParts(%this, %obj)
 {

@@ -7,9 +7,6 @@ datablock TSShapeConstructor(PlayerEventideDTS)
 
 datablock PlayerData(PlayerEventide : PlayerStandardArmor)
 {
-    class = "PlayerEventide";
-    superClass = "";
-
 	shapeFile = PlayerEventideDTS.baseShape;
 	uiName = "";
 

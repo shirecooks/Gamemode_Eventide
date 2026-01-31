@@ -127,9 +127,6 @@ datablock ParticleEmitterData(RenownedAbilityEmitter)
 // Baked-in melee weapon.
 datablock ShapeBaseImageData(MeleeTantoImage : eventideMeleeImage)
 {
-	class = "MeleeTantoImage";
-    superClass = "eventideMeleeImage";
-
    	shapeFile = "./models/Katana.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
@@ -139,7 +136,7 @@ datablock ShapeBaseImageData(MeleeTantoImage : eventideMeleeImage)
 	swingSound = "generic_lightSwing";
 	swingSoundAmount = 5;
 };
-MeleeTantoImage.inheritFunctionsFromSuperClass();
+MeleeTantoImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 // Ability image and inventory item.
@@ -402,9 +399,6 @@ function renownedPossessedImage::onUnMount(%this, %obj)
 
 datablock PlayerData(PlayerRenowned : PlayerKiller) 
 {
-    class = "PlayerRenowned";
-    superClass = "PlayerKiller";
-
 	uiName = "Renowned Player";	
 	
 	// Weapon: Katana
@@ -422,7 +416,7 @@ datablock PlayerData(PlayerRenowned : PlayerKiller)
 	killerNearMusic = musicData_Eventide_RenownedNear;
 	killerChaseMusic = musicData_Eventide_RenownedChase;
 };
-PlayerRenowned.inheritFunctionsFromSuperClass();
+PlayerRenowned.inheritFunctionsFromSuperClass("PlayerKiller");
 
 //
 // Appearance.

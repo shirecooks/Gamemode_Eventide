@@ -1,8 +1,5 @@
 datablock ItemData(bookItem : ritualItem)
 {
-	class = "bookItem";
-	superClass = "ritualItem";
-
 	category = "Weapon";
 	className = "Weapon";
 
@@ -16,7 +13,7 @@ datablock ItemData(bookItem : ritualItem)
 	maxRitualsOnCircle = 1;
 	possibleOffset1 = "0 0.65 0.1 0 0 0";
 };
-bookItem.inheritFunctionsFromSuperClass();
+bookItem.inheritFunctionsFromSuperClass("ritualItem");
 
 datablock ShapeBaseImageData(bookImage)
 {

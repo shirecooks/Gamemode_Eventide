@@ -88,9 +88,6 @@ datablock ProjectileData(daggerObscureProjectile : KillerKatanaClankProjectile)
 
 datablock ItemData(daggerItem : ritualItem)
 {
-	class = "daggerItem";
-	superClass = "ritualItem";
-
 	category = "Weapon";
 	className = "Weapon";
 
@@ -113,13 +110,10 @@ datablock ItemData(daggerItem : ritualItem)
 	maxRitualsOnCircle = 1;
 	possibleOffset1 = "0 -0.65 0.1 90 0 0";
 };
-daggerItem.inheritFunctionsFromSuperClass();
+daggerItem.inheritFunctionsFromSuperClass("ritualItem");
 
 datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 {
-	class = "daggerImage";
-    superClass = "eventideMeleeImage";
-
     shapeFile = "./models/ritualDagger/ritualDagger.dts";
     item = daggerItem;
     staticShape = "brickDaggerStaticShape";
@@ -135,4 +129,4 @@ datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 	swingSound = "generic_lightSwing";
 	swingSoundAmount = 5;
 };
-daggerImage.inheritFunctionsFromSuperClass();
+daggerImage.inheritFunctionsFromSuperClass("eventideMeleeImage");

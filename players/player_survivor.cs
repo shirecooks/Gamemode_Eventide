@@ -1,8 +1,5 @@
 datablock PlayerData(PlayerSurvivor : PlayerEventide)
 {
-    class = "PlayerSurvivor";
-    superClass = "PlayerEventide";
-
     uiName = "Basic Survivor";
     maxTools = 3;
 	maxWeapons = 3;
@@ -12,7 +9,7 @@ datablock PlayerData(PlayerSurvivor : PlayerEventide)
 	maxInv["shotgunSlugItem"] = 5;
 };
 //Inherits functions from `PlayerEventide`.
-PlayerSurvivor.inheritFunctionsFromSuperClass();
+PlayerSurvivor.inheritFunctionsFromSuperClass( "PlayerEventide");
 
 //
 // Voice-line, expression handlers.

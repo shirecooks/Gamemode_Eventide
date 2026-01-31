@@ -76,9 +76,6 @@ datablock ProjectileData(wrathfulDustExplosionProjectile : tumbleImpactAProjecti
 
 datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 {
-	class = "MeleeWrathfulImage";
-    superClass = "eventideMeleeImage";
-
    	shapeFile = "base/data/shapes/empty.dts";
 	
 	hitProjectile = KillerWrathfulHitProjectile;
@@ -94,7 +91,7 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 	customSwingAnimationCount = 1;
     fixedDamageAmount = 28;
 };
-MeleeWrathfulImage.inheritFunctionsFromSuperClass();
+MeleeWrathfulImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 //// Ability and item to initiate charging.
@@ -307,14 +304,11 @@ function wrathfulRageAbilityImage::onRage(%this, %obj)
 // Ability and item for attacking while enraged.
 datablock ShapeBaseImageData(MeleeWrathfulRageImage : MeleeWrathfulImage)
 {
-	class = "MeleeWrathfulRageImage";
-    superClass = "MeleeWrathfulImage";
-
     customSwingAnimation = "";
     meleeTrailSkin = "";
     fixedDamageAmount = 36;
 };
-MeleeWrathfulRageImage.inheritFunctionsFromSuperClass();
+MeleeWrathfulRageImage.inheritFunctionsFromSuperClass("MeleeWrathfulImage");
 
 function MeleeWrathfulRageImage::onSwing(%this, %obj)
 {
@@ -550,9 +544,6 @@ datablock TSShapeConstructor(PlayerWrathfulDTS)
 
 datablock PlayerData(PlayerWrathful : PlayerKiller) 
 {
-    class = "PlayerWrathful";
-    superClass = "PlayerKiller";
-
     shapeFile = PlayerWrathfulDTS.baseShape;
     uiName = "Wrathful Player";
 
@@ -585,7 +576,7 @@ datablock PlayerData(PlayerWrathful : PlayerKiller)
 	stompStunTime = 2000;
 };
 //Inherit functions from `PlayerKiller`.
-PlayerWrathful.inheritFunctionsFromSuperClass();
+PlayerWrathful.inheritFunctionsFromSuperClass("PlayerKiller");
 
 //
 // Appearance.
@@ -667,13 +658,10 @@ function WrathfulChargeEffect::finalizeStatusEffect(%this, %obj)
 // Charge loop, used to mimick the player moving running forward.
 datablock PlayerData(PlayerWrathfulCharging : PlayerWrathful) 
 {
-    class = "PlayerWrathfulCharging";
-    superClass = "PlayerWrathful";
-
     uiName = "";
 };
 //Inherit functions from `PlayerWrathful`.
-PlayerWrathfulCharging.inheritFunctionsFromSuperClass();
+PlayerWrathfulCharging.inheritFunctionsFromSuperClass("PlayerWrathful");
 
 function PlayerWrathfulCharging::chargeTick(%this, %obj)
 {

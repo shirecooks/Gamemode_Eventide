@@ -20,14 +20,11 @@ datablock ShapeBaseImageData(menderMaskImage)
 
 datablock PlayerData(PlayerMender : PlayerSurvivor)
 {
-    class = "PlayerMender";
-    superClass = "PlayerSurvivor";
-
     uiName = "Mender";
     maskMountPoint = 2;
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerMender.inheritFunctionsFromSuperClass();
+PlayerMender.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
 function PlayerMender::onNewDatablock(%this, %obj)
 {

@@ -4,9 +4,6 @@
 
 datablock ItemData(gemItem : ritualItem)
 {
-	class = "gemItem";
-	superClass = "ritualItem";
-
 	category = "Weapon";
 	className = "Weapon";
 
@@ -31,7 +28,7 @@ datablock ItemData(gemItem : ritualItem)
 	placeSound = "gem_place";
 	placeSoundAmount = 1;
 };
-gemItem.inheritFunctionsFromSuperClass();
+gemItem.inheritFunctionsFromSuperClass("ritualItem");
 
 //
 // Red gem.
@@ -39,9 +36,6 @@ gemItem.inheritFunctionsFromSuperClass();
 
 datablock ItemData(gem1Item : gemItem)
 {
-	class = "gem1Item";
-	superClass = "gemItem";
-
 	category = "Weapon";
 	className = "Weapon";
 
@@ -53,7 +47,7 @@ datablock ItemData(gem1Item : gemItem)
 
 	image = gem1Image;
 };
-gem1Item.inheritFunctionsFromSuperClass();
+gem1Item.inheritFunctionsFromSuperClass("gemItem");
 
 datablock ShapeBaseImageData(gem1Image)
 {
@@ -86,9 +80,6 @@ datablock ShapeBaseImageData(gem1Image)
 
 datablock ItemData(gem2Item : gem1Item)
 {
-	class = "gem2Item";
-	superClass = "gem1Item";
-
 	shapeFile = "./models/gem/gem2.dts";
 	uiName = "Green Gem";
 
@@ -97,7 +88,7 @@ datablock ItemData(gem2Item : gem1Item)
 
 	image = gem2Image;
 };
-gem2Item.inheritFunctionsFromSuperClass();
+gem2Item.inheritFunctionsFromSuperClass("gem1Item");
 
 datablock ShapeBaseImageData(gem2Image : gem1Image)
 {
@@ -114,9 +105,6 @@ datablock ShapeBaseImageData(gem2Image : gem1Image)
 
 datablock ItemData(gem3Item : gem1Item)
 {
-	class = "gem3Item";
-	superClass = "gem1Item";
-
 	shapeFile = "./models/gem/gem3.dts";
 	uiName = "Blue Gem";
 
@@ -125,7 +113,7 @@ datablock ItemData(gem3Item : gem1Item)
 
 	image = gem3Image;
 };
-gem3Item.inheritFunctionsFromSuperClass();
+gem3Item.inheritFunctionsFromSuperClass("gem1Item");
 
 datablock ShapeBaseImageData(gem3Image : gem1Image)
 {
@@ -142,9 +130,6 @@ datablock ShapeBaseImageData(gem3Image : gem1Image)
 
 datablock ItemData(gem4Item : gem1Item)
 {
-	class = "gem4Item";
-	superClass = "gem1Item";
-
 	shapeFile = "./models/gem/gem4.dts";
 	uiName = "Yellow Gem";
 
@@ -153,7 +138,7 @@ datablock ItemData(gem4Item : gem1Item)
 
 	image = gem4Image;
 };
-gem4Item.inheritFunctionsFromSuperClass();
+gem4Item.inheritFunctionsFromSuperClass("gem1Item");
 
 datablock ShapeBaseImageData(gem4Image : gem1Image)
 {
@@ -170,9 +155,6 @@ datablock ShapeBaseImageData(gem4Image : gem1Image)
 
 datablock ItemData(gem5Item : gem1Item)
 {
-	class = "gem5Item";
-	superClass = "gem1Item";
-
 	shapeFile = "./models/gem/gem5.dts";
 	uiName = "Purple Gem";
 
@@ -181,7 +163,7 @@ datablock ItemData(gem5Item : gem1Item)
 
 	image = gem5Image;
 };
-gem5Item.inheritFunctionsFromSuperClass();
+gem5Item.inheritFunctionsFromSuperClass("gem1Item");
 
 datablock ShapeBaseImageData(gem5Image : gem1Image)
 {

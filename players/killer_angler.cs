@@ -219,9 +219,6 @@ function anglerHookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %norm
 
 datablock ShapeBaseImageData(MeleeAnglerImage : eventideMeleeImage)
 {
-	class = "MeleeAnglerImage";
-    superClass = "eventideMeleeImage";
-
    	shapeFile = "./models/anglerhook.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
@@ -236,7 +233,7 @@ datablock ShapeBaseImageData(MeleeAnglerImage : eventideMeleeImage)
     swingSound = "anglerSwing";
 	swingSoundAmount = 5;
 };
-MeleeAnglerImage.inheritFunctionsFromSuperClass();
+MeleeAnglerImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 //// Ability and item to initiate casting.
@@ -378,9 +375,6 @@ datablock TSShapeConstructor(AnglerDTS)
 
 datablock PlayerData(PlayerAngler : PlayerKiller) 
 {
-    class = "PlayerAngler";
-    superClass = "PlayerKiller";
-
 	uiName = "Angler Player";
 	shapeFile = AnglerDTS.baseShape;
 
@@ -400,7 +394,7 @@ datablock PlayerData(PlayerAngler : PlayerKiller)
     throwLength = 16;
     maxReelTime = 10000;
 };
-PlayerAngler.inheritFunctionsFromSuperClass();
+PlayerAngler.inheritFunctionsFromSuperClass("PlayerKiller");
 
 function PlayerAngler::onNewDataBlock(%this, %obj)
 {
