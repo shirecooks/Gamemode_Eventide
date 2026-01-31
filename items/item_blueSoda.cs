@@ -145,7 +145,7 @@ function blueSodaImage::onReady(%this, %obj)
 function blueSodaImage::onOpen(%this, %obj)
 {
 	//Play the sound of the soda opening.
-	serverPlay3D("soda_can_open_sound", %obj.getPosition());
+	serverPlay3D("soda_can_open_sound", %obj.getMuzzlePoint(0));
 
 	//Raise the can so it is ready to drink.
 	%obj.playThread(1, armReadyRight);
@@ -159,7 +159,7 @@ function blueSodaImage::OnDrink(%this, %obj)
 	%slot = %obj.currTool;
 	
 	//Play the soda drinking sound and animation.
-	serverPlay3D("soda_gulp" @ getRandom(1,3) @ "_sound", %obj.getPosition());
+	serverPlay3D("soda_gulp" @ getRandom(1,3) @ "_sound", %obj.getEyePoint());
 	%obj.playThread(2, shiftUp);
 
 	//Essential for cooldown purposes.
