@@ -127,7 +127,7 @@ function redSodaImage::onReady(%this, %obj)
 function redSodaImage::onOpen(%this, %obj)
 {
 	//Play the sound of the soda opening.
-	serverPlay3D("soda_can_open_sound", %obj.getPosition());
+	serverPlay3D("sodaCan_open_sound", %obj.getMuzzlePoint(0));
 
 	//Raise the can so it is ready to drink.
 	%obj.playThread(1, armReadyRight);
@@ -146,7 +146,7 @@ function redSodaImage::onDrink(%this, %obj)
 	%obj.applyStatusEffect("SpeedSodaEffect", "Powerup", 6000);
 
     //Remove the tool from the player's object, so they can't cancel out and re-equip for infinite speed boosts.
-    %obj.removeToolFromInventory("", true);
+    %obj.removeItemFromInventory("", true);
 }
 
 function redSodaImage::onDiscard(%this, %obj)
@@ -168,6 +168,9 @@ function redSodaImage::onDiscard(%this, %obj)
 		initialPosition = %rightHandLocation;
 	};
     %sodaDebris.explode();
+
+	//After 200 milliseconds, play a can-drop sound effect by the player's side, relative to where they are facing.
+	schedule(200, 0, "serverPlay3D", "sodaCan_drop" @ getRandom(1, 3) @ "_sound", MatrixMulPoint(%obj.getTransform(), "1 0 0"));
 
     //Remove the leftover image from the player's hand and communicate to the client.
     %obj.unmountImage(%this.mountPoint);
