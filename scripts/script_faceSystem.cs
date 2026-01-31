@@ -141,6 +141,7 @@ function createFaceConfig(%facePack)
         currentFace = "";
         face["isFaceConfigArray"] = true;
         face["Pain", "length"] = 2000;
+        animationQueue = New_QueueSO(255);
     };
 
     %faceConfigName = "faceConfig_" @ %faceConfig.getID();
@@ -162,7 +163,7 @@ function createEmptyFaceConfig(%facePack)
         facePack = %facePack;
         currentFace = "";
         face["isFaceConfigArray"] = true;
-        blinkQueue = New_QueueSO(255);
+        animationQueue = New_QueueSO(255);
     };
 
     %faceConfigName = "faceConfig_" @ %faceConfig.getID();
@@ -296,7 +297,12 @@ function FaceConfig::resetFaceSlot(%obj, %targetName)
 
 function FaceConfig::onRemove(%obj)
 {
-    %obj.blinkQueue.delete();
+    %animationQueue = %obj.animationQueue;
+    while((%animationSchedule = %animationQueue.pop()) != 0)
+    {
+        cancel(%animationSchedule);
+    }
+    %animationQueue.delete();
 }
 
 //
@@ -448,30 +454,35 @@ function Player::faceConfigUnblink(%player)
         return;
     }
 
+    %faceConfig = %player.faceConfig;
+
     %player.setFaceName(%player.faceConfig.getFace("Neutral"));
-    if(%player.faceConfig.subCategory $= "Scared")
+    if(%faceConfig.subCategory $= "Scared")
     {
-        if(%player.faceConfig.getFaceAttribute("Blink", "scaredOpenLength") $= "")
+        if(%faceConfig.getFaceAttribute("Blink", "scaredOpenLength") $= "")
         {
-            %player.faceConfig.setFaceAttribute("Blink", "scaredOpenLength", (5000 + getRandom(0, 2000)));
+            %faceConfig.setFaceAttribute("Blink", "scaredOpenLength", (5000 + getRandom(0, 2000)));
         }
-        %blinkDelay = %player.faceConfig.getFaceAttribute("Blink", "scaredOpenLength"); 
+        %blinkDelay = %faceConfig.getFaceAttribute("Blink", "scaredOpenLength"); 
     }
     else
     {
-        if(%player.faceConfig.getFaceAttribute("Blink", "openLength") $= "")
+        if(%faceConfig.getFaceAttribute("Blink", "openLength") $= "")
         {
-            %player.faceConfig.setFaceAttribute("Blink", "openLength", (3000 + getRandom(0, 750)));
+            %faceConfig.setFaceAttribute("Blink", "openLength", (3000 + getRandom(0, 750)));
         }
-        %blinkDelay = %player.faceConfig.getFaceAttribute("Blink", "openLength"); 
+        %blinkDelay = %faceConfig.getFaceAttribute("Blink", "openLength"); 
     }
 
     if(isEventPending(%player.faceConfigBlinkSchedule))
     {
         cancel(%player.faceConfigBlinkSchedule);
     }
-    %player.faceConfigBlinkSchedule = %player.schedule(%blinkDelay, "faceConfigBlink");
-    return %player.faceConfigBlinkSchedule;
+    
+    %blinkSchedule = %player.schedule(%blinkDelay, "faceConfigBlink");
+    %player.faceConfigBlinkSchedule = %blinkSchedule;
+    %faceConfig.animationQueue.push(%blinkSchedule);
+    return %blinkSchedule;
 }
 
 function Player::faceConfigBlink(%player)
@@ -481,19 +492,12 @@ function Player::faceConfigBlink(%player)
         return;
     }
 
-    %customBlink = %player.faceConfig.getFaceAttribute(%player.faceConfig.currentFace.getSimpleName(), "blinkFace");
-    if(%customBlink !$= "")
-    {
-        %player.setFaceName(%player.faceConfig.getFace(%customBlink));
-    }
-    else
-    {
-        %player.setFaceName(%player.faceConfig.getFace("Blink"));
-    }
+    %faceConfig = %player.faceConfig;
+    %player.setFaceName(%player.faceConfig.getFace("Blink"));
 
-    if(%player.faceConfig.getFaceAttribute("Blink", "closedLength") $= "")
+    if(%faceConfig.getFaceAttribute("Blink", "closedLength") $= "")
     {
-        %player.faceConfig.setFaceAttribute("Blink", "closedLength", getRandom(100, 400)); //The average blink lasts between 0.1 to 0.4 seconds.
+        %faceConfig.setFaceAttribute("Blink", "closedLength", getRandom(100, 400)); //The average blink lasts between 0.1 to 0.4 seconds.
     }
 
     if(isEventPending(%player.faceConfigBlinkSchedule))
@@ -501,8 +505,10 @@ function Player::faceConfigBlink(%player)
         cancel(%player.faceConfigBlinkSchedule);
     }
     
-    %player.faceConfigBlinkSchedule = %player.schedule(%player.faceConfig.getFaceAttribute("Blink", "closedLength"), "faceConfigUnblink");
-    return %player.faceConfigBlinkSchedule;
+    %blinkSchedule  = %player.schedule(%player.faceConfig.getFaceAttribute("Blink", "closedLength"), "faceConfigUnblink");
+    %player.faceConfigBlinkSchedule = %blinkSchedule;
+    %faceConfig.animationQueue.push(%blinkSchedule);
+    return %blinkSchedule;
 }
 
 function Player::beginFaceConfigBlinkSchedule(%player)
@@ -527,21 +533,26 @@ function Player::faceConfigShowFace(%player, %name)
         cancel(%player.faceConfigBlinkSchedule);
     }
 
-    %player.setFaceName(%player.faceConfig.getFace(%name));
+    %faceConfig = %player.faceConfig;
+    %player.setFaceName(%faceConfig.getFace(%name));
 
-    %faceDisplayLength = %player.faceConfig.getFaceAttribute(%name, "length");
-    if(%player.faceConfig.isFace("Blink"))
+    %faceDisplayLength = %faceConfig.getFaceAttribute(%name, "length");
+    if(%faceConfig.isFace("Blink"))
     {
         if(%faceDisplayLength $= "")
         {
             //Faces will have a default display time of 4 seconds.
-            %player.faceConfigBlinkSchedule = %player.schedule(4000, "faceConfigUnblink");
-            return %player.faceConfigBlinkSchedule;
+            %blinkSchedule = %player.schedule(4000, "faceConfigUnblink");
+            %player.faceConfigBlinkSchedule = %blinkSchedule;
+            %faceConfig.animationQueue.push(%blinkSchedule);
+            return %blinkSchedule;
         }
         else 
         {
-            %player.faceConfigBlinkSchedule = %player.schedule(%faceDisplayLength, "faceConfigUnblink");
-            return %player.faceConfigBlinkSchedule;
+            %blinkSchedule = %player.schedule(%faceDisplayLength, "faceConfigUnblink");
+            %player.faceConfigBlinkSchedule = %blinkSchedule;
+            %faceConfig.animationQueue.push(%blinkSchedule);
+            return %blinkSchedule;
         }
     }
     else
@@ -570,36 +581,22 @@ function Player::faceConfigShowFaceTimed(%player, %name, %time)
         cancel(%player.faceConfigBlinkSchedule);
     }
 
-    %player.setFaceName(%player.faceConfig.getFace(%name));
+    %faceConfig = %player.faceConfig;
+    %player.setFaceName(%faceConfig.getFace(%name));
     
     if(%time != -1)
     {
-        if(%player.faceConfig.isFace("Blink"))
+        if(%faceConfig.isFace("Blink"))
         {
-            %player.faceConfigBlinkSchedule = %player.schedule(%time, "faceConfigUnblink");
-            return %player.faceConfigBlinkSchedule;
+            %blinkSchedule = %player.schedule(%time, "faceConfigUnblink");
+            %player.faceConfigBlinkSchedule = %blinkSchedule;
+            %faceConfig.animationQueue.push(%blinkSchedule);
+            return %blinkSchedule;
         }
         else
         {
             %player.schedule(%time, "faceConfigShowFaceTimed", "Neutral", -1);
         }
-    }
-}
-
-function Player::faceConfigShowDeathFace(%player)
-{
-    if(!isObject(%player) || !isObject(%player.faceConfig))
-    {
-        return;
-    }
-
-    if(%player.faceConfig.isFace("Death"))
-    {
-        %player.setFaceName(%player.faceConfig.getFace("Death"));
-    }
-    else if(%player.faceConfig.isFace("Blink"))
-    {
-        %player.setFaceName(%player.faceConfig.getFace("Blink"));
     }
 }
 
@@ -609,6 +606,8 @@ function Player::faceConfigTalkAnimation(%player, %message)
     {
         return;
     }
+
+    %faceConfig = %player.faceConfig;
 
     %simTime = getSimTime();
     if(%player.finishTalkingTime != 0 && (%simTime < %player.finishTalkingTime))
@@ -624,38 +623,31 @@ function Player::faceConfigTalkAnimation(%player, %message)
     {
         //For every letter in the message...
         %currentLetter = strlwr(getSubStr(%message, %i, 1));
-        %speakingTime = 50; //By default, 50 miliseconds to pronounce each letter. Changes for commas, periods, colons and semicolons.
+        %speakingTime = 50; //By default, 50 miliseconds to pronounce each letter. Matches the default talking animation.
 
         if(%currentLetter $= "u" || %currentLetter $= "o" || %currentLetter $= "r" || %currentLetter $= "w" || %currentLetter $= "q")
         {
-            if(%player.faceConfig.isFace("Oh"))
-            {
-                %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Oh", %speakingTime); //Parsed lips.
-            }
+            %faceName  = "Oh";
         }
         else if(%currentLetter $= "e" || %currentLetter $= "c" || %currentLetter $= "s" || %currentLetter $= "n" || %currentLetter $= "k" || %currentLetter $= "z" || %currentLetter $= "j" || %currentLetter $= "s" || %currentLetter $= "t" || %currentLetter $= "f" || %currentLetter $= "v" || %currentLetter $= "h" || %currentLetter $= "g" || %currentLetter $= "x" || %currentLetter $= "y")
         {
-            if(%player.faceConfig.isFace("Tooth"))
-            {
-                %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Tooth", %speakingTime); //Closed teeth.
-            }
+            %faceName = "Tooth";
         }
         else if(%currentLetter $= "m" || %currentLetter $= "p" || %currentLetter $= "b")
         {
-            if(%player.faceConfig.isFace("Smirk"))
-            {
-                %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Smirk", %speakingTime); //Relaxed lips.
-            }
+            %faceName = "Smirk"; //Relaxed lips.
         }
         else
         {
-            if(%player.faceConfig.isFace("Smiley"))
-            {
-                %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Smiley", %speakingTime); //Open mouth.
-            }
+            %faceName = "Smiley";
         }
 
-        %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", "Smiley", %speakingTime); //Open mouth.
+        if(%faceConfig.isFace(%faceName))
+        {
+            %talkAnimation = %player.schedule(%milisecondTimeIndex, "faceConfigShowFaceTimed", %faceName, %speakingTime); //Parsed lips.
+            %faceConfig.animationQueue.push(%talkAnimation);
+        }  
+
         %milisecondTimeIndex += %speakingTime;
     }
 
@@ -668,33 +660,29 @@ function Player::faceConfigTalkAnimation(%player, %message)
 
 package Gamemode_Eventide_FaceSystem
 {
-    function EventidePlayer::onDisabled(%this, %player, %state)
+    function Armor::onDisabled(%this, %player, %state)
     {
         //When a player dies, end all facial expression and close their eyes.
-        if(isObject(%player.client))
+        %faceConfig = %player.faceConfig;
+        if(isObject(%faceConfig))
         {
-            if(isEventPending(%player.faceConfigBlinkSchedule))
-            {
-                cancel(%player.faceConfigBlinkSchedule);
-            }
-
-            %player.faceConfigShowDeathFace();
-
-            if(isObject(%player.faceConfig))
-            {
-                %player.faceConfig.delete();
-            }
+            %deathFace = (%faceConfig.isFace("Death")) ? %faceConfig.getFace("Death") : %faceConfig.getFace("Blink");
+            %faceConfig.delete();
+            %player.setFaceName(%deathFace);
         }
+
         Parent::onDisabled(%this, %player, %state);
     }
     
-    function EventidePlayer::onRemove(%this, %player)
+    function Armor::onRemove(%this, %player)
     {
         //In case the minigame resets, in which case onDisabled is not called.
-        if(isObject(%player.faceConfig))
+        %faceConfig = %player.faceConfig;
+        if(isObject(%faceConfig))
         {
-            %player.faceConfig.delete();
+            %faceConfig.delete();
         }
+
         Parent::onRemove(%this, %player);
     }
 
@@ -702,40 +690,46 @@ package Gamemode_Eventide_FaceSystem
     {
         //Play a facial expression when the player emotes.
         Parent::emote(%player, %emote);
-        if(isObject(%player.faceConfig))
+
+        %faceConfig = %player.faceConfig;
+        if(!isObject(%faceConfig))
+        {
+            return;
+        }
+
+        %choice = "Neutral";
+        switch$(%emote.getName())
+        {
+            case "LoveImage": //Love.
+                %choice = "Smirk";
+            case "AlarmProjectile": //Alarm.
+                %choice = "Tooth";
+            case "WtfImage": //Confusion.
+                %choice = "Oh";
+            case "HateImage": //Hate
+                %choice = "Blink";
+            case "winStarProjectile": //Win - plays at the end of a Slayer round, or when a player finds a Treasure Chest.
+                %choice = "SmirkSquint";
+            default:
+                return;
+        }
+
+        //In case the face is not present, this is better than getting the default smiley.
+        if(!%faceConfig.isFace(%choice))
         {
             %choice = "Neutral";
-            switch$(%emote.getName())
-            {
-                case "LoveImage": //Love.
-                    %choice = "Smirk";
-                case "AlarmProjectile": //Alarm.
-                    %choice = "Tooth";
-                case "WtfImage": //Confusion.
-                    %choice = "Oh";
-                case "HateImage": //Hate
-                    %choice = "Blink";
-                case "winStarProjectile": //Win - plays at the end of a Slayer round, or when a player finds a Treasure Chest.
-                    %choice = "SmirkSquint";
-                default:
-                    return;
-            }
-
-            //In case the face is not present, this is better than getting the default smiley.
-            if(!%player.faceConfig.isFace(%choice))
-            {
-                %choice = "Neutral";
-            }
-            %player.faceConfigShowFace(%choice);
         }
+        %player.faceConfigShowFace(%choice);
     }
 
     function serverCmdMessageSent(%client, %message)
     {
         //Make's a player's mouth move when they speak.
         Parent::serverCmdMessageSent(%client, %message);
+
         %player = %client.player;
-        if(isObject(%player) && isObject(%player.faceConfig) && %player.faceConfig.isFace("Smiley"))
+        %faceConfig = %player.faceConfig;
+        if(isObject(%player) && isObject(%faceConfig) && %faceConfig.isFace("Smiley"))
         {
             %player.faceConfigTalkAnimation(%message);
         }
@@ -744,8 +738,10 @@ package Gamemode_Eventide_FaceSystem
     {
         //Make's a player's mouth move when they speak.
         Parent::serverCmdTeamMessageSent(%client, %message);
+
         %player = %client.player;
-        if(isObject(%player) && isObject(%player.faceConfig) && %player.faceConfig.isFace("Smiley"))
+        %faceConfig = %player.faceConfig;
+        if(isObject(%player) && isObject(%faceConfig) && %faceConfig.isFace("Smiley"))
         {
             %player.faceConfigTalkAnimation(%message);
         }
@@ -755,6 +751,7 @@ package Gamemode_Eventide_FaceSystem
     {
         //If hurt, change their face pack. If no longer hurt, change it back to normal.
         Parent::addHealth(%obj, %amount);
+
         if(%amount < 0 && isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
         {
             if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
@@ -774,6 +771,7 @@ package Gamemode_Eventide_FaceSystem
     {
         //If hurt, change their face pack. If no longer hurt, change it back to normal.
         Parent::setHealth(%obj, %amount);
+
         if(%amount > 0 && isObject(%obj.faceConfig))
         {
             if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
@@ -789,6 +787,7 @@ package Gamemode_Eventide_FaceSystem
     function Player::setDamageLevel(%obj, %amount)
     {
         Parent::setDamageLevel(%obj, %amount);
+
         if(isObject(%obj.faceConfig) && !%obj.getState() $= "Dead")
         {
             if(%obj.getDamageLevel() > 33 && %obj.faceConfig.subCategory !$= "Hurt" && %obj.hasSubfacePack("Hurt"))
@@ -806,6 +805,7 @@ package Gamemode_Eventide_FaceSystem
     {
         //These are ScriptObjects, which the garbage collector will never automatically delete, so we need to do it manually.
         deleteVariables("$Eventide_*");
+
         Parent::destroyServer();
     }
 };
