@@ -54,32 +54,11 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
 $Pref::OOP::Debug = ($Pref::OOP::Debug !$= "") ? $Pref::OOP::Debug : false;
 function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 {
-    if(%superClass $= "")
-    {
-        %superClass = %this.superClass;
-    }
-    else
-    {
-        %this.superClass = %superClass;
-    }
-
+    %this.superClass = %superClass;
+    %this.class = %this.getName();
     if(%this.class $= "")
     {
-        %name = %this.getName();
-        %datablock = %this.Datablock;
-        if(%name !$= "")
-        {
-            %this.class = %name;
-        }
-        else if(%datablock !$= "" && %datablock.getName() !$= "")
-        {
-            %this.class = %datablock.getName();
-        }
-        else
-        {
-            error("ERROR: inheritFunctionsFromSuperclass() - Object has no name or named datablock, cannot inherit functions.");
-            return;
-        }
+        error("ERROR: inheritFunctionsFromSuperClass() - Target object does not have a namespace.");
     }
 
     %superClassID = nameToID(%this.superClass);
@@ -172,7 +151,8 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
         //{
         //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);
         //}
-        eval("function " @ %this.class @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18){" @ %superClass @ " :: " @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);}");
+        eval("function " @ %this.class @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18){" @ %this.superClass @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);}");
+        echo("function " @ %this.class @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18){" @ %this.superClass @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);}");
     }
 
     //Return the target datablock, so the mods can chain off of this call if they want to.
