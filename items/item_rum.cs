@@ -290,7 +290,7 @@ function rumBottleImage::onOpen(%this, %obj)
 function rumBottleImage::onDrink(%this, %obj)
 {
 	//Play the rum drinking sound and animation.
-	serverPlay3D("soda_gulp" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
+	serverPlay3D("drink_gulp" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
 	%obj.playThread(2, shiftUp);
 
 	//Apply the speed boost status effect.

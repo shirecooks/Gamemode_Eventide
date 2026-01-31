@@ -139,7 +139,7 @@ function redSodaImage::onOpen(%this, %obj)
 function redSodaImage::onDrink(%this, %obj)
 {
 	//Play the soda drinking sound and animation.
-	serverPlay3D("soda_gulp" @ getRandom(1, 3) @ "_sound", %obj.getPosition());
+	serverPlay3D("drink_gulp" @ getRandom(1, 3) @ "_sound", %obj.getPosition());
 	%obj.playThread(2, shiftUp);
 
 	//Apply the speed boost status effect.
