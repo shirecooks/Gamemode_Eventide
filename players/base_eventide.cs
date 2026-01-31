@@ -510,6 +510,16 @@ package Player_Eventide
 
         return Parent::applyBodyColors(%client);
     }
+
+	//Correction for corpses sometimes standing up after dying. Clear all animation slots.
+	function Player::playDeathAnimation(%this)
+	{
+		%this.setArmThread("root");
+		%this.playThread(3, "Death1");
+		%this.playThread(2, "Death1");
+		%this.playThread(1, "Death1");
+		%this.playThread(0, "Death1");
+	}
 };
 if(isPackage(Player_Eventide))
 {
