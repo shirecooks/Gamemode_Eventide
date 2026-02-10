@@ -1,16 +1,17 @@
-//Not used for anything currently, but it might at some point.
-function SimObject::isSubclassOf(%this, %parentDatablock)
+// Made by Robbinson Block (BLID: 37814, Discord: @robbinsonblock)
+
+//Recursively check if an object belongs to a parent class/ancestor.
+//Only works in the context of chaining `inheritFunctionsFromSuperClass` calls, or if `superClass` is manually set.
+function SimObject::isSubclassOf(%this, %parentObject)
 {
-    %datablock = %this.getDatablock();
-    while(isObject(%datablock))
+    %parentObject = NameToID(%parentObject);
+    %superClass = NameToID(%this.superClass);
+
+    for(%superClass = NameToID(%this.superClass); %superClass != -1; %superClass = NameToID(%superClass.superClass))
     {
-        if(%datablock == %parentDatablock)
+        if(%superClass == %parentObject)
         {
             return true;
-        }
-        else
-        {
-            %datablock = %datablock.superClass;
         }
     }
 
@@ -20,8 +21,35 @@ function SimObject::isSubclassOf(%this, %parentDatablock)
 //Call a parent class function with arbitrary arguments.
 //Take advantage of the fact that everything in TorqueScript is a string, so nothing can be lost by presenting all arguments as a string.
 $OOP_recursionDepth = 0;
+$OOP_executingCachedSuperChain = false;
+$OOP_superChainCacheTarget = "";
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
+    if($OOP_executingCachedSuperChain)
+    {
+        //We're executing a precomputed `super` call chain, so any calls to this function right now are redundant.
+        return;
+    }
+
+    if(%this.__private__cachedSuperChain !$= "" && $OOP_superChainCacheTarget $= "")
+    {
+        //If we aren't currently caching a `super` call chain and have one ready. Use it.
+        $OOP_executingCachedSuperChain = true;
+        %returnValue = eval(%this.__private__cachedSuperChain);
+        $OOP_executingCachedSuperChain = false;
+        return %returnValue;
+    }
+    else if($OOP_superChainCacheTarget $= "")
+    {
+        //Prepare to cache a `super` call chain - make sure the above checks don't pass.
+        $OOP_superChainCacheTarget = %this.getName();
+    }
+
+    //
+    //One `super` call often leads to other `super` calls.
+    //Step through each one, caching each call on the original object for faster execution next time.
+    //
+
     //Calling a superclass function that has another call to this function results in an infinite loop. We can stop this by measuring recursion depth.
     $OOP_recursionDepth++;
 
@@ -39,59 +67,103 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         }
     }
 
+    //Check if the superclass is valid and not a poisoned string.
+    %superClass = getSafeVariableName(%superClass); //Eye candy.
+    if(!isObject(%superClass))
+    {
+        error("ERROR: super() - Provided superclass does not exist.");
+    }
+
+    //Check if the function is valid and not a poisoned string.
+    %function = getSafeVariableName(%function);
+    if(!isFunction(%superClass, %function))
+    {
+        error("ERROR: super() - Provided function does not exist.");
+    }
+
     //SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
-    %returnValue = eval(%superClass @ "::" @ %function @ "(\""@ %v0 @"\",\""@ %v1 @"\",\""@ %v2 @"\",\""@ %v3 @"\",\""@ %v4 @"\",\""@ %v5 @"\",\""@ %v6 @"\",\""@ %v7 @"\",\""@ %v8 @"\",\""@ %v9 @"\",\""@ %v10 @"\",\""@ %v11 @"\",\""@ %v12 @"\",\""@ %v13 @"\",\""@ %v14 @"\",\""@ %v15 @"\",\""@ %v16 @"\",\""@ %v17 @"\");");
+    %functionCall = %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17);";
+    %returnValue = eval(%functionCall);
+    $OOP_superChainCacheTarget.__private__cachedSuperChain = %functionCall @ $OOP_superChainCacheTarget.__private__cachedSuperChain;
     
-    //An iteration reaching this line has hit the end of the chain, so we can simply zero out the recursion depth.
+    //An iteration reaching this line has hit the end of the chain, begin unwinding the calls.
     $OOP_recursionDepth--;
+    if($OOP_recursionDepth == 0)
+    {
+        //We've completed caching the super chain.
+        $OOP_superChainCacheTarget = "";
+    }
     
     return %returnValue;
 }
 
 //To be run on datablocks or ScriptObjects. 
 //Take advantage of `eval` and the lax-arity function model of TorqueScript to define a function that calls the equivalent parent function.
-//Optional pref to prevent console spam by clearing it after the function is run. No other way to accomplish that without engine modification.
-$Pref::OOP::Debug = ($Pref::OOP::Debug !$= "") ? $Pref::OOP::Debug : false;
+$OOP_fileObject = new FileObject();
 function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 {
-    %this.superClass = %superClass;
-    %this.class = %this.getName();
-    if(%this.class $= "")
-    {
-        error("ERROR: inheritFunctionsFromSuperClass() - Target object does not have a namespace.");
-    }
-
-    %superClassID = nameToID(%this.superClass);
-    if(!isObject(%superClassID))
+    %superClassID = nameToID(%superClass);
+    if(%superClassID == -1)
     {
         error("ERROR: inheritFunctionsFromSuperClass() - Provided superclass does not exist.");
         return;
     }
 
+    %objectClass = (%this.class !$= "") ? %this.class : %this.getName();
+    if(%objectClass $= "")
+    {
+        error("ERROR: inheritFunctionsFromSuperClass() - Target object does not have a namespace.");
+        return;
+    }
+    else if(%objectClass $= %superClass)
+    {
+        error("ERROR : inheritFunctionsFromSuperClass() - An object cannot parent itself.");
+        return;
+    }
+    else if(%superClassID.superClass !$= "" && %superClassID.superClass $= %objectClass)
+    {
+        error("ERROR : inheritFunctionsFromSuperClass() - Circular object dependency.");
+        return;
+    }
+
+    %this.objectClass = %objectClass;
+    %this.superClass = %superClass;
+    %this.__private__cachedSuperChain = "";
+
     //The only way to determine the functions of an object is through the `dump()` method of SimObjects.
-    %functionList = "";
     %introspectLogLocation = "config/introspect.log";
 
     //Delete the file if it exists already, to prevent interference.
     if(isFile(%introspectLogLocation))
     {
-        fileDelete(%introspectLogLocation);
+        $OOP_fileObject.openForWrite(%introspectLogLocation);
+        $OOP_fileObject.close();
     }
 
+    //Prepare a separate console object, prevent the main one from logging spam.
+    enableWinConsole(0);
+    $Con::logBufferEnabled = 0;
     %objectIntrospectLogger = new ConsoleLogger(objectIntrospectLogger, %introspectLogLocation, false);
     %objectIntrospectLogger.level = 0;
     %objectIntrospectLogger.attach();
+
     %superClassID.dump();
+
+    //Re-enable main console, delete secondary one.
     %objectIntrospectLogger.detach();
     %objectIntrospectLogger.delete();
+    $Con::logBufferEnabled = 1;
+    enableWinConsole($Server::Dedicated); //Inaccurate, but most people don't use the `-console` argument as far as I know.
 
-    %introspectLog = new FileObject();
+    %evalCall = "";
+    %methodList = "";
+    %ignoredMethods = "|delete|dump|getId|setName|getTaggedField|getType|serializeEventToString|";
     %readingMethod = false;
     %lastLine = "";
-    %introspectLog.openForRead(%introspectLogLocation);
-    while(!%introspectLog.isEOF())
+    $OOP_fileObject.openForRead(%introspectLogLocation);
+    while(!$OOP_fileObject.isEOF())
     {
-        %currentLine = trim(%introspectLog.readLine());
+        %currentLine = trim($OOP_fileObject.readLine());
 
         //ConsoleLogger objects have a bug where they output a single line repeatedly, so we need to compensate for that by disregarding duplicate lines.
         if(%currentLine $= %lastLine)
@@ -118,43 +190,45 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
         %methodName = getSubStr(%methodName, 0, (strlen(%methodName) - 2));
 
         //Some functions cannot be overwritten, ignore those.
-        if(%methodName $= "delete" || %methodName $= "dump" || %methodName $= "getId" || %methodName $= "call" || %methodName $= "setName" || %methodName $= "getTaggedField" || %methodName $= "getType" || %methodName $= "serializeEventToString")
+        if(strstr(%ignoredMethods, "|" @ %methodName @ "|") > -1)
         {
             continue;
         }
 
-        if(%functionList $= "")
+        if(%methodList $= "")
         {
-            %functionList = %methodName;
+            %methodList = %methodName;
         }
         else
         {
-            %functionList = %functionList SPC %methodName;
+            %methodList = %methodList SPC %methodName;
         }
-
         %lastLine = %currentLine;
     }
-    %introspectLog.close();
-    %introspectLog.delete();
-
-    //If enabled, clear the console after generating the introspection log to reduce spam.
-    if(!$Pref::OOP::Debug)
-    {
-        cls();
-    }
+    $OOP_fileObject.close();
 
     //For each detected function, use eval to define a stub function illustrated below.
-    for(%i = 0; %i < getWordCount(%functionList); %i++)
+    %methodCount = getWordCount(%methodList);
+    for(%i = 0; %i < %methodCount; %i++)
     {
-        %function = getWord(%functionList, %i);
+        %function = getWord(%methodList, %i);
+
         //Class::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18)
         //{
         //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);
         //}
-        eval("function " @ %this.class @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18){" @ %this.superClass @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);}");
-        echo("function " @ %this.class @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18){" @ %this.superClass @ "::" @ %function @ "(%this, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);}");
+        %functionCall = "function " @ %objectClass @ "::" @ %function @ "(%this,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17,%v18){" @ %superClass @ "::" @ %function @ "(%this,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17,%v18);}";
+
+        //Collapse all function calls into a single eval statement, if possible.
+        //I've heard rumors of a max string length of 5 KB or similar. Let's test that.
+        %evalCall = %evalCall @ %functionCall;
     }
 
-    //Return the target datablock, so the mods can chain off of this call if they want to.
+    if(%evalCall !$= "")
+    {
+        eval(%evalCall);
+    }
+
+    //Return the target datablock, so the scripts can chain off of this call if they want to.
     return %this;
 }
