@@ -35,6 +35,9 @@ function getFileString(%pattern)
 
 function pushServerPackageToBack(%package) 
 {
+    $Con::logBufferEnabled = 0;
+    enableWinConsole(0);
+
 	//Make sure a package certain package on a function gets called last. In this case, the flashlight override.
 	for(%i = getNumActivePackages() - 1; %i >= $numClientPackages; %i--) 
 	{
@@ -53,6 +56,9 @@ function pushServerPackageToBack(%package)
 			activatePackage(getWord(%stack, %i));
 		}
 	}
+
+    $Con::logBufferEnabled = 1;
+    enableWinConsole($Server::Dedicated);
 }
 
 //Seconds to milliseconds.
@@ -87,6 +93,12 @@ package Support_Common
         {
             %datablock.onAdd(%obj);
         }
+    }
+
+    function destroyServer()
+    {
+        deleteVariables("$Eventide_*");
+        Parent::destroyServer();
     }
 };
 if(isPackage(Support_Common))

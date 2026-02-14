@@ -72,7 +72,7 @@ function createFacePack(%facePackPath, %faceFileCategory)
         %faceName = fileBase(%faceFile);
         %facePack.faces[%faceName] = createFaceData(%faceFile, %faceName, %facePack);
 
-        echo(" - Created face: \"" @ %faceName @ "\"");
+        //echo(" - Created face: \"" @ %faceName @ "\"");
     }
 
     $Eventide_FacePacks[%faceFileCategory] = %facePack;
@@ -105,7 +105,7 @@ function createSubFacePack(%subFaceFilePath, %subCategory, %facePack)
             %faceData = createFaceData(%subFaceFile, %faceName, %subFacePack);
             %subFacePack.faces[%faceName] = %faceData;
 
-            echo("\t - Created face: \"" @ %faceName @ "\"");
+            //echo("\t - Created face: \"" @ %faceName @ "\"");
         }
     }
 
@@ -335,7 +335,7 @@ function parseFacePacks(%startingDirectory)
         %facePackPath = filePath(%facePackFile);
         %facePackFileName = fileBase(%facePackFile);
 
-        echo("Parsing face pack \"" @ %facePackFileName @ "\" from \"" @ %facePackPath @ "\"...");
+        //echo("Parsing face pack \"" @ %facePackFileName @ "\" from \"" @ %facePackPath @ "\"...");
 
         %facePack = createFacePack(%facePackPath, %facePackFileName);
 
@@ -347,7 +347,7 @@ function parseFacePacks(%startingDirectory)
             %subFacePackPath = filePath(%subFaceFile);
             %subFacePackFileName = fileBase(%subFaceFile);
 
-            echo("\tParsing sub-face pack \"" @ %subFacePackFileName @ "\" from \"" @ %subFacePackPath @ "\"...");
+            //echo("\tParsing sub-face pack \"" @ %subFacePackFileName @ "\" from \"" @ %subFacePackPath @ "\"...");
 
             %subFacePack = createSubFacePack(%subFacePackPath, %subFacePackFileName, %facePack);
         }

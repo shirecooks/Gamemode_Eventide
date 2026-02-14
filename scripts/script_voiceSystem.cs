@@ -257,7 +257,7 @@ function parseVoicePacks(%startingDirectory)
         %voicePackPath = filePath(getField(%voicePackPaths, %i));
         %voicePackFileName = fileBase(%voicePackPath);
 
-        echo("Parsing voice pack \"" @ %voicePackFileName @ "\" from \"" @ %voicePackPath @ "\"...");
+        //echo("Parsing voice pack \"" @ %voicePackFileName @ "\" from \"" @ %voicePackPath @ "\"...");
         %voicePack = createVoicePack(%voicePackPath, %voicePackFileName);
     }
 }
@@ -373,13 +373,6 @@ package Gamemode_Eventide_VoiceSystem
             %player.voiceConfig.delete();
         }
         Parent::onRemove(%this, %player);
-    }
-
-    function destroyServer()
-    {
-        //These are ScriptObjects, which the garbage collector will never automatically delete, so we need to do it manually.
-        deleteVariables("$Eventide_*");
-        Parent::destroyServer();
     }
 };
 activatePackage(Gamemode_Eventide_VoiceSystem);

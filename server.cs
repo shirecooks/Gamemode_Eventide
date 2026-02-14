@@ -28,7 +28,6 @@ exec("./statusEffects/status_nearSight.cs");
 exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
 exec("./players/datablock_lights.cs");
-exec("./players/datablock_killerTrails.cs");
 exec("./players/datablock_killerBlood.cs");
 exec("./items/datablock_woodFrag.cs");
 exec("./items/datablock_sharpMelee.cs");
@@ -41,6 +40,7 @@ exec("./items/item_wrench.cs");
 exec("./items/item_pickaxe.cs");
 exec("./items/item_rum.cs");
 exec("./items/item_camera.cs");
+exec("./items/item_medpack.cs");
 
 exec("./items/base_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
