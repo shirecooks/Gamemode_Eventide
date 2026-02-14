@@ -105,11 +105,11 @@ function brickEventideRitualCircle::displayText(%this, %obj, %text, %color, %dis
 	//Default distance.
 	%distance = (%distance !$= "") ? %distance : 20;
 
-	%textShape = %obj.textShape;
-    %textShape.setShapeName(%text);
-	%textShape.setShapeNameColor(%color);        
-	%textShape.setShapeNameDistance(%distance);
-	%textShape.currentText = %text;
+	%floatingText = %obj.floatingText;
+    %floatingText.setShapeName(%text);
+	%floatingText.setShapeNameColor(%color);        
+	%floatingText.setShapeNameDistance(%distance);
+	%floatingText.currentText = %text;
 }
 
 function brickEventideRitualCircle::displayProgress(%this, %obj)
@@ -229,13 +229,13 @@ function brickEventideRitualCircle::onPlant(%this, %obj)
 	%obj.ritualCollection = new SimGroup();
 
 	//Static shape above the main one, for holding text.
-	%textShape = new StaticShape()
+	%floatingText = new StaticShape()
 	{
 		datablock = BrickTextEmptyShape;
 		position = VectorAdd(%obj.getPosition(), "0 0" SPC (%this.brickSizeZ / 9 + "0.166"));
 		scale = "0.1 0.1 0.1";
 	};
-	%obj.textShape = %textShape;
+	%obj.floatingText = %floatingText;
 	%this.displayProgress(%obj);
 
 	//The ritual circle model.
@@ -273,7 +273,7 @@ function brickEventideRitualCircle::onRemove(%this, %obj)
 	if(%obj.isPlanted())
 	{
 		//Blockland treats ghost bricks the same as normal bricks. This stuff below won't exist if the brick isn't planted.
-		//%obj.textShape.delete(); Not needed apparently?
+		%obj.floatingText.delete();
 		%obj.ritualCircle.delete();
 		%obj.ritualCollection.delete();
 		$Eventide_RitualCircles.remove(%obj);
