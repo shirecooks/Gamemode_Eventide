@@ -23,19 +23,22 @@ function SimObject::isSubclassOf(%this, %parentObject)
 $OOP_recursionDepth = 0;
 $OOP_executingCachedSuperChain = false;
 $OOP_superChainCacheTarget = "";
+$OOP_r = ""; //Current return value of an executing `super` call chain.
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
     if($OOP_executingCachedSuperChain)
     {
-        //We're executing a precomputed `super` call chain, so any calls to this function right now are redundant.
-        return;
+        //We're executing a precomputed `super` call chain, so any calls to this function right now are (mostly) redundant.
+        //For logical equivalence to the manual execution chain below, we store the result of each eval statement in a global variable,
+        //then return it here.
+        return $OOP_r;
     }
 
-    if(%this.__private__cachedSuperChain !$= "" && $OOP_superChainCacheTarget $= "")
+    if(%this.__private__cachedEvalChain !$= "" && $OOP_superChainCacheTarget $= "")
     {
         //If we aren't currently caching a `super` call chain and have one ready. Use it.
         $OOP_executingCachedSuperChain = true;
-        %returnValue = eval(%this.__private__cachedSuperChain);
+        %returnValue = eval(%this.__private__cachedEvalChain);
         $OOP_executingCachedSuperChain = false;
         return %returnValue;
     }
@@ -82,9 +85,9 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
     }
 
     //SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
-    %functionCall = %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17);";
+    %functionCall = "$OOP_r=" @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17);";
     %returnValue = eval(%functionCall);
-    $OOP_superChainCacheTarget.__private__cachedSuperChain = %functionCall @ $OOP_superChainCacheTarget.__private__cachedSuperChain;
+    $OOP_superChainCacheTarget.__private__cachedEvalChain = %functionCall @ $OOP_superChainCacheTarget.__private__cachedEvalChain;
     
     //An iteration reaching this line has hit the end of the chain, begin unwinding the calls.
     $OOP_recursionDepth--;
@@ -128,16 +131,21 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 
     %this.objectClass = %objectClass;
     %this.superClass = %superClass;
-    %this.__private__cachedSuperChain = "";
+    %this.__private__cachedEvalChain = "";
 
     //The only way to determine the functions of an object is through the `dump()` method of SimObjects.
     %introspectLogLocation = "config/introspect.log";
 
     //Delete the file if it exists already, to prevent interference.
-    if(isFile(%introspectLogLocation))
+    if(isWriteableFileName(%introspectLogLocation))
     {
         $OOP_fileObject.openForWrite(%introspectLogLocation);
         $OOP_fileObject.close();
+    }
+    else
+    {
+        error("ERROR : inheritFunctionsFromSuperClass() - Introspect.log location not writeable.");
+        return;
     }
 
     //Prepare a separate console object, prevent the main one from logging spam.
