@@ -65,10 +65,7 @@ function GameConnection::printFormatString(%client, %category, %string, %display
         return;
     }
 
-    if(%displayTime $= "")
-    {
-        %displayTime = %textStyle.displayTime;
-    }
+    %displayTime = (%displayTime $= "") ? %textStyle.displayTime : %displayTime;
 
     switch$(strlwr(%textStyle.printChannel))
     {
@@ -83,9 +80,50 @@ function GameConnection::printFormatString(%client, %category, %string, %display
     }
 }
 
+function GameConnection::printCounterFormatString(%client, %amount, %total, %displayTime, %activeCategory, %inactiveCategory)
+{
+    %outputString = "";
+
+    if(%amount > %total)
+    {
+        %amount = %total;
+    }
+
+    %displayTime = (%displayTime $= "") ? 2 : %displayTime;
+    %activeCategory = (%activeCategory $= "") ? "urgent" : %activeCategory;
+    %inactiveCategory = (%inactiveCategory $= "") ? "inactiveUrgent" : %inactiveCategory;
+
+    %filledString = "";//styleFormatString
+    for(%i = 0; %i < %amount; %i++)
+    {
+        %filledString = %filledString @ "|";
+    }
+
+    %remainingSteps = (%total - %amount);
+    %remainingString = "";
+    for(%i = 0; %i < %remainingSteps; %i++)
+    {
+        %remainingString = %remainingString @ "|";
+    }
+
+    %outputString = %outputString @ styleFormatString(%activeCategory, %filledString) @ styleFormatString(%inactiveCategory, %remainingString);
+    switch$(strlwr(getTextStyle(%activeCategory).printChannel))
+    {
+        case "centerprint":
+            %client.centerPrint(%outputString, %displayTime);
+        case "bottomprint":
+            %client.bottomPrint(%outputString, %displayTime);
+        case "chatmessage":
+            %client.chatMessage(%outputString);
+        default:
+            %client.centerPrint(%outputString, %displayTime);
+    }
+}
+
 //
 // Baked-in Eventide fonts.
 //
 
 createTextStyle("hint", "bottomprint", "\c6", "", 8);
 createTextStyle("urgent", "centerPrint", "<font:impact:32>\c3", "", 5);
+createTextStyle("inactiveUrgent", "centerPrint", "<font:impact:32>\c7", "", 5);
