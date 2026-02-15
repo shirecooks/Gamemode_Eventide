@@ -97,6 +97,32 @@ package Support_Client
 
         return parent::ServerCmdPlantBrick(%client);
     }
+
+    //Disable observer message during cutscenes.
+    function SimObject::onCameraEnterOrbit(%this, %camera)
+    {
+        if(%camera.isCutsceneCamera)
+        {
+            return;
+        }
+        return Parent::onCameraEnterOrbit(%this, %camera);
+    }
+
+    function SimObject::onCameraLeaveOrbit(%this, %camera)
+    {
+        if(%camera.isCutsceneCamera)
+        {
+            return;
+        }
+        return Parent::onCameraLeaveOrbit(%this, %camera);
+    }
+
+    //Automatic cleanup of the cutscene flag.
+    function Camera::setMode(%this, %mode, %arg1, %arg2, %arg3)
+    {
+        Parent::setMode(%this, %mode, %arg1, %arg2, %arg3);
+        %this.isCutsceneCamera = false;
+    }
 };
 if(isPackage(Support_Client))
 {
@@ -108,7 +134,7 @@ activatePackage(Support_Client);
 // Automated camera orbit functions.
 //
 
-function Player::createCameraOrbit(%obj)
+function Player::createCameraOrbit(%obj, %lockInputs)
 {
     %client = %obj.client;
     if(!%client)
@@ -118,10 +144,21 @@ function Player::createCameraOrbit(%obj)
 
     %camera = %client.camera;
     %client.setControlObject(%camera);
+    %camera.isCutsceneCamera = true;
 	%camera.setMode("Corpse", %obj);
+
+    if(%lockInputs)
+    {
+        %obj.lockInputs = true;
+        %client = %obj.client;
+        if(%client)
+        {
+            %client.lockInputs = true;
+        }
+    }
 }
 
-function Player::restoreCameraFromOrbit(%obj)
+function Player::restoreCameraFromOrbit(%obj, %restoreInputs)
 {
     %client = %obj.client;
     if(!%client)
@@ -130,7 +167,19 @@ function Player::restoreCameraFromOrbit(%obj)
     }
 
     %client.setControlObject(%obj);
-	%client.camera.setMode("Observer");
+    %camera = %client.camera;
+    %camera.isCutsceneCamera = false;
+	%camera.setMode("Observer");
+
+    if(%restoreInputs)
+    {
+        %obj.lockInputs = false;
+        %client = %obj.client;
+        if(%client)
+        {
+            %client.lockInputs = false;
+        }
+    }
 }
 
 //
@@ -165,7 +214,6 @@ datablock ProjectileData(camShakeProjectile)
 	directDamageType    = $DamageType::Default;
 	radiusDamageType    = $DamageType::Default;
 	
-	
 	brickExplosionRadius = 0;
 	brickExplosionImpact = false;
 	brickExplosionForce  = 0;
@@ -196,7 +244,8 @@ datablock ProjectileData(camShakeProjectile)
 	uiName = "Camera Shake";
 };
 
-function Player::shakeCamera(%obj, %intensity)
+function Player::shakeCamera(%obj, %intensity, %shakeProjectile)
 {
-    %obj.spawnExplosion(camShakeProjectile, VectorScale(%obj.getScale(), %intensity));
+    %shakeProjectile = (%shakeProjectile !$= "") ? %shakeProjectile : camShakeProjectile;
+    %obj.spawnExplosion(%shakeProjectile, VectorScale(%obj.getScale(), %intensity));
 }
