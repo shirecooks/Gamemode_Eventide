@@ -43,7 +43,7 @@ datablock DebrisData(rumBottleDebris)
 	gravModifier = 0.9;
 	lifeTime = 5;
 	maxSpinSpeed = 1000;
-	numBounces = 0;
+	numBounces = 1;
     bounceVariance = 1;
 	fade = true;
 	snapOnMaxBounce = false;
@@ -360,6 +360,18 @@ datablock ShapeBaseImageData(playerDrunkImage)
 	stateTimeoutValue[1] = 0.01;
 };
 
+datablock ExplosionData(drunkCamShakeExplosion : camShakeExplosion)
+{
+    camShakeFreq = "1.0 1.0 1.0";
+    camShakeAmp = "1.0 2.0 1.0";
+    camShakeDuration = 35.0;
+};
+
+datablock ProjectileData(drunkCamShakeProjectile : camShakeProjectile)
+{
+    explosion = drunkCamShakeExplosion;
+};
+
 function PlayerRumEffect::beginStatusEffect(%this, %obj)
 {
 	//If the player is dead, do nothing.
@@ -420,25 +432,42 @@ function PlayerRumEffect::tick(%this, %obj)
 	%playerVelocity = VectorLen(%obj.getVelocity());
 	if(%playerVelocity < 1.0)
 	{
-		%obj.shakeCamera(0.1);
+		%obj.shakeCamera(0.1, drunkCamShakeProjectile);
 	}
 	else
 	{
-		//Vary the intensity of the camera-shaking when moving, to simulate the player staggering organically.
-		%obj.shakeCamera(getRandom(25, 40) / 100);
-
 		//Add some sideways velocity to the player to mimic staggering as well.
 		%playerRelativeVelocity = mAbs(%obj.getRelativeVelocity());
 		if(%playerRelativeVelocity >= 1.0 && mAbs(getWord(%playerVelocity, 2)) < 1.0) //If the player is walking forward AND not falling...
 		{
 			//Make the player randomly step left or right.
-			%playerUpVector = %obj.getUpVector();
 			%playerForwardVector = %obj.getForwardVector();
+			%viewDriftChance = getRandom(-1, 1);
+			%staggerChance = getRandom(0, 1);
+
+			//Calculate the player's current yaw, then offset it randomly.
+			if(%viewDriftChance != 0)
+			{
+				%yaw = mAtan(getWord(%playerForwardVector, 0), getWord(%playerForwardVector, 1));
+				%staggerYaw = %yaw + (mDegToRad(getRandom(15, 30)) * %viewDriftChance); //Drift view some degrees to the left or right.
+				%obj.setTransform(%obj.position SPC "0 0 1" SPC %staggerYaw);
+			}
 
 			//Stagger left, or stagger right?
-			%staggerVector = (getRandom(0, 1) ? VectorCross(%playerForwardVector, %playerUpVector) : VectorCross(%playerUpVector, %playerForwardVector));
-			%staggerVelocity = setWord(VectorScale(%staggerVector, 5), 2, 2); //Add two TU up, 5 to the left or right of the player.
-			%obj.AddVelocity(%staggerVelocity);
+			if(%staggerChance)
+			{
+				%playerUpVector = %obj.getUpVector();
+				%staggerVector = (getRandom(0, 1) ? VectorCross(%playerForwardVector, %playerUpVector) : VectorCross(%playerUpVector, %playerForwardVector));
+				%staggerVelocity = setWord(VectorScale(%staggerVector, 5), 2, 2); //Add two TU up, 5 to the left or right of the player.
+				%obj.AddVelocity(%staggerVelocity);
+			}
+
+			//If we drifted or stagged, shake the camera to simulate disorientation.
+			if(%viewDriftChance != 0 || %staggerChance)
+			{
+				//Vary the intensity of the camera-shaking when moving, to simulate the player staggering organically.
+				%obj.shakeCamera(getRandom(25, 40) / 100, drunkCamShakeProjectile);
+			}
 		}
 	}
 
