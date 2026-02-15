@@ -2,6 +2,7 @@
 // Loading footstep materials.
 //
 
+$Pref::Eventide::FootstepSystemDebug = ($Pref::Eventide::FootstepSystemDebug $= "") ? false : $Pref::Eventide::FootstepSystemDebug; //Whether or not to print debug statements related to footstep material parsing and detection.
 $Eventide_FootstepMaterials["isGlobalFootstepMaterialArray"] = true; //All footstep packs will be stored in this array.
 $Eventide_FootstepMaterials["index"] = ""; //Footsteps will be happening too often for us to use a ScriptObject. We'll instead be using a plain array.
 
@@ -10,7 +11,10 @@ function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 	%material = strlwr(fileBase(%footstepMaterialFile));
 	%cwd = filePath(%footstepMaterialFile);
 
-	echo("Parsing footstep material:" SPC %material SPC "from" SPC %cwd);
+	if($Pref::Eventide::FootstepSystemDebug)
+	{
+		echo("Parsing footstep material:" SPC %material SPC "from" SPC %cwd);
+	}
 
 	//Count the number of sounds available for a given material.
 	%soundEffectCount = 0;
@@ -20,7 +24,10 @@ function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 		%pattern = getField(%patterns, %i);
 		for(%file = findFirstFile(%cwd @ "/*" @ %pattern); %file !$= ""; %file = findNextFile(%cwd @ "/*" @ %pattern))
 		{
-			echo("\t- Added footstep sound:" SPC %file);
+			if($Pref::Eventide::FootstepSystemDebug)
+			{
+				echo("\t- Added footstep sound:" SPC %file);
+			}
 			%soundEffectCount++;
 		}
 	}
@@ -28,7 +35,10 @@ function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 	//Add the footstep pack RGB value to the index, to be iterated over later.
 	$Eventide_FootstepMaterials["index"] = ($Eventide_FootstepMaterials["index"] $= "") ? (%footstepMaterialRGB) : ($Eventide_FootstepMaterials["index"] TAB %footstepMaterialRGB);
 	
-	echo("Current index:" SPC $Eventide_FootstepMaterials["index"]);
+	if($Pref::Eventide::FootstepSystemDebug)
+	{
+		echo("Current index:" SPC $Eventide_FootstepMaterials["index"]);
+	}
 
 	$Eventide_FootstepMaterials[%material] = %footstepMaterialRGB;
 	$Eventide_FootstepMaterials[%footstepMaterialRGB] = %material;
@@ -38,7 +48,12 @@ function createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB)
 function parseFootstepMaterials(%startingDirectory)
 {    
     %footstepMaterialPaths = getFileString(%startingDirectory @ "/*.etmp");
-	echo("Footstep material file string:" SPC %footstepMaterialPaths);
+
+	if($Pref::Eventide::FootstepSystemDebug)
+	{
+		echo("Footstep material file string:" SPC %footstepMaterialPaths);
+	}
+
     for(%i = 0; %i < getFieldCount(%footstepMaterialPaths); %i++)
     {
 		%footstepMaterialFile = getField(%footstepMaterialPaths, %i);
@@ -51,7 +66,11 @@ function parseFootstepMaterials(%startingDirectory)
         %footstepMaterialPath = filePath(%footstepMaterialFile);
         %footstepMaterialFileName = fileBase(%footstepMaterialPath);
 
-        echo("Parsing footstep material \"" @ %footstepMaterialFileName @ "\" from \"" @ %footstepMaterialPath @ "\"...");
+		if($Pref::Eventide::FootstepSystemDebug)
+		{
+			echo("Parsing footstep material \"" @ %footstepMaterialFileName @ "\" from \"" @ %footstepMaterialPath @ "\"...");
+		}
+
         %footstepMaterial = createFootstepMaterial(%footstepMaterialFile, %footstepMaterialRGB);
     }
 }
