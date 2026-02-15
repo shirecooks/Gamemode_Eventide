@@ -1,3 +1,5 @@
+$Pref::Eventide::FaceSystemDebug = ($Pref::Eventide::FaceSystemDebug $= "") ? false : $Pref::Eventide::FaceSystemDebug; //Whether or not to print debug statements related to face system operations.
+
 $Eventide_FacePacks["isGlobalFacePackArray"] = true; //All face packs will be stored in this array.
 $Eventide_FaceDatas["isGlobalFaceDataArray"] = true; //All face data objects will be stored in this array.
 $Eventide_FaceConfigs["isGlobalFaceConfigArray"] = true; //You get the idea.
@@ -72,7 +74,10 @@ function createFacePack(%facePackPath, %faceFileCategory)
         %faceName = fileBase(%faceFile);
         %facePack.faces[%faceName] = createFaceData(%faceFile, %faceName, %facePack);
 
-        //echo(" - Created face: \"" @ %faceName @ "\"");
+        if($Pref::Eventide::FaceSystemDebug)
+        {
+            echo(" - Created face: \"" @ %faceName @ "\"");
+        }
     }
 
     $Eventide_FacePacks[%faceFileCategory] = %facePack;
@@ -105,7 +110,10 @@ function createSubFacePack(%subFaceFilePath, %subCategory, %facePack)
             %faceData = createFaceData(%subFaceFile, %faceName, %subFacePack);
             %subFacePack.faces[%faceName] = %faceData;
 
-            //echo("\t - Created face: \"" @ %faceName @ "\"");
+            if($Pref::Eventide::FaceSystemDebug)
+            {
+                echo("\t - Created face: \"" @ %faceName @ "\"");
+            }
         }
     }
 
@@ -335,7 +343,10 @@ function parseFacePacks(%startingDirectory)
         %facePackPath = filePath(%facePackFile);
         %facePackFileName = fileBase(%facePackFile);
 
-        //echo("Parsing face pack \"" @ %facePackFileName @ "\" from \"" @ %facePackPath @ "\"...");
+        if($Pref::Eventide::FaceSystemDebug)
+        {
+            echo("Parsing face pack \"" @ %facePackFileName @ "\" from \"" @ %facePackPath @ "\"...");
+        }
 
         %facePack = createFacePack(%facePackPath, %facePackFileName);
 
@@ -347,7 +358,10 @@ function parseFacePacks(%startingDirectory)
             %subFacePackPath = filePath(%subFaceFile);
             %subFacePackFileName = fileBase(%subFaceFile);
 
-            //echo("\tParsing sub-face pack \"" @ %subFacePackFileName @ "\" from \"" @ %subFacePackPath @ "\"...");
+            if($Pref::Eventide::FaceSystemDebug)
+            {
+                echo("\tParsing sub-face pack \"" @ %subFacePackFileName @ "\" from \"" @ %subFacePackPath @ "\"...");
+            }
 
             %subFacePack = createSubFacePack(%subFacePackPath, %subFacePackFileName, %facePack);
         }
@@ -799,14 +813,6 @@ package Gamemode_Eventide_FaceSystem
                 %obj.revertSubfaceConfig();
             }
         }
-    }
-
-    function destroyServer()
-    {
-        //These are ScriptObjects, which the garbage collector will never automatically delete, so we need to do it manually.
-        deleteVariables("$Eventide_*");
-
-        Parent::destroyServer();
     }
 };
 activatePackage(Gamemode_Eventide_FaceSystem);
