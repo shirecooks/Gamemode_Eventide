@@ -6,7 +6,7 @@
 // The rope attached to the projectile.
 datablock StaticShapeData(anglerRope)
 {
-	shapeFile = "./models/hookrope.dts";
+	shapeFile = $Eventide_BaseDirectory @ "/items/models/anglerHook/anglerRope.dts";
 	isHookRope = true;
 };
 
@@ -115,7 +115,7 @@ function anglerRope::reel(%this, %hookRope)
 //// The projectile.
 datablock ProjectileData(anglerHookProjectile)
 {
-	projectileShapeName = "./models/anglerhookproj.dts";
+	projectileShapeName = $Eventide_BaseDirectory @ "/items/models/anglerHook/anglerhookproj.dts";
 	directDamage = 0;
 	directDamageType = $DamageType::Default;
 
@@ -219,7 +219,7 @@ function anglerHookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %norm
 
 datablock ShapeBaseImageData(MeleeAnglerImage : eventideMeleeImage)
 {
-   	shapeFile = "./models/anglerhook.dts";
+   	shapeFile = $Eventide_BaseDirectory @ "/items/models/anglerHook/anglerhook.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
 	hitObscureProjectile = KillerGenericSharpClankProjectile;
@@ -242,7 +242,7 @@ datablock ItemData(anglerCastAbilityItem)
 	category = "Weapon";
 	className = "Weapon";
 
-	shapeFile = "./models/anglerhook.dts";
+	shapeFile = $Eventide_BaseDirectory @ "/items/models/anglerHook/anglerhook.dts";
 
 	uiName = "Cast";
 	iconName = "./icons/hicolor_meathook";
@@ -368,9 +368,9 @@ function anglerCastAbilityImage::onCast(%this, %obj)
 
 datablock TSShapeConstructor(AnglerDTS) 
 {
-	baseShape = "./models/angler.dts";
-	sequence0 = "./models/angler.dsq";
-	sequence1 = "./models/angler_melee.dsq";
+	baseShape = "./models/angler/angler.dts";
+	sequence0 = "./models/angler/angler.dsq";
+	sequence1 = "./models/angler/angler_melee.dsq";
 };
 
 datablock PlayerData(PlayerAngler : PlayerKiller) 

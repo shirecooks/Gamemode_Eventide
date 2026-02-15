@@ -1,8 +1,8 @@
 datablock TSShapeConstructor(PlayerEventideDTS) 
 {
-	baseShape = "./models/eventideplayer.dts";
-	sequence0 = "./models/default.dsq";
-	sequence1 = "./models/default_melee.dsq";
+	baseShape = "./models/playerEventide/playerEventide.dts";
+	sequence0 = "./models/playerEventide/default.dsq";
+	sequence1 = "./models/playerEventide/default_melee.dsq";
 };
 
 datablock PlayerData(PlayerEventide : PlayerStandardArmor)

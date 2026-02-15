@@ -9,7 +9,7 @@ datablock PlayerData(PlayerSurvivor : PlayerEventide)
 	maxInv["shotgunSlugItem"] = 5;
 };
 //Inherits functions from `PlayerEventide`.
-PlayerSurvivor.inheritFunctionsFromSuperClass( "PlayerEventide");
+PlayerSurvivor.inheritFunctionsFromSuperClass("PlayerEventide");
 
 //
 // Voice-line, expression handlers.

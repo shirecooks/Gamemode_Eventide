@@ -316,7 +316,7 @@ datablock ShapeBaseImageData(ZombieBodyImage)
 // Baked-in melee weapon.
 datablock ShapeBaseImageData(MeleeShireAxeImage : eventideMeleeImage)
 {
-   	shapeFile = "./models/axe/axe.dts";
+   	shapeFile = $Eventide_BaseDirectory @ "/items/models/axe/axe.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
 	hitObscureProjectile = KillerGenericSharpClankProjectile;

@@ -1,4 +1,4 @@
-datablock ItemData(PickaxeItem)
+datablock ItemData(pickaxeItem)
 {
 	shapeFile = "./models/pickaxe/pickaxe.dts";
 	rotate = false;
@@ -12,13 +12,13 @@ datablock ItemData(PickaxeItem)
 	iconName = "./icons/icon_pickaxe";
 	doColorShift = false;
 	
-	image = PickaxeImage;
+	image = pickaxeImage;
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(PickaxeImage)
+datablock ShapeBaseImageData(pickaxeImage)
 {
-	shapeFile = "./models/pickaxe.dts";
+	shapeFile = pickaxeItem.shapeFile;
 	emap = false;
 	mountPoint = 0;
 	offset = "0.0 0.0 0.0";
@@ -48,18 +48,17 @@ datablock ShapeBaseImageData(PickaxeImage)
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
 
-function PickaxeImage::onUse(%this,%obj,%slot)
+function pickaxeImage::onUse(%this,%obj,%slot)
 {
 	%obj.activateStuff();
 }
 
-function PickaxeImage::onMount(%this,%obj,%slot)
+function pickaxeImage::onMount(%this,%obj,%slot)
 {
 	%obj.playThread(0, "armReady");
 }
 
-function PickaxeImage::onUnMount(%this,%obj,%slot)
+function pickaxeImage::onUnMount(%this,%obj,%slot)
 {
 	%obj.playThread(0, "root");
 }
-

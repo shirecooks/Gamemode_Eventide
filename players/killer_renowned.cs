@@ -127,7 +127,7 @@ datablock ParticleEmitterData(RenownedAbilityEmitter)
 // Baked-in melee weapon.
 datablock ShapeBaseImageData(MeleeTantoImage : eventideMeleeImage)
 {
-   	shapeFile = "./models/Katana.dts";
+   	shapeFile = $Eventide_BaseDirectory @ "/items/models/katana/Katana.dts";
 	
 	hitProjectile = KillerSharpHitProjectile;
 	hitObscureProjectile = KillerKatanaClankProjectile;
