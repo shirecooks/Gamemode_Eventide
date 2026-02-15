@@ -8,7 +8,7 @@ function Player::weaponCooldown(%obj, %mountPoint, %startMessage, %endMessage, %
 
     //Send a message to the client letting them know the weapon cannot be used.
     %client = %obj.client;
-    if(%client)
+    if(%client && %startMessage !$= "" && %time !$= "")
     {
         %client.printFormatString("hint", %startMessage, %time);
     }
@@ -31,7 +31,7 @@ function Player::_weaponCooldownEnd(%obj, %mountPoint, %imageName, %message, %ti
 {
     //Send a message to the client letting them know the weapon is now usable.
     %client = %obj.client;
-    if(%client)
+    if(%client && %message !$= "")
     {
         %client.printFormatString("hint", %message, %time);
     }
