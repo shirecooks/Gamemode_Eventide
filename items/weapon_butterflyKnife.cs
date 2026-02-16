@@ -140,7 +140,7 @@ datablock ItemData(butterflyKnifeItem)
     category = "Weapon";
     className = "Weapon";
 
-    shapeFile = "./models/bknife2.dts";
+    shapeFile = "./models/butterflyKnife/butterflyKnife.dts";
     doColorShift = false;
     colorShiftColor = "0.400 0.196 0 1.000";
 
@@ -161,7 +161,7 @@ datablock ShapeBaseImageData(butterflyKnifeImage)
 {
     className = "WeaponImage";
 
-    shapeFile = "./models/bknife2.dts";
+    shapeFile = butterflyKnifeItem.shapeFile;
     armReady = true;
     emap = false;
 

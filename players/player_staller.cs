@@ -1,20 +1,4 @@
 //
-// Hat.
-//
-
-datablock ShapeBaseImageData(stallerHoodImage)
-{
-	shapeFile = "Add-Ons/Gamemode_Eventide/players/models/grimhood.dts";
-	mountPoint = $HeadSlot;
-
-	eyeOffset = "0 0 -1000";
-	emap = 0;
-	
-	doColorShift = true;
-	colorShiftColor = "0.1 0.1 0.1 1";
-};
-
-//
 // Cloak/decloak emitter effects.
 //
 
@@ -181,11 +165,9 @@ function PlayerStaller::eventideBodyParts(%this, %obj)
 	%obj.unHideNode("rarm");
 	%obj.unHideNode("larm");
 	%obj.unHideNode("headskin");
+	%obj.unhideNode("stallerHood");
 	%obj.unHideNode("skirt");
 	%obj.setHeadUp(0);
-
-	//Hood.
-	%obj.mountImage("stallerHoodImage", %this.hoodMountPoint);
 
     //Custom player scale.
     %obj.setScale("1.05 1.05 1.05");
@@ -199,6 +181,7 @@ function PlayerStaller::eventideBodyColors(%this, %obj)
 
     //Set core body part colors.
 	%obj.setNodeColor("headskin", "0 0 0 1");
+	%obj.setNodeColor("stallerHood", %clothingColor);
 	%obj.setNodeColor("chest", %clothingColor);
 	%obj.setNodeColor("skirt", %clothingColor);
 	%obj.setNodeColor("rarm", %clothingColor);

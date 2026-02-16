@@ -76,7 +76,7 @@ datablock ProjectileData(daggerHitProjectile)
 //
 // Environment hit projectile.
 
-datablock ProjectileData(daggerObscureProjectile : KillerKatanaClankProjectile)
+datablock ProjectileData(daggerObscureProjectile : KillerGenericSharpClankProjectile)
 {
 	hitSound = "dagger_hitEnv";
 	hitSoundAmount = 2;

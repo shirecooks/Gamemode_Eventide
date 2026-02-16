@@ -61,7 +61,7 @@ datablock ExplosionData(KillerKatanaClankExplosion)
 {
 	emitter[0] = KillerKatanaClankSprayEmitter;
 	emitter[1] = KillerKatanaClankChunkEmitter;
-	emitter[2] = KillerMacheteClankSparkEmitter;
+	emitter[2] = KillerGenericSharpClankSprayEmitter;
 
 	lifeTimeMS = 150;
 	

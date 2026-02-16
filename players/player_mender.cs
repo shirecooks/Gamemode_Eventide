@@ -1,20 +1,4 @@
 //
-// Hat.
-//
-
-datablock ShapeBaseImageData(menderMaskImage) 
-{
-	shapeFile = "Add-Ons/Gamemode_Eventide/players/models/SurgicalMask.dts";
-	mountPoint = $HeadSlot;
-	offset = "0 0 0";
-	eyeOffset = "0 0 -1000";
-	rotation = eulerToMatrix("0 0 0");
-	scale = "0.1 0.1 0.1";
-	doColorShift = false;
-	emap = 0;
-};
-
-//
 // Core and appearance.
 //
 
@@ -49,8 +33,7 @@ function PlayerMender::eventideBodyParts(%this, %obj)
 {
 	%this.super("eventideBodyParts", %this, %obj);
 
-    //Surgical mask.
-	%obj.mountImage("menderMaskImage", %this.maskMountPoint);
+	%obj.unhideNode("surgicalMask");
 
     //Give their torso a custom decal.
 	%obj.setDecalName("sweater");

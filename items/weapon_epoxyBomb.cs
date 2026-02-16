@@ -176,7 +176,7 @@ datablock DebrisData(epoxyDebris)
 	emitters = epoxyDebrisTrailEmitter;
 
 	shapeFile = "base/data/shapes/empty.dts";
-	lifetime = 20;
+	lifetime = 10.0;
 	minSpinSpeed = 0;
 	maxSpinSpeed = 0;
 	elasticity = 0.7;

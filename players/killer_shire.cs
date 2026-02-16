@@ -166,151 +166,151 @@ datablock ParticleEmitterData(shireCurseEmitter)
 
 //
 // Zombie particles and emitters.
-datablock ParticleData(GlowFaceZombieParticle) 
-{
-	textureName				= "./particles/glowFaceZombie";
-	lifetimeMS				= 500;
-	lifetimeVarianceMS		= 0;
-	dragCoefficient			= 0.0;
-	windCoefficient			= 0.0;
-	gravityCoefficient		= 0.0;
-	inheritedVelFactor		= 0.0;
-	constantAcceleration	= 0.0;
-	spinRandomMin			= 0.0;
-	spinRandomMax			= 0.0;
-	colors[0]				= "1.0 1.0 1.0 0.5";
-	colors[1]				= "0.1 0.1 0.1 0.1";
-	colors[2]				= "0.0 0.0 0.0 0.0";
-	sizes[0]				= 0.7;
-	sizes[1]				= 0.7;
-	sizes[2]				= 0.7;
-	times[0]				= 0;
-	times[1]				= 0.5;
-	times[2]				= 1.0;
-	useInvAlpha				= false;
-};
+// datablock ParticleData(GlowFaceZombieParticle) 
+// {
+// 	textureName				= "./particles/glowFaceZombie";
+// 	lifetimeMS				= 500;
+// 	lifetimeVarianceMS		= 0;
+// 	dragCoefficient			= 0.0;
+// 	windCoefficient			= 0.0;
+// 	gravityCoefficient		= 0.0;
+// 	inheritedVelFactor		= 0.0;
+// 	constantAcceleration	= 0.0;
+// 	spinRandomMin			= 0.0;
+// 	spinRandomMax			= 0.0;
+// 	colors[0]				= "1.0 1.0 1.0 0.5";
+// 	colors[1]				= "0.1 0.1 0.1 0.1";
+// 	colors[2]				= "0.0 0.0 0.0 0.0";
+// 	sizes[0]				= 0.7;
+// 	sizes[1]				= 0.7;
+// 	sizes[2]				= 0.7;
+// 	times[0]				= 0;
+// 	times[1]				= 0.5;
+// 	times[2]				= 1.0;
+// 	useInvAlpha				= false;
+// };
 
-datablock ParticleEmitterData(GlowFaceZombieEmitter) {
-	uiName				= "";
-	particles			= "GlowFaceZombieParticle";
-	ejectionPeriodMS	= 1;
-	periodVarianceMS	= 0;
-	ejectionVelocity	= 0.0;
-	velocityVariance	= 0.0;
-	ejectionOffset		= 0.4;
-	thetaMin			= 0.0;
-	thetaMax			= 0.0;
-	phiReferenceVel		= 0.0;
-	phiVariance			= 0.0;
-};
+// datablock ParticleEmitterData(GlowFaceZombieEmitter) {
+// 	uiName				= "";
+// 	particles			= "GlowFaceZombieParticle";
+// 	ejectionPeriodMS	= 1;
+// 	periodVarianceMS	= 0;
+// 	ejectionVelocity	= 0.0;
+// 	velocityVariance	= 0.0;
+// 	ejectionOffset		= 0.4;
+// 	thetaMin			= 0.0;
+// 	thetaMax			= 0.0;
+// 	phiReferenceVel		= 0.0;
+// 	phiVariance			= 0.0;
+// };
 
-datablock ParticleData(ZombieBodyParticle) 
-{
-	textureName				= "./particles/ZombieBody";
-	lifetimeMS				= 500;
-	lifetimeVarianceMS		= 0;
-	dragCoefficient			= 0.0;
-	windCoefficient			= 0.0;
-	gravityCoefficient		= 0.0;
-	inheritedVelFactor		= 0.0;
-	constantAcceleration	= 0.0;
-	spinRandomMin			= 0.0;
-	spinRandomMax			= 0.0;
-	colors[0]				= "0 0 0 0.4";
-	colors[1]				= "0 0 0 0.1";
-	colors[2]				= "0 0 0 0";
-	sizes[0]				= 2.6;
-	sizes[1]				= 2.6;
-	sizes[2]				= 2.6;
-	times[0]				= 0;
-	times[1]				= 0.5;
-	times[2]				= 1.0;
-	useInvAlpha				= true;
-};
+// datablock ParticleData(ZombieBodyParticle) 
+// {
+// 	textureName				= "./particles/ZombieBody";
+// 	lifetimeMS				= 500;
+// 	lifetimeVarianceMS		= 0;
+// 	dragCoefficient			= 0.0;
+// 	windCoefficient			= 0.0;
+// 	gravityCoefficient		= 0.0;
+// 	inheritedVelFactor		= 0.0;
+// 	constantAcceleration	= 0.0;
+// 	spinRandomMin			= 0.0;
+// 	spinRandomMax			= 0.0;
+// 	colors[0]				= "0 0 0 0.4";
+// 	colors[1]				= "0 0 0 0.1";
+// 	colors[2]				= "0 0 0 0";
+// 	sizes[0]				= 2.6;
+// 	sizes[1]				= 2.6;
+// 	sizes[2]				= 2.6;
+// 	times[0]				= 0;
+// 	times[1]				= 0.5;
+// 	times[2]				= 1.0;
+// 	useInvAlpha				= true;
+// };
 
-datablock ParticleEmitterData(ZombieBodyEmitter) {
-	uiName				= "";
-	particles			= "ZombieBodyParticle";
-	ejectionPeriodMS	= 10;
-	periodVarianceMS	= 0;
-	ejectionVelocity	= 0.0;
-	velocityVariance	= 0.0;
-	ejectionOffset		= 0.0;
-	thetaMin			= 0.0;
-	thetaMax			= 0.0;
-	phiReferenceVel		= 0.0;
-	phiVariance			= 0.0;
-};
+// datablock ParticleEmitterData(ZombieBodyEmitter) {
+// 	uiName				= "";
+// 	particles			= "ZombieBodyParticle";
+// 	ejectionPeriodMS	= 10;
+// 	periodVarianceMS	= 0;
+// 	ejectionVelocity	= 0.0;
+// 	velocityVariance	= 0.0;
+// 	ejectionOffset		= 0.0;
+// 	thetaMin			= 0.0;
+// 	thetaMax			= 0.0;
+// 	phiReferenceVel		= 0.0;
+// 	phiVariance			= 0.0;
+// };
 
-datablock ParticleEmitterData(DarkAmbientZombieEmitter)
-{
-	ejectionPeriodMS = 5;
-	periodVarianceMS = 0;
-	ejectionVelocity = 2.5;
-	velocityVariance = 1.5;
-	ejectionOffset = 1.25;
-	thetaMin = 0;
-	thetaMax = 180;
-	phiReferenceVel = 180;
-	phiVariance = 360;
-	overrideAdvance = false;
-	particles = DarkAmbientParticle;
+// datablock ParticleEmitterData(DarkAmbientZombieEmitter)
+// {
+// 	ejectionPeriodMS = 5;
+// 	periodVarianceMS = 0;
+// 	ejectionVelocity = 2.5;
+// 	velocityVariance = 1.5;
+// 	ejectionOffset = 1.25;
+// 	thetaMin = 0;
+// 	thetaMax = 180;
+// 	phiReferenceVel = 180;
+// 	phiVariance = 360;
+// 	overrideAdvance = false;
+// 	particles = DarkAmbientParticle;
 
-	uiName = "Darkness - Ambient";
-};
+// 	uiName = "Darkness - Ambient";
+// };
 
-datablock ShapeBaseImageData(DarkCastZombieImage : DarkCastImage)
-{
-	mountPoint = 2;
+// datablock ShapeBaseImageData(DarkCastZombieImage : DarkCastImage)
+// {
+// 	mountPoint = 2;
 
-	stateName[0]               = "Wait";
-	stateTimeoutValue[0]       = 1;
-	stateEmitter[0]            = DarkAmbientZombieEmitter;
-	stateEmitterTime[0]        = 5000;
-	stateEmitterTime[0]        = 5;
-	stateTransitionOnTimeout[0]= "Wait";
-    stateSound[0]               = "shire_charged_sound";	
-};
+// 	stateName[0]               = "Wait";
+// 	stateTimeoutValue[0]       = 1;
+// 	stateEmitter[0]            = DarkAmbientZombieEmitter;
+// 	stateEmitterTime[0]        = 5000;
+// 	stateEmitterTime[0]        = 5;
+// 	stateTransitionOnTimeout[0]= "Wait";
+//     stateSound[0]               = "shire_charged_sound";	
+// };
 
-datablock ShapeBaseImageData(DarkCastZombieHandRImage : DarkCastImage)
-{
-	mountPoint = 0;
-};
-datablock ShapeBaseImageData(DarkCastZombieHandLImage : DarkCastImage)
-{
-	mountPoint = 0;
-};
+// datablock ShapeBaseImageData(DarkCastZombieHandRImage : DarkCastImage)
+// {
+// 	mountPoint = 0;
+// };
+// datablock ShapeBaseImageData(DarkCastZombieHandLImage : DarkCastImage)
+// {
+// 	mountPoint = 0;
+// };
 
-datablock ShapeBaseImageData(GlowFaceZombieImage) 
-{
-	shapeFile			= "base/data/shapes/empty.dts";
-	mountPoint			= 6;
-	correctMuzzleVector	= false;
+// datablock ShapeBaseImageData(GlowFaceZombieImage) 
+// {
+// 	shapeFile			= "base/data/shapes/empty.dts";
+// 	mountPoint			= 6;
+// 	correctMuzzleVector	= false;
 
-	stateName[0]				= "Glow";
-	stateEmitter[0]				= GlowFaceZombieEmitter;
-	stateEmitterTime[0]			= 1000;
-	stateWaitForTimeout[0]		= true;
-	stateTimeoutValue[0]		= 1000;
-	stateTransitionOnTimeout[0]	= "Glow";
-	stateScript[0]				= "onGlow";
-};
+// 	stateName[0]				= "Glow";
+// 	stateEmitter[0]				= GlowFaceZombieEmitter;
+// 	stateEmitterTime[0]			= 1000;
+// 	stateWaitForTimeout[0]		= true;
+// 	stateTimeoutValue[0]		= 1000;
+// 	stateTransitionOnTimeout[0]	= "Glow";
+// 	stateScript[0]				= "onGlow";
+// };
 
-datablock ShapeBaseImageData(ZombieBodyImage) 
-{
-	shapeFile			= "base/data/shapes/empty.dts";
-	mountPoint			= 2;
-	offset = "0 0 -0.55";
-	eyeOffset = "0 0 -1000";
-	correctMuzzleVector	= false;
-	stateName[0]				= "Glow";
-	stateEmitter[0]				= ZombieBodyEmitter;
-	stateEmitterTime[0]			= 1000;
-	stateWaitForTimeout[0]		= true;
-	stateTimeoutValue[0]		= 1000;
-	stateTransitionOnTimeout[0]	= "Glow";
-	stateScript[0]				= "onGlow";
-};
+// datablock ShapeBaseImageData(ZombieBodyImage) 
+// {
+// 	shapeFile			= "base/data/shapes/empty.dts";
+// 	mountPoint			= 2;
+// 	offset = "0 0 -0.55";
+// 	eyeOffset = "0 0 -1000";
+// 	correctMuzzleVector	= false;
+// 	stateName[0]				= "Glow";
+// 	stateEmitter[0]				= ZombieBodyEmitter;
+// 	stateEmitterTime[0]			= 1000;
+// 	stateWaitForTimeout[0]		= true;
+// 	stateTimeoutValue[0]		= 1000;
+// 	stateTransitionOnTimeout[0]	= "Glow";
+// 	stateScript[0]				= "onGlow";
+// };
 
 //
 // Baked-in melee weapon.

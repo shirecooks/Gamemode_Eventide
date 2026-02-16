@@ -4,7 +4,7 @@
 
 datablock DebrisData(poolCueGripDebris)
 {
-	shapeFile 			= "./models/poolCueDebrisGrip.dts";
+	shapeFile 			= "./models/poolCue/poolCueDebrisGrip.dts";
 	lifetime 			= 2.8;
 	spinSpeed			= 300.0;
 	minSpinSpeed 		= -1200.0;
@@ -20,12 +20,12 @@ datablock DebrisData(poolCueGripDebris)
 
 datablock DebrisData(poolCueShaftDebris : poolCueGripDebris)
 {
-	shapeFile 			= "./models/poolCueDebrisShaft.dts";
+	shapeFile 			= "./models/poolCue/poolCueDebrisShaft.dts";
 };
 
 datablock DebrisData(poolCueEndDebris : poolCueGripDebris)
 {
-	shapeFile 			= "./models/poolCueDebrisEnd.dts";
+	shapeFile 			= "./models/poolCue/poolCueDebrisEnd.dts";
 };
 
 datablock ExplosionData(poolCueGripExplosion)
@@ -92,7 +92,7 @@ datablock ItemData(poolCueItem)
 	category 			= "Weapon";
 	className 			= "Weapon";
 
-	shapeFile 			= "./models/poolCue.dts";
+	shapeFile 			= "./models/poolCue/poolCue.dts";
 	rotate 				= false;
 	mass 				= 1;
 	density 			= 2;
