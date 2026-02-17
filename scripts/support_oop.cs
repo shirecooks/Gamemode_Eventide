@@ -21,38 +21,8 @@ function SimObject::isSubclassOf(%this, %parentObject)
 //Call a parent class function with arbitrary arguments.
 //Take advantage of the fact that everything in TorqueScript is a string, so nothing can be lost by presenting all arguments as a string.
 $OOP_recursionDepth = 0;
-$OOP_executingCachedSuperChain = false;
-$OOP_superChainCacheTarget = "";
-$OOP_r = ""; //Current return value of an executing `super` call chain.
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
-    if($OOP_executingCachedSuperChain)
-    {
-        //We're executing a precomputed `super` call chain, so any calls to this function right now are (mostly) redundant.
-        //For logical equivalence to the manual execution chain below, we store the result of each eval statement in a global variable,
-        //then return it here.
-        return $OOP_r;
-    }
-
-    if(%this.__private__cachedEvalChain !$= "" && $OOP_superChainCacheTarget $= "")
-    {
-        //If we aren't currently caching a `super` call chain and have one ready. Use it.
-        $OOP_executingCachedSuperChain = true;
-        %returnValue = eval(%this.__private__cachedEvalChain);
-        $OOP_executingCachedSuperChain = false;
-        return %returnValue;
-    }
-    else if($OOP_superChainCacheTarget $= "")
-    {
-        //Prepare to cache a `super` call chain - make sure the above checks don't pass.
-        $OOP_superChainCacheTarget = %this.getName();
-    }
-
-    //
-    //One `super` call often leads to other `super` calls.
-    //Step through each one, caching each call on the original object for faster execution next time.
-    //
-
     //Calling a superclass function that has another call to this function results in an infinite loop. We can stop this by measuring recursion depth.
     $OOP_recursionDepth++;
 
@@ -70,32 +40,37 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         }
     }
 
-    //Check if the superclass is valid and not a poisoned string.
-    %superClass = getSafeVariableName(%superClass); //Eye candy.
-    if(!isObject(%superClass))
+    %superCache = %this.superChain[%function, $OOP_recursionDepth];
+    if(%superCache !$= "")
     {
-        error("ERROR: super() - Provided superclass does not exist.");
+        //We have a safe, cached value. Use it to skip the safety checks.
+        %superClass = %superCache;
     }
-
-    //Check if the function is valid and not a poisoned string.
-    %function = getSafeVariableName(%function);
-    if(!isFunction(%superClass, %function))
+    else
     {
-        error("ERROR: super() - Provided function does not exist.");
+        //Check if the superclass is valid and not a poisoned string.
+        %superClass = getSafeVariableName(%superClass);
+        if(!isObject(%superClass))
+        {
+            error("ERROR: super() - Provided superclass does not exist.");
+        }
+
+        //Check if the function is valid and not a poisoned string.
+        %function = getSafeVariableName(%function);
+        if(!isFunction(%superClass, %function))
+        {
+            error("ERROR: super() - Provided function does not exist.");
+        }
+
+        //Cache the sanitized variables to skip these checks next time.
+        %this.superChain[%function, $OOP_recursionDepth] = %superClass;
     }
 
     //SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
-    %functionCall = "$OOP_r=" @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17);";
-    %returnValue = eval(%functionCall);
-    $OOP_superChainCacheTarget.__private__cachedEvalChain = %functionCall @ $OOP_superChainCacheTarget.__private__cachedEvalChain;
+    %returnValue = eval(%superClass @ "::" @ %function @ "(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);");
     
     //An iteration reaching this line has hit the end of the chain, begin unwinding the calls.
     $OOP_recursionDepth--;
-    if($OOP_recursionDepth == 0)
-    {
-        //We've completed caching the super chain.
-        $OOP_superChainCacheTarget = "";
-    }
     
     return %returnValue;
 }
@@ -221,11 +196,11 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
     {
         %function = getWord(%methodList, %i);
 
-        //Class::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18)
+        //Class::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH)
         //{
-        //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17, %v18);
+        //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
         //}
-        %functionCall = "function " @ %objectClass @ "::" @ %function @ "(%this,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17,%v18){" @ %superClass @ "::" @ %function @ "(%this,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%v10,%v11,%v12,%v13,%v14,%v15,%v16,%v17,%v18);}";
+        %functionCall = "function " @ %objectClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){" @ %superClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}";
 
         //Collapse all function calls into a single eval statement, if possible.
         //I've heard rumors of a max string length of 5 KB or similar. Let's test that.
