@@ -69,6 +69,7 @@ exec("./players/player_fighter.cs");
 exec("./players/player_mender.cs");
 exec("./players/player_runner.cs");
 exec("./players/player_sheriff.cs");
+exec("./players/player_knifer.cs");
 exec("./players/base_killer.cs");
 exec("./players/killer_renowned.cs");
 exec("./players/killer_wrathful.cs");
