@@ -21,6 +21,7 @@ function SimObject::isSubclassOf(%this, %parentObject)
 //Call a parent class function with arbitrary arguments.
 //Take advantage of the fact that everything in TorqueScript is a string, so nothing can be lost by presenting all arguments as a string.
 $OOP_recursionDepth = 0;
+$OOP_functionMap = "";
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
     //Calling a superclass function that has another call to this function results in an infinite loop. We can stop this by measuring recursion depth.
@@ -40,13 +41,9 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         }
     }
 
-    %superCache = %this.superChain[%function, $OOP_recursionDepth];
-    if(%superCache !$= "")
-    {
-        //We have a safe, cached value. Use it to skip the safety checks.
-        %superClass = %superCache;
-    }
-    else
+    //Check if a wrapper function has already been defined for this namespaced function. If not, define one.
+    %superChainCall = $OOP_functionMap[%superClass, %function];
+    if(%superChainCall $= "")
     {
         //Check if the superclass is valid and not a poisoned string.
         %superClass = getSafeVariableName(%superClass);
@@ -62,12 +59,21 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
             error("ERROR: super() - Provided function does not exist.");
         }
 
-        //Cache the sanitized variables to skip these checks next time.
-        %this.superChain[%function, $OOP_recursionDepth] = %superClass;
+        //Finally, create the wrapper. This covers both us and any other class that might need this callback.
+        %functionName = "_OOP_" @ %superClass @ "_" @ %function;
+        
+        // function _OOP_SuperClass_function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH)
+        // {
+        //     SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
+        // }
+        eval("function " @ %functionName @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){" @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}");
+
+        //Cache it. No more eval, much more performance.
+        $OOP_functionMap[%superClass, %function] = %functionName;
+        %superChainCall = $OOP_functionMap[%superClass, %function];
     }
 
-    //SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
-    %returnValue = eval(%superClass @ "::" @ %function @ "(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);");
+    %returnValue = call(%superChainCall, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
     
     //An iteration reaching this line has hit the end of the chain, begin unwinding the calls.
     $OOP_recursionDepth--;
@@ -106,7 +112,6 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 
     %this.objectClass = %objectClass;
     %this.superClass = %superClass;
-    %this.__private__cachedEvalChain = "";
 
     //The only way to determine the functions of an object is through the `dump()` method of SimObjects.
     %introspectLogLocation = "config/introspect.log";
@@ -215,3 +220,13 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
     //Return the target datablock, so the scripts can chain off of this call if they want to.
     return %this;
 }
+
+package Support_OOP
+{
+    function destroyServer()
+    {
+        deleteVariables("$OOP_*");
+        Parent::destroyServer();
+    }
+};
+activatePackage(Support_OOP);
