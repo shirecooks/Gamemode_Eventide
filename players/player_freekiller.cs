@@ -2,23 +2,23 @@
 // Core and appearance.
 //
 
-datablock PlayerData(PlayerFighter : PlayerSurvivor)
+datablock PlayerData(PlayerFreekiller : PlayerSurvivor)
 {
-    uiName = "Fighter";
+    uiName = "Freekiller";
     maxDamage = 175;
     shoveForce = 2;
 };
 //Inherits functions from `PlayerSurvivor`.
-PlayerFighter.inheritFunctionsFromSuperClass("PlayerSurvivor");
+PlayerFreekiller.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
-function PlayerFighter::onNewDatablock(%this, %obj)
+function PlayerFreekiller::onNewDatablock(%this, %obj)
 {
 	%client = %obj.client;
 	%clientExists = isObject(%client);
 
 	//Face pack initialization, very basic for now. 
 	//This can't use the usual datablock field method, since it needs to be dynamic.
-	%facePack = (%clientExists && %client.chest) ? $Eventide_FacePacks["fighterF"] : $Eventide_FacePacks["fighterM"];
+	%facePack = (%clientExists && %client.chest) ? $Eventide_FacePacks["freekillerF"] : $Eventide_FacePacks["freekillerM"];
 	%obj.createFaceConfig(%facePack);
 
 	//Voice Pack initialization.
@@ -30,7 +30,7 @@ function PlayerFighter::onNewDatablock(%this, %obj)
 	%obj.nearbyKillers = new SimSet();
 }
 
-function PlayerFighter::eventideBodyParts(%this, %obj)
+function PlayerFreekiller::eventideBodyParts(%this, %obj)
 {
 	%this.super("eventideBodyParts", %this, %obj);
 
