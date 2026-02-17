@@ -297,6 +297,8 @@ package Gamemode_Eventide_AmbiantMusic
     }
     function Armor::onNewDataBlock(%this, %obj)
     {
+        Parent::onNewDataBlock(%this, %obj);
+        
         if(!%this.isEventideClass)
         {
             if(%obj.hasAmbiantMusic())
