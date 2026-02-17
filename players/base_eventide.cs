@@ -112,13 +112,14 @@ function PlayerEventide::clearHatmodHat(%this, %obj)
 
 function PlayerEventide::eventideBodyParts(%this, %obj)
 {
+	//Start by first cleaning everything up.
+	%obj.hideNode("ALL");
+
 	//We need a client to do anything here.
 	%client = %obj.client;
 	if(!isObject(%client))
 	{
 		//No client, so substitute with the default Blockhead apparance.
-		%obj.hideNode("ALL");
-		
 		%obj.unHideNode("headskin");
 		%obj.unHideNode("chest");
 		%obj.unHideNode("larm");
@@ -135,9 +136,6 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 		%obj.setFaceName("smiley");
 		return;
 	}
-
-	//Start by first cleaning everything up.
-    %obj.hideNode("ALL");
 
 	//Get rid of the Hatmod hat if the player isn't supposed to have it.
 	%hatModHat = %obj.getMountedImage(2);
@@ -214,27 +212,28 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	%obj.setDecalName(%client.decalName);
 
 	//Unhide blood nodes, where appropriate.
-	if(%obj.bloody["lshoe"]) 
+	%damagePercent = %obj.getDamagePercent();
+	if(%obj.bloody["lshoe"] && %damagePercent >= 0.25) 
 	{
 		%obj.unHideNode("lshoe_blood");
 	}
-	if(%obj.bloody["rshoe"]) 
+	if(%obj.bloody["rshoe"] && %damagePercent >= 0.5)
 	{
 		%obj.unHideNode("rshoe_blood");
 	}
-	if(%obj.bloody["lhand"]) 
+	if(%obj.bloody["lhand"] && %damagePercent >= 0.5) 
 	{
 		%obj.unHideNode("lhand_blood");
 	}
-	if(%obj.bloody["rhand"]) 
+	if(%obj.bloody["rhand"] && %damagePercent >= 0.25) 
 	{
 		%obj.unHideNode("rhand_blood");
 	}
-	if(%obj.bloody["chest_front"]) 
+	if(%obj.bloody["chest_front"] && %damagePercent >= 0.75) 
 	{
 		%obj.unHideNode((%client.chest ? "fem" : "") @ "chest_blood_front");
 	}
-	if(%obj.bloody["chest_back"])
+	if(%obj.bloody["chest_back"] && %damagePercent >= 0.75)
 	{
 		%obj.unHideNode((%client.chest ? "fem" : "") @ "chest_blood_back");
 	}
