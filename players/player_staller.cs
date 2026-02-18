@@ -127,32 +127,24 @@ datablock ProjectileData(stallerCloakProjectile)
 datablock PlayerData(PlayerStaller : PlayerSurvivor)
 {
     uiName = "Staller";
-	hoodMountPoint = 3;
 
 	voicePack = "Staller";
 	facePack = "";
+
+	fadeSteps = 10;
+	fadeColor = "0 0 0";
 };
 //Inherits functions from `PlayerSurvivor`.
 PlayerStaller.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
-function PlayerStaller::onNewDatablock(%this, %obj)
+function PlayerStaller::getFacePack(%this, %obj)
 {
-    %this.superClass.super("onNewDatablock", %this, %obj);
+	return "";
+}
 
-	//Edge-case: delete any voice-configs that may be present from a previous datablock.
-	if(isObject(%obj.voiceConfig))
-	{
-		%obj.voiceConfig.delete();
-	}
-	//Another edge-case: delete any face-configs that may be present from a previous datablock.
-	if(isObject(%obj.faceConfig))
-	{
-		%obj.faceConfig.delete();
-	}
-    
-	//Store some information used for voice-lines and chase management.
-	%obj.chasingKillers = new SimSet();
-	%obj.nearbyKillers = new SimSet();
+function PlayerStaller::getVoicePack(%this, %obj)
+{
+	return "staller";
 }
 
 function PlayerStaller::eventideBodyParts(%this, %obj)
@@ -169,12 +161,20 @@ function PlayerStaller::eventideBodyParts(%this, %obj)
 	%obj.unHideNode("skirt");
 	%obj.setHeadUp(0);
 
+	%obj.setDecalName("AAA-None");
+
     //Custom player scale.
     %obj.setScale("1.05 1.05 1.05");
 }
 
 function PlayerStaller::eventideBodyColors(%this, %obj)
 {
+	if(%obj.isInvisible)
+	{
+		//Both cloaking and decloaking contain a fade period where normal colors can't apply.
+		return;
+	}
+
     %skinColor = "0.5 0.5 0.5 1";
 	%clothingColor = "0.1 0.1 0.1 1";
 	%shirtColor = "0.541 0.698 0.553 1";
@@ -203,7 +203,7 @@ function PlayerStaller::eventideBodyColors(%this, %obj)
 
 function PlayerStaller::spawnCloakEffect(%this, %obj)
 {
-	%effectProjectile = new Projectile()
+	new Projectile()
 	{
 		dataBlock = stallerCloakProjectile;
 		initialVelocity = VectorAdd(%obj.getVelocity(), "0 0 0.1"); //Particle positioning messes up if velocity is exactly 0. Let's fix it!
@@ -211,8 +211,44 @@ function PlayerStaller::spawnCloakEffect(%this, %obj)
 		sourceObject = %obj;
 		sourceSlot = 3;
 		client = %obj.client;
-	};
-	%effectProjectile.explode();
+	}.explode();
+}
+
+function PlayerStaller::fadeEffect(%this, %obj, %fadeIn)
+{
+	%totalSteps = %this.fadeSteps;
+	%fadeColor = %this.fadeColor;
+	%stepTime = 10;
+
+	%obj.startFade(0, 0, 1);
+	for(%i = 0; %i <= %totalSteps; %i++)
+	{
+		%fadeProgress = (%fadeIn) ? (%i / %totalSteps) : (1 - (%i / %totalSteps));
+		%obj.schedule(%stepTime * %i, setNodeColor, "ALL", %fadeColor SPC %fadeProgress);
+	}
+	%this.schedule(%stepTime * %totalSteps, _completeFadeEffect, %obj, %fadeIn);
+}
+
+function PlayerStaller::_completeFadeEffect(%this, %obj, %fadeIn)
+{
+	if(!isObject(%obj) || %obj.getState() $= "Dead")
+	{
+		return;
+	}
+
+	%obj.isInvisible = !(%fadeIn);
+	if(%fadeIn)
+	{
+		%obj.startFade(0, 0, 0);
+		%this.eventideBodyColors(%obj);
+	}
+	else
+	{
+		%obj.hideNode("ALL");
+	}
+
+	%client = (%fadeIn) ? "" : %obj.client;
+	%obj.adjustObjectScopeToAll(%fadeIn, %client);
 }
 
 datablock PlayerData(PlayerStallerCloaked : PlayerStaller)
@@ -229,20 +265,6 @@ datablock PlayerData(PlayerStallerCloaked : PlayerStaller)
 };
 //Inherits functions from `PlayerStaller`.
 PlayerStallerCloaked.inheritFunctionsFromSuperClass("PlayerStaller");
-
-function PlayerStallerCloaked::eventideBodyParts(%this, %obj)
-{
-	//Hide every node of the Staller's body, to make them invisible.
-	%obj.hideNode("ALL"); 
-
-	//Get rid of the Staller's hood separately, as it is not yet part of the playertype.
-	%obj.unmountImage(%this.hoodMountPoint);
-}
-
-function PlayerStallerCloaked::eventideBodyColors(%this, %obj)
-{
-	//Invisible, so nothing is needed here.
-}
 
 //
 // Cloaking.
@@ -277,9 +299,10 @@ function PlayerStaller::cloak(%this, %obj)
 
 	//Change the player to the cloaked datablock, so all the nodes will be hidden and the crouching speed will be increased.
 	%targetDatablock = PlayerStallerCloaked;
-	%obj.setDataBlock(%targetDatablock);
+	%obj.setDatablock(%targetDatablock);
 
 	//Make a cloud of smoke and inverted stars.
+	%this.fadeEffect(%obj, false);
 	%this.spawnCloakEffect(%obj);
 
 	//Play the cloaking sound effect.
@@ -288,14 +311,6 @@ function PlayerStaller::cloak(%this, %obj)
 	//Start the tick loop, to determine when the player has run out of energy.
 	cancel(%obj.cloakTickSchedule);
 	%targetDatablock.cloakTick(%obj);
-}
-
-function PlayerStallerCloaked::onNewDatablock(%this, %obj)
-{
-	Parent::onNewDatablock(%this, %obj);
-
-	//Unghost the player from everyone, so nobody can see them using items or anything.
-	%obj.adjustObjectScopeToAll(false, %obj.client);
 }
 
 //Cloaking tick, handles uncloaking if the player runs out of energy.
@@ -337,17 +352,18 @@ function PlayerStallerCloaked::uncloak(%this, %obj)
 	//Cancel the looping check for energy, if it exists.
 	cancel(%obj.cloakTickSchedule);
 
-	//Make a cloud of smoke and inverted stars.
-	%this.spawnCloakEffect(%obj);
-
-	//Play the decloaking sound effect.
-	%obj.playManagedSound("Uncloak");
+	//Resume the normal datablock and appearance code.
+	%obj.setDatablock(%this.superClass);
 
 	//Reghost the player to everyone, so they are no longer invisible.
 	%obj.adjustObjectScopeToAll(true);
 
-	//Resume the normal datablock and appearance code.
-	%obj.setDataBlock(PlayerStaller);
+	//Make a cloud of smoke and inverted stars.
+	%this.fadeEffect(%obj, true);
+	%this.spawnCloakEffect(%obj);
+
+	//Play the decloaking sound effect.
+	%obj.playManagedSound("Uncloak");
 }
 
 //
