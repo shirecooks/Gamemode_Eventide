@@ -53,16 +53,37 @@ function PlayerEventide::onNewDatablock(%this, %obj)
 	%obj.setScale("1 1 1");
 
 	//Face and voice config setup, if specified.
-	if(%this.facePack !$= "")
+	%facePack = $Eventide_FacePacks[%this.getFacePack()];
+	if(%facePack !$= "")
 	{
-		%obj.createFaceConfig($Eventide_FacePacks[%this.facePack]);
+		%obj.createFaceConfig(%facePack);
 	}
-	if(%this.voicePack !$= "")
+	else
 	{
-		%obj.createVoiceConfig($Eventide_VoicePacks[%this.voicePack]);
-		//Set some default cooldowns.
+		//Edge-case: delete any face-configs that may be present from a previous datablock.
+		%faceConfig = %obj.faceConfig;
+		if(isObject(%faceConfig))
+		{
+			%faceConfig.delete();
+		}
+	}
+
+	%voicePack = $Eventide_VoicePacks[%this.getVoicePack()];
+	if(%voicePack !$= "")
+	{
+		%obj.createVoiceConfig(%voicePack);
+		//Set some default cooldowns.`
 		%voiceConfig = %obj.voiceConfig;
 		%voiceConfig.setLineCooldown("Idle", 10000);
+	}
+	else
+	{
+		//Another edge-case: delete any voice-configs that may be present from a previous datablock.
+		%voiceConfig = %obj.voiceConfig;
+		if(isObject(%voiceConfig))
+		{
+			%voiceConfig.delete();
+		}
 	}
 }
 
@@ -138,11 +159,7 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	}
 
 	//Get rid of the Hatmod hat if the player isn't supposed to have it.
-	%hatModHat = %obj.getMountedImage(2);
-	if(%this.noHatmod && isObject(%hatModHat) && isFunction(isHat) && isHat(%hatModHat))
-	{
-		%this.clearHatmodHat(%obj);
-	}
+	%this.clearHatmodHat(%obj);
 	
 	//Core body parts.
 	%obj.unHideNode((%client.chest ? "femChest" : "chest"));	
@@ -237,35 +254,12 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	{
 		%obj.unHideNode((%client.chest ? "fem" : "") @ "chest_blood_back");
 	}
-
-	//Optional face pack initialization.
-	if(!isObject(%obj.faceConfig) && %this.facePack !$= "")
-	{
-		%obj.createFaceConfig($Eventide_FacePacks[%this.facePack]);
-	}
 }
 
 function PlayerEventide::eventideBodyColors(%this, %obj)
 {
     //We need a client to do anything here.
 	%client = %obj.client;
-	if(!isObject(%client))
-	{
-		%skinColor = "1 0.878 0.611 1";
-		%sleeveColor = "0.9 0 0 1";
-		%pantsColor = "0.2 0 0.8 1";
-
-		%obj.setNodeColor("headskin", %skinColor);
-		%obj.setNodeColor("chest", "1 1 1 1");
-		%obj.setNodeColor("larm", %sleeveColor);
-		%obj.setNodeColor("rarm", %sleeveColor);
-		%obj.setNodeColor("lhand", %skinColor);
-		%obj.setNodeColor("rhand", %skinColor);
-		%obj.setNodeColor("pants", %pantsColor);
-		%obj.setNodeColor("lshoe", %pantsColor);
-		%obj.setNodeColor("rshoe", %pantsColor);
-		return;
-	}
 
     //Set the color of the player's hat.
     if(%client.hat !$= "none")
@@ -313,6 +307,23 @@ function PlayerEventide::eventideBodyColors(%this, %obj)
 	%obj.setNodeColor("chest_blood_back", "0.7 0 0 1");
 	%obj.setNodeColor("femchest_blood_front", "0.7 0 0 1");
 	%obj.setNodeColor("femchest_blood_back", "0.7 0 0 1");
+}
+
+function PlayerEventide::eventideDefaultCharacterPrefs(%this, %obj)
+{
+	%skinColor = "1 0.878 0.611 1";
+	%sleeveColor = "0.9 0 0 1";
+	%pantsColor = "0.2 0 0.8 1";
+
+	%obj.setNodeColor("headskin", %skinColor);
+	%obj.setNodeColor("chest", "1 1 1 1");
+	%obj.setNodeColor("larm", %sleeveColor);
+	%obj.setNodeColor("rarm", %sleeveColor);
+	%obj.setNodeColor("lhand", %skinColor);
+	%obj.setNodeColor("rhand", %skinColor);
+	%obj.setNodeColor("pants", %pantsColor);
+	%obj.setNodeColor("lshoe", %pantsColor);
+	%obj.setNodeColor("rshoe", %pantsColor);
 }
 
 function PlayerEventide::tunnelVision(%this, %obj, %bool)
@@ -389,12 +400,6 @@ function PlayerEventide::dropAllTools(%this, %obj)
 			minigame = %minigame;
 		};
 
-		if(!isObject(Eventide_MinigameGroup)) 
-		{
-			MissionCleanup.add(new SimGroup(Eventide_MinigameGroup));
-		}
-		Eventide_MinigameGroup.add(%item); //Add the item to the minigame group for cleanup when the minigame ends or restarts.
-
 		//Toss the item in a random direction, relative to the player's current velocity.
 		%item.setVelocity(VectorAdd(%obj.getVelocity(), getRandom(-4,4) SPC getRandom(-4,4) SPC getRandom(4,8)));
 		
@@ -439,6 +444,16 @@ function PlayerEventide::SetTempSpeed(%this, %obj, %speedMultiplier)
 // Some stub functions that both survivors and killers use, but don't have shared functionality.
 //
 
+function PlayerEventide::getFacePack(%this, %obj)
+{
+
+}
+
+function PlayerEventide::getVoicePack(%this, %obj)
+{
+
+}
+
 function PlayerEventide::onKillerEnterRange(%this, %obj, %target)
 {
 
@@ -480,11 +495,10 @@ package Player_Eventide
         %player = %client.player;
         if(isObject(%player))
         {
-            %playerDatablock = %player.getDatablock();
+            %playerDatablock = %player.Datablock;
             if(%playerDatablock.isEventideClass)
             {
-                %playerDatablock.eventideBodyParts(%player);
-                return;
+                return %playerDatablock.eventideBodyParts(%player);
             }
         }
 
@@ -496,16 +510,29 @@ package Player_Eventide
         %player = %client.player;
         if(isObject(%player))
         {
-            %playerDatablock = %player.getDatablock();
+            %playerDatablock = %player.Datablock;
             if(%playerDatablock.isEventideClass)
             {
-                %playerDatablock.eventideBodyColors(%player);
-                return;
+                return %playerDatablock.eventideBodyColors(%player);
             }
         }
 
         return Parent::applyBodyColors(%client);
     }
+
+	function applyDefaultCharacterPrefs(%obj)
+	{
+		if(isObject(%obj))
+		{
+			%playerDatablock = %obj.Datablock;
+            if(%playerDatablock.isEventideClass)
+            {
+                return %playerDatablock.eventideDefaultCharacterPrefs(%obj);
+            }
+		}
+
+		return Parent::applyDefaultCharacterPrefs(%obj);
+	}
 
 	//Correction for corpses sometimes standing up after dying. Clear all animation slots.
 	function Player::playDeathAnimation(%this)
