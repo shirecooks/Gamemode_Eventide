@@ -15,21 +15,27 @@ PlayerSurvivor.inheritFunctionsFromSuperClass("PlayerEventide");
 // Voice-line, expression handlers.
 //
 
-function PlayerSurvivor::onNewDatablock(%this, %obj)
+function PlayerSurvivor::getFacePack(%this, %obj)
 {
-	%this.super("onNewDatablock", %this, %obj);
-
 	%client = %obj.client;
 	%clientExists = isObject(%client);
 
-	//Face pack initialization, very basic for now. 
-	//This can't use the usual datablock field method, since it needs to be dynamic.
-	%facePack = (%clientExists && %client.chest) ? $Eventide_FacePacks["female"] : $Eventide_FacePacks["male"];
-	%obj.createFaceConfig(%facePack);
+	%facePack = (%clientExists && %client.chest) ? "female" : "male";
+	return %facePack;
+}
 
-	//Voice Pack initialization.
-	%voicePack = (%clientExists && %client.chest) ? $Eventide_VoicePacks["female"] : $Eventide_VoicePacks["male"];
-	%obj.createVoiceConfig(%voicePack);
+function PlayerSurvivor::getVoicePack(%this, %obj)
+{
+	%client = %obj.client;
+	%clientExists = isObject(%client);
+
+	%facePack = (%clientExists && %client.chest) ? "female" : "male";
+	return %facePack;
+}
+
+function PlayerSurvivor::onNewDatablock(%this, %obj)
+{
+	%this.super("onNewDatablock", %this, %obj);
 
 	//Store some information used for voice-lines and chase management.
 	if(isObject(%obj.chasingKillers))
