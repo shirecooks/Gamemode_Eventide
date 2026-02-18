@@ -1,14 +1,15 @@
-// Add the icons to the extra resources directory
+//Add the icons to the extra resource list.
 %iconpath = "./icons/*.png"; 
 for (%iconfile = findFirstFile(%iconpath); %iconfile !$= ""; %iconfile = findNextFile(%iconpath)) 
 {
 	addExtraResource(%iconfile);
 }
 
-// IFL directory for faces
-if (isFile(%faceiflpath = "./models/face.ifl"))
+%write = new FileObject();
+
+//IFL file for faces.
+if(isWriteableFileName(%faceiflpath = "./models/face.ifl"))
 {
-	%write = new FileObject();
 	%write.openForWrite(findFirstFile(%faceiflpath));
 	%write.writeLine("base/data/shapes/player/faces/smiley.png");
 
@@ -25,18 +26,16 @@ if (isFile(%faceiflpath = "./models/face.ifl"))
 	}
 
 	%write.close();
-	%write.delete();
 	addExtraResource(findFirstFile(%faceiflpath));
 }
 
-// IFL directory for decals
-if (isFile(%decalfilepath = "./models/decal.ifl"))
+//IFL file for decals.
+if(isWriteableFileName(%decalfilepath = "./models/decal.ifl"))
 {
-	%write = new FileObject();
 	%write.openForWrite(findFirstFile(%decalfilepath));
 	%write.writeLine("base/data/shapes/player/decals/AAA-none.png");
 
-	// Add all the default decals into the IFL directory
+	//Add all the default decals to the IFL file.
 	%decalPrefixes = "WORM Jirue Hoodie PlayerFitNE Default";
 	for (%i = 0; %i < getWordCount(%decalPrefixes); %i++) 
 	{
@@ -56,6 +55,7 @@ if (isFile(%decalfilepath = "./models/decal.ifl"))
 	}
 
 	%write.close();
-	%write.delete();
 	addExtraResource(findFirstFile(%decalfilepath));
 }
+
+%write.delete();
