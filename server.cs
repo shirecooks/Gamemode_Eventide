@@ -55,6 +55,7 @@ exec("./items/weapon_frailSword.cs");
 //exec("./items/weapon_magicWand.cs");
 exec("./items/weapon_epoxyBomb.cs");
 exec("./items/weapon_ritualDagger.cs");
+exec("./items/weapon_bat.cs");
 
 //Both "blueSoda" and "redSoda" share the status effect code in "datablock_speedSoda.cs"
 exec("./statusEffects/status_speedSoda.cs");
