@@ -38,19 +38,71 @@ datablock ShapeBaseImageData(eventideMeleeImage)
 	stateTimeoutValue[0] = 0.01;
 	stateTransitionOnTimeout[0] = "Ready";
 
-	stateName[1] = "Ready";
-	stateTransitionOnTriggerDown[1]  = "Swing";
-	stateAllowImageChange[1] = true;
-	stateSequence[1] = "Ready";
+	//The sudden jump in state number here it to allow for custom melee weapons to more easily 
+	//implement their own logic between the "Activate" and "Ready" states.
+	stateName[29] = "Ready";
+	stateTransitionOnTriggerDown[29]  = "Swing";
+	stateAllowImageChange[29] = true;
+	stateSequence[29] = "Ready";
 
-	stateName[2] = "Swing";
-	stateScript[2] = "onSwing";
-	stateFire[2] = false;
-	stateAllowImageChange[2] = false;
-	stateWaitForTimeout[2] = true;
-	stateTimeoutValue[2] = 0.15;
-	stateTransitionOnTimeout[2] = "Ready";
+	stateName[30] = "Swing";
+	stateScript[30] = "onSwing";
+	stateFire[30] = false;
+	stateAllowImageChange[30] = false;
+	stateWaitForTimeout[30] = true;
+	stateTimeoutValue[30] = 0.15;
+	stateTransitionOnTimeout[30] = "Activate";
 };
+
+//
+// Bonus abstract class for combining the weapon cooldown system with the Eventide melee system.
+//
+
+datablock ShapeBaseImageData(eventideCooldownMeleeImage : eventideMeleeImage)
+{
+	stateName[0] = "Activate";
+    stateTimeoutValue[0] = 0.01;
+    stateTransitionOnTimeout[0] = "CooldownCheck";
+
+	//The sudden jump in state number here it to allow for custom melee weapons to more easily 
+	//implement their own logic between the "Activate" and "CooldownCheck" states.
+
+    //Check if the item is on cooldown. If not, proceed to "Ready".
+    stateName[25] = "CooldownCheck";
+    stateScript[25] = "onCooldownCheck";
+    stateAllowImageChange[25] = false;
+    stateWaitForTimeout[25] = true;
+    stateTimeOutValue[25] = 0.01;
+    stateTransitionOnTimeout[25] = "CooldownRedirect";
+
+    //Redirect to another state based on what was set in tq he previous "CooldownCheck" state.
+    stateName[26] = "CooldownRedirect";
+    stateAllowImageChange[26] = false;
+    stateTransitionOnAmmo[26] = "Cooldown";
+    stateTransitionOnNoAmmo[26] = "Ready";
+
+    //The item is on cooldown and cannot be used.
+    stateName[27] = "Cooldown";
+    stateScript[27] = "onCooldown";
+    stateAllowImageChange[27] = true;
+    ////The cooldown ended while the item was equipped, transition to the "Ready" state.
+    stateTransitionOnNoAmmo[27] = "CooldownRevert";
+
+    //The item is transitioning from "Cooldown" to "Ready", we need to raise the arm back up.
+    stateName[28] = "CooldownRevert";
+    stateScript[28] = "onCooldownRevert";
+    stateAllowImageChange[28] = false;
+    stateWaitForTimeout[28] = true;
+    stateTimeOutValue[28] = 0.01;
+    stateTransitionOnTimeout[28] = "Ready";
+
+    //Default cooldown of 30 seconds if not set by the weapon itself.
+    cooldown = 30000;
+};
+
+//
+// Swing functionality.
+//
 
 function eventideMeleeImage::onSwing(%this, %obj)
 {	
@@ -59,7 +111,7 @@ function eventideMeleeImage::onSwing(%this, %obj)
 
 	if(%obj.getState() $= "Dead" || %obj.getEnergyLevel() < (%killerDatablock.maxEnergy / 8) || (%obj.lastMeleeTime + %this.meleeCooldown) > %currentTime) 
 	{
-		return;
+		return 0;
 	}
 
 	%killerLookVector = VectorNormalize(%obj.getLookVector());
@@ -123,8 +175,10 @@ function eventideMeleeImage::onSwing(%this, %obj)
 		}
 		%obj.schedule(%recoilAnimationDelay, playThread, 1, %recoilAnimation);
 
-		return;
+		return 0;
 	}
+
+	%victims = "";
 
 	//Perform a container search for victims, and if any are found, determine if we can damage them.
 	%killerScale = %obj.getScale();
@@ -137,6 +191,7 @@ function eventideMeleeImage::onSwing(%this, %obj)
 			continue;
 		}
 
+		%victims = (%victims $= "") ? %hit : (%victims SPC %hit);
 		%victimPosition = %hit.getHackPosition();
 
 		//Check if the killer is facing the victim. If not, do nothing.
@@ -194,6 +249,8 @@ function eventideMeleeImage::onSwing(%this, %obj)
 		%meleeTrailAngle = %this.meleeTrailAngle[%meleeAnim];
 		%obj.spawnMeleeTrail(%this.meleeTrailSkin, %this.meleeTrailTime, %this.meleeTrailOffset, %meleeTrailAngle, %this.meleeTrailScale);
 	}
+
+	return %victims;
 }
 
 //
