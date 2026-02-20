@@ -124,11 +124,11 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
         //{
         //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
         //}
-        %functionCall = "function " @ %objectClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){" @ %superClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}";
+        %functionDefinition = "function " @ %objectClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){return " @ %superClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}";
 
         //Collapse all function calls into a single eval statement, if possible.
         //I've heard rumors of a max string length of 5 KB or similar. Let's test that.
-        %evalCall = %evalCall @ %functionCall;
+        %evalCall = %evalCall @ %functionDefinition;
     }
 
     if(%evalCall !$= "")
@@ -187,7 +187,7 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         // {
         //     SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
         // }
-        eval("function " @ %functionName @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){" @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}");
+        eval("function " @ %functionName @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){return " @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}");
 
         //Cache it. No more checks or eval.
         $OOP_functionMap[%superClass, %function] = %functionName;
