@@ -65,7 +65,7 @@ exec("./items/item_redSoda.cs");
 exec("./players/base_eventide.cs");
 exec("./players/player_survivor.cs");
 exec("./players/player_staller.cs");
-exec("./players/player_tinkerer.cs");
+exec("./players/player_eventer.cs");
 exec("./players/player_hoarder.cs");
 exec("./players/player_freekiller.cs");
 exec("./players/player_mender.cs");
