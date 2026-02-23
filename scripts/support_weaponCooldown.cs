@@ -1,6 +1,6 @@
 function SimObject::implementCooldownCallbacks(%this)
 {
-    %objectClass = getSafeVariableName((%weapon.class !$= "") ? %weapon.class : %weapon.getName());
+    %objectClass = getSafeVariableName((%this.class !$= "") ? %this.class : %this.getName());
     if(%objectClass $= "")
     {
         error("ERROR: implementCooldownCallbacks() - Target object does not have a namespace.");
@@ -45,7 +45,7 @@ function SimObject::implementCooldownCallbacks(%this)
     //     fixArmReady(%obj);
     // }
     %definitions = "function "@%objectClass@"::onCooldown(%this,%obj){%obj.playThread(1,root);if(%client=%obj.client){%client.printFormatString(\"hint\",\"You can't use this \"@%this.item.uiName@\" for another \"@sFromMs((%obj.last"@%objectClass@"UseTime+%this.cooldown)-getSimTime())@\" seconds.\",6);}}";
-    %definitions = %definitions @ "function "@%objectClass@"::onCooldownCheck(%this,%obj){fixArmReady(%obj);if((%obj.last"@%objectClass@"UseTime+%this.cooldown)>getSimTime()){%obj.setImageAmmo(%this.mountPoint,1);talk(\"Dope!\");}else{%obj.setImageAmmo(%this.mountPoint,0);talk(\"Nope!\");}}";
+    %definitions = %definitions @ "function "@%objectClass@"::onCooldownCheck(%this,%obj){fixArmReady(%obj);if((%obj.last"@%objectClass@"UseTime+%this.cooldown)>getSimTime()){%obj.setImageAmmo(%this.mountPoint,1);}else{%obj.setImageAmmo(%this.mountPoint,0);}}";
     %definitions = %definitions @ "function "@%objectClass@"::onCooldownRevert(%this,%obj){fixArmReady(%obj);}";
     eval(%definitions);
 
