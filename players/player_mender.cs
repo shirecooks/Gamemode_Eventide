@@ -10,23 +10,11 @@ datablock PlayerData(PlayerMender : PlayerSurvivor)
 //Inherits functions from `PlayerSurvivor`.
 PlayerMender.inheritFunctionsFromSuperClass("PlayerSurvivor");
 
-function PlayerMender::onNewDatablock(%this, %obj)
+function PlayerMender::getFacePack(%this, %obj)
 {
 	%client = %obj.client;
-	%clientExists = isObject(%client);
-
-	//Face pack initialization, very basic for now. 
-	//This can't use the usual datablock field method, since it needs to be dynamic.
-	%facePack = (%clientExists && %client.chest) ? $Eventide_FacePacks["menderF"] : $Eventide_FacePacks["menderM"];
-	%obj.createFaceConfig(%facePack);
-
-	//Voice Pack initialization.
-	%voicePack = (%clientExists && %client.chest) ? $Eventide_VoicePacks["female"] : $Eventide_VoicePacks["male"];
-	%obj.createVoiceConfig(%voicePack);
-
-	//Store some information used for voice-lines and chase management.
-	%obj.chasingKillers = new SimSet();
-	%obj.nearbyKillers = new SimSet();
+	%facePack = (isObject(%client) && %client.chest) ? "menderF" : "menderM";
+	return %facePack;
 }
 
 function PlayerMender::eventideBodyParts(%this, %obj)

@@ -18,18 +18,16 @@ PlayerSurvivor.inheritFunctionsFromSuperClass("PlayerEventide");
 function PlayerSurvivor::getFacePack(%this, %obj)
 {
 	%client = %obj.client;
-	%clientExists = isObject(%client);
 
-	%facePack = (%clientExists && %client.chest) ? "female" : "male";
+	%facePack = (isObject(%client) && %client.chest) ? "female" : "male";
 	return %facePack;
 }
 
 function PlayerSurvivor::getVoicePack(%this, %obj)
 {
 	%client = %obj.client;
-	%clientExists = isObject(%client);
 
-	%facePack = (%clientExists && %client.chest) ? "female" : "male";
+	%facePack = (isObject(%client) && %client.chest) ? "female" : "male";
 	return %facePack;
 }
 
