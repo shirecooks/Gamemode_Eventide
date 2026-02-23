@@ -131,35 +131,57 @@ function PlayerEventide::clearHatmodHat(%this, %obj)
 	return -1;
 }
 
-function PlayerEventide::eventideBodyParts(%this, %obj)
+function PlayerEventide::clearHat(%this, %obj)
+{
+	%nodesToHideCount = 0;
+    %nodesToHide[128] = "0"; //Instantiate the array with a dummy value.
+
+    //Determine which nodes to hide. Changes between players and bots.
+    %client = %obj.client;
+    if(%client)
+    {
+        //Force a hoodie by hiding appropriate and showing appropriate nodes.
+        %playerHat = $hat[%client.hat];
+        if(%playerHat !$= "none")
+        {
+            %nodesToHide[%nodesToHideCount++] = %playerHat;
+        }
+        %playerAccent = getWord($accentsAllowed[$hat[%client.hat]], %client.accent);
+        if(%playerAccent !$= "none")
+        {
+            %nodesToHide[%nodesToHideCount++] = %playerAccent;
+        }
+    }
+    else
+    {
+        %nodesToHide[%nodesToHideCount++] = "plume";
+        %nodesToHide[%nodesToHideCount++] = "triplume";
+        %nodesToHide[%nodesToHideCount++] = "septplume";
+        %nodesToHide[%nodesToHideCount++] = "visor";
+        %nodesToHide[%nodesToHideCount++] = "bicorn";
+        %nodesToHide[%nodesToHideCount++] = "cophat";
+        %nodesToHide[%nodesToHideCount++] = "flarehelmet";
+        %nodesToHide[%nodesToHideCount++] = "pointyhelmet";
+        %nodesToHide[%nodesToHideCount++] = "scouthat";
+        %nodesToHide[%nodesToHideCount++] = "helmet";
+        %nodesToHide[%nodesToHideCount++] = "knithat";
+    }
+
+    //Hide those nodes...
+    for(%i = 0; %i < %nodesToHideCount; %i++)
+    {
+        %obj.hideNode(%nodesToHide[%i]);
+    }
+}
+
+function PlayerEventide::eventideBodyParts(%this, %obj, %client)
 {
 	//Start by first cleaning everything up.
 	%obj.hideNode("ALL");
 
 	//We need a client to do anything here.
-	%client = %obj.client;
-	if(!isObject(%client))
-	{
-		//No client, so substitute with the default Blockhead apparance.
-		%obj.unHideNode("headskin");
-		%obj.unHideNode("chest");
-		%obj.unHideNode("larm");
-		%obj.unHideNode("rarm");
-		%obj.unHideNode("lhand");
-		%obj.unHideNode("rhand");
-		%obj.unHideNode("pants");
-		%obj.unHideNode("lshoe");
-		%obj.unHideNode("rshoe");
-
-		%obj.setHeadUp(0);
-
-		%obj.setDecalName("AAA-None");
-		%obj.setFaceName("smiley");
-		return;
-	}
-
-	//Get rid of the Hatmod hat if the player isn't supposed to have it.
-	%this.clearHatmodHat(%obj);
+	%client = (%client !$= "") ? %client : %obj.client;
+	%client.validateAvatarPrefs();
 	
 	//Core body parts.
 	%obj.unHideNode((%client.chest ? "femChest" : "chest"));	
@@ -190,13 +212,17 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 		%obj.setHeadUp(1);
 	}
 
+	//Get rid of the Hatmod hat if the player isn't supposed to have it.
+	%this.clearHatmodHat(%obj);
+
 	//Mount the HatMod hat of the player if it is available, otherwise give them their default hat.
-	%hat = $HatMod::save::wornHat[%client.bl_id];
-	if(!%this.noHatmod && isFunction(isHat) && isHat(%hat))
+	%noHatFlag = %this.leaveHatBlank;
+	%hatModHat = $HatMod::save::wornHat[%client.bl_id];
+	if(!%noHatFlag && isFunction(isHat) && isHat(%hatModHat))
 	{
 		%obj.mountHat(%hat);
 	}
-	else if(%client.hat)
+	else if(!%noHatFlag && %client.hat)
 	{	
 		%hatName = $hat[%client.hat];
 		%client.hatString = %hatName;
@@ -256,7 +282,7 @@ function PlayerEventide::eventideBodyParts(%this, %obj)
 	}
 }
 
-function PlayerEventide::eventideBodyColors(%this, %obj)
+function PlayerEventide::eventideBodyColors(%this, %obj, %client)
 {
     //We need a client to do anything here.
 	%client = %obj.client;
@@ -311,6 +337,23 @@ function PlayerEventide::eventideBodyColors(%this, %obj)
 
 function PlayerEventide::eventideDefaultCharacterPrefs(%this, %obj)
 {
+	%obj.hideNode("ALL");
+
+	%obj.unHideNode("headskin");
+	%obj.unHideNode("chest");
+	%obj.unHideNode("larm");
+	%obj.unHideNode("rarm");
+	%obj.unHideNode("lhand");
+	%obj.unHideNode("rhand");
+	%obj.unHideNode("pants");
+	%obj.unHideNode("lshoe");
+	%obj.unHideNode("rshoe");
+
+	%obj.setHeadUp(0);
+
+	%obj.setDecalName("AAA-None");
+	%obj.setFaceName("smiley");
+
 	%skinColor = "1 0.878 0.611 1";
 	%sleeveColor = "0.9 0 0 1";
 	%pantsColor = "0.2 0 0.8 1";
@@ -492,13 +535,13 @@ package Player_Eventide
 {
     function GameConnection::applyBodyParts(%client)
     {
-        %player = %client.player;
-        if(isObject(%player))
+        %obj = %client.player;
+        if(isObject(%obj))
         {
-            %playerDatablock = %player.Datablock;
+            %playerDatablock = %obj.Datablock;
             if(%playerDatablock.isEventideClass)
             {
-                return %playerDatablock.eventideBodyParts(%player);
+                return %playerDatablock.eventideBodyParts(%obj, %client);
             }
         }
 
@@ -507,18 +550,39 @@ package Player_Eventide
 
     function GameConnection::applyBodyColors(%client)
     {
-        %player = %client.player;
-        if(isObject(%player))
+        %obj = %client.player;
+        if(isObject(%obj))
         {
-            %playerDatablock = %player.Datablock;
+            %playerDatablock = %obj.Datablock;
             if(%playerDatablock.isEventideClass)
             {
-                return %playerDatablock.eventideBodyColors(%player);
+                return %playerDatablock.eventideBodyColors(%obj, %client);
             }
         }
 
         return Parent::applyBodyColors(%client);
     }
+
+	//Just a micro-optimization to prevent the datablock check twice when players initially spawn.
+	function applyCharacterPrefs(%client)
+	{
+		%obj = %client.player;
+		if(!isObject(%obj))
+		{
+			return;
+		}
+
+		%playerDatablock = %obj.Datablock;
+		if(%playerDatablock.isEventideClass)
+		{
+			%playerDatablock.eventideBodyParts(%obj, %client);
+			%playerDatablock.eventideBodyColors(%obj, %client);
+		}
+		else
+		{
+			return Parent::applyCharacterPrefs(%client);
+		}
+	}
 
 	function applyDefaultCharacterPrefs(%obj)
 	{
@@ -535,13 +599,13 @@ package Player_Eventide
 	}
 
 	//Correction for corpses sometimes standing up after dying. Clear all animation slots.
-	function Player::playDeathAnimation(%this)
+	function Player::playDeathAnimation(%obj)
 	{
-		%this.setArmThread("root");
-		%this.playThread(3, "Death1");
-		%this.playThread(2, "Death1");
-		%this.playThread(1, "Death1");
-		%this.playThread(0, "Death1");
+		%obj.setArmThread("root");
+		%obj.playThread(3, "Death1");
+		%obj.playThread(2, "Death1");
+		%obj.playThread(1, "Death1");
+		%obj.playThread(0, "Death1");
 	}
 };
 if(isPackage(Player_Eventide))

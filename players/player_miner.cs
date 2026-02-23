@@ -5,6 +5,7 @@
 datablock PlayerData(PlayerMiner : PlayerSurvivor)
 {
     uiName = "Miner";
+    leaveHatBlank = true;
 };
 //Inherits functions from `PlayerSurvivor`.
 PlayerMiner.inheritFunctionsFromSuperClass("PlayerSurvivor");
@@ -16,7 +17,7 @@ function PlayerMiner::eventideBodyParts(%this, %obj)
     //Give their torso a custom decal.
 	%obj.setDecalName("worm_engineer");
 
-    //Give the Hoarder a hardhat.
+    //Give the Miner a hardhat.
     %obj.unhideNode("scouthat");
 }
 
