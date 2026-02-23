@@ -1,4 +1,4 @@
-datablock ItemData(MonkeyWrench)
+datablock ItemData(monkeyWrenchItem)
 {
 	shapeFile = "base/data/shapes/wrench.dts";
 	rotate = false;
@@ -8,15 +8,17 @@ datablock ItemData(MonkeyWrench)
 	friction = 0.6;
 	emap = false;
 	
-	uiName = "Wrench";
-	iconName = "base/client/ui/itemIcons/Wrench.png";
-	doColorShift = false;
+	uiName = "Eventer's Wrench";
+	iconName = "base/client/ui/itemIcons/Wrench";
 	
-	image = MonkeyWrenchImage;
+	doColorShift = true;
+	colorShiftColor = "0.0 0.0 1.0 1.0";
+	
+	image = monkeyWrenchImage;
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(MonkeyWrenchImage)
+datablock ShapeBaseImageData(monkeyWrenchImage)
 {
 	shapeFile = "base/data/shapes/wrench.dts";
 	emap = false;
@@ -25,12 +27,14 @@ datablock ShapeBaseImageData(MonkeyWrenchImage)
 	eyeOffset = 0;
 	rotation = eulerToMatrix("0 0 0");
 	isSpecial = true;
+
+	doColorShift = monkeyWrenchItem.doColorShift;
+	colorShiftColor = monkeyWrenchItem.colorShiftColor;
 	
 	className = "WeaponImage";
-	item = MonkeyWrench;
+	item = monkeyWrenchItem;
 	
 	armReady = true;
-	doColorShift = false;
 	
 	stateName[0]					= "Activate";
 	stateSound[0]					= "weaponSwitchSound";
