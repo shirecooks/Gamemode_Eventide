@@ -148,16 +148,16 @@ function PlayerSurvivor::Damage(%this, %obj, %sourceObject, %position, %damage, 
 	//Some killers have projectile weapons, and this allows you to call `onIncapacitateVictim` properly.
 	if(isObject(%sourceObject))
 	{	
-		if(%sourceObject.getDataBlock().getClassName() $= "ProjectileData")
+		if(%sourceObject.getType() & $TypeMasks::ProjectileObjectType)
 		{
-			%sourceDatablock = %sourceObject.sourceObject.getDatablock();
+			%sourceDatablock = %sourceObject.sourceObject.Datablock;
 			%killerSourceObject = %sourceObject.sourceObject;
 		}
 		else
 		{
 			%killerSourceObject = %sourceObject;
 		}
-		%killerDatablock = %killerSourceObject.getDataBlock();
+		%killerDatablock = %killerSourceObject.Datablock;
 	}	
 
 	//The player is about to die, let's do some things beforehand.
@@ -280,7 +280,7 @@ function PlayerSurvivor::shove(%this, %obj)
 
 			//Finally, apply the shove force to the victim.
 			%finalVelocity = VectorAdd(VectorScale(%eyeVector, %forwardImpulse), "0 0 " @ %upwardImpulse);
-			%hit.getDataBlock().onShoved(%hit, %finalVelocity);
+			%hit.Datablock.onShoved(%hit, %finalVelocity);
 		}			
 	}
 }
