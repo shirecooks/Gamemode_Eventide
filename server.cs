@@ -73,6 +73,7 @@ exec("./players/player_racer.cs");
 exec("./players/player_warden.cs");
 exec("./players/player_knifer.cs");
 exec("./players/player_miner.cs");
+exec("./players/player_sailor.cs");
 exec("./players/base_killer.cs");
 exec("./players/killer_renowned.cs");
 exec("./players/killer_wrathful.cs");
