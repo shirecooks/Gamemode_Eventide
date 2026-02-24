@@ -19,6 +19,7 @@ exec("./scripts/support_cutscenes.cs");
 exec("./scripts/support_customCdn.cs");
 exec("./scripts/script_weaponUsageTips.cs");
 exec("./scripts/script_itemParticles.cs");
+exec("./scripts/script_hatmodOverride.cs");
 
 exec("./statusEffects/status_stun.cs");
 exec("./statusEffects/status_frozen.cs");
@@ -46,9 +47,9 @@ exec("./items/item_medpack.cs");
 exec("./items/base_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");
 exec("./items/weapon_revolver.cs");
-//xec("./items/weapon_chair.cs");
+//exec("./items/weapon_chair.cs");
 //exec("./items/weapon_poolCue.cs");
-exec("./items/weapon_barStool.cs");
+//exec("./items/weapon_barStool.cs");
 exec("./items/weapon_throwingSpear.cs");
 exec("./items/weapon_frailSword.cs");
 //exec("./items/weapon_shotgun.cs");
@@ -81,7 +82,6 @@ exec("./players/killer_shire.cs");
 exec("./players/killer_angler.cs");
 exec("./players/killer_captain.cs");
 
-exec("./scripts/script_hatmodOverride.cs");
 exec("./scripts/script_ambiantMusic.cs");
 exec("./scripts/script_flashlight.cs");
 exec("./scripts/script_noItemDespawn.cs");
