@@ -337,6 +337,11 @@ datablock shapeBaseImageData(shotgunImage)
 	stateTransitionOnTimeout[9] = "Ready";
 };
 
+function shotgunImage::getHintMessage(%this, %obj)
+{
+	return "Single-shot, tight spread. Don't miss.";
+}
+
 //
 // Sequence callbacks.
 //

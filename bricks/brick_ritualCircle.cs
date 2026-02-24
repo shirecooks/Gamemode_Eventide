@@ -87,7 +87,8 @@ function brickEventideRitualCircle::checkForItems(%this, %obj)
 		%item = containerFindNext();
 	}
 
-	for(%i = 0; %i < %foundItems.getCount(); %i++)
+	%foundItemsCount = %foundItems.getCount();
+	for(%i = 0; %i < %foundItemsCount; %i++)
 	{
 		%item = %foundItems.getObject(%i);
 		%this.placeRitual(%obj, %item);
@@ -165,7 +166,8 @@ function brickEventideRitualCircle::placeRitual(%this, %obj, %item)
 	%brickPosition = %obj.getPosition();
 
 	//Spawn some particles.
-	for(%m = 0; %m < getRandom(4, 8); %m++) 
+	%particleCount = getRandom(4, 8);
+	for(%m = 0; %m < %particleCount; %m++) 
 	{
 		%obj.spawnExplosion("horseRayProjectile", "0.25 0.25 0.25");					
 	}
@@ -286,9 +288,9 @@ function brickEventideRitualCircle::onRemove(%this, %obj)
 // Minigame functionality.
 //
 
-function MinigameSO::onAllRitualsPlaced(%obj)
+function MinigameSO::onAllRitualsPlaced(%this)
 {
-	
+	%this.allRitualsCompleted = true;
 }
 
 function brickEventideRitualCircle::reset(%this, %obj)
@@ -299,7 +301,8 @@ function brickEventideRitualCircle::reset(%this, %obj)
 
 	//Reset cached counts of ritual items.
 	%ritualIndex = %obj.ritualIndex;
-	for(%i = 0; %i < getWordCount(%ritualIndex); %i++)
+	%ritualCount = getWordCount(%ritualIndex);
+	for(%i = 0; %i < %ritualCount; %i++)
 	{
 		%ritualType = getWord(%ritualIndex, %i);
 		%obj.ritualCount[%ritualType] = 0;
@@ -317,15 +320,18 @@ function brickEventideRitualCircle::reset(%this, %obj)
 
 package Brick_RitualCircle
 {
-	function MinigameSO::Reset(%obj, %client)
+	function MinigameSO::Reset(%this, %client)
 	{
-		parent::Reset(%obj, %client);
+		parent::Reset(%this, %client);
+
+		%this.allRitualsCompleted = false;
 		
 		//Reset each ritual circle back to it's default state.
-		for(%i = 0; %i < $Eventide_RitualCircles.getCount(); %i++)
+		%ritualCircleCount = $Eventide_RitualCircles.getCount();
+		for(%i = 0; %i < %ritualCircleCount; %i++)
 		{
 			%ritualCircle = $Eventide_RitualCircles.getObject(%i);
-			%ritualCircle.Datablock.reset(%ritualCircle, %i);
+			%ritualCircle.Datablock.reset(%ritualCircle);
 		}
 	}
 };

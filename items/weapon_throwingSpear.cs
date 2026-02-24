@@ -307,6 +307,11 @@ datablock ShapeBaseImageData(throwingSpearImage)
     stateAllowImageChange[5]	= false;
 };
 
+function throwingSpearImage::getHintMessage(%this, %obj)
+{
+	return "Heavy and slow, not meant to be a javelin. Aim accordingly.";
+}
+
 //
 // Sequence callbacks.
 //

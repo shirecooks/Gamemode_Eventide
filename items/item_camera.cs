@@ -66,9 +66,6 @@ datablock ShapeBaseImageData(hoarderCameraImage)
 	
 	className = "WeaponImage";
 	item = hoarderCameraItem;
-
-    hintStyle = "hint";
-	hintMessage = "Blind enemies for a second or so. Make sure they're looking your way.";
 	
 	armReady = true;
 	doColorShift = false;
@@ -98,6 +95,11 @@ datablock ShapeBaseImageData(hoarderCameraImage)
 	stateAllowImageChange[8] = false;
 	stateWaitForTimeout[8] = false;
 };
+
+function hoarderCameraImage::getHintMessage(%this, %obj)
+{
+	return "Blind enemies for a second or so. Make sure they're looking your way.";
+}
 
 //
 // Sequence callbacks, animations.

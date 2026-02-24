@@ -254,7 +254,7 @@ function revolverProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal
 // Image data.
 //
 
-datablock ItemData(RevolverItem)
+datablock ItemData(revolverItem)
 {
 	category = "Weapon";
 	className = "Weapon";
@@ -277,7 +277,7 @@ datablock ItemData(RevolverItem)
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(revolverImage)
+datablock ShapeBaseImageData(revolverImage : cooldownImage)
 {
    className = "WeaponImage";
 
@@ -299,10 +299,8 @@ datablock ShapeBaseImageData(revolverImage)
 
    armReady = true;
 
-   doColorShift = true;
-   colorShiftColor = RevolverItem.colorShiftColor;
-
-   cooldown = 42000;
+   doColorShift = revolverItem.doColorShift;
+   colorShiftColor = revolverItem.colorShiftColor;
 
    //The revolver has been equipped.
    stateName[0] = "Activate";
@@ -312,103 +310,51 @@ datablock ShapeBaseImageData(revolverImage)
    stateTimeoutValue[0] = 0.01;
    stateTransitionOnTimeout[0] = "CooldownCheck";
 
-   //Check if the revolver is on cooldown. If not, proceed to "Ready".
-   stateName[1] = "CooldownCheck";
-   stateScript[1] = "onCooldownCheck";
-   stateAllowImageChange[1] = false;
-   stateWaitForTimeout[1] = true;
-   stateTimeOutValue[1] = 0.01;
-   stateTransitionOnTimeout[1] = "CooldownRedirect";
-
-   //Redirect to another state based on what was set in the previous "CooldownCheck" state.
-   stateName[2] = "CooldownRedirect";
-   stateAllowImageChange[2] = false;
-   stateTransitionOnAmmo[2] = "Cooldown";
-   stateTransitionOnNoAmmo[2] = "Ready";
-
-   //The revolver is on cooldown and cannot be used.
-   stateName[3] = "Cooldown";
-   stateSequence[3] = "ready";
-   stateScript[3] = "onCooldown";
-   stateAllowImageChange[3] = true;
-   ////The cooldown ended while the revolver was equipped, transition to the "Ready" state.
-   stateTransitionOnNoAmmo[3] = "CooldownRevert";
-
-   //The revolver is transitioning from "Cooldown" to "Ready", we need to raise the arm back up.
-   stateName[4] = "CooldownRevert";
-   stateSequence[4] = "Reload";
-   stateScript[4] = "onCooldownRevert";
-   stateAllowImageChange[4] = false;
-   stateWaitForTimeout[4] = true;
-   stateTimeOutValue[4] = 0.01;
-   stateTransitionOnTimeout[4] = "Ready";
-
    //The revolver is inactive, simply being held.
-   stateName[5] = "Ready";
-   stateSequence[5] = "ready";
-   stateScript[5] = "onReady";
-   stateTransitionOnTriggerDown[5]	= "Fire";
-   stateAllowImageChange[5] = true;
+   stateName[1] = "Ready";
+   stateSequence[1] = "ready";
+   stateScript[1] = "onReady";
+   stateTransitionOnTriggerDown[1]	= "Fire";
+   stateAllowImageChange[1] = true;
 
    //The revolver has been fired, spawn a bullet.
-   stateName[6] = "Fire";
-   stateScript[6] = "onFire";
-   stateSequence[6] = "Fire";
-   stateSound[6] = "revolver_shot_sound";
-   stateAllowImageChange[6] = false;
-   stateWaitForTimeout[6] = true;
-   stateTimeoutValue[6] = 0.7;
-   stateTransitionOnTimeout[6] = "Smoke";
-   stateFire[6] = true;
-   stateEmitter[6] = revolverFlashEmitter;
-   stateEmitterNode[6] = "muzzleNode";
-   stateEmitterTime[6] = 0.05;
-   stateEjectShell[6] = true;
+   stateName[2] = "Fire";
+   stateScript[2] = "onFire";
+   stateSequence[2] = "Fire";
+   stateSound[2] = "revolver_shot_sound";
+   stateAllowImageChange[2] = false;
+   stateWaitForTimeout[2] = true;
+   stateTimeoutValue[2] = 0.7;
+   stateTransitionOnTimeout[2] = "Smoke";
+   stateFire[2] = true;
+   stateEmitter[2] = revolverFlashEmitter;
+   stateEmitterNode[2] = "muzzleNode";
+   stateEmitterTime[2] = 0.05;
+   stateEjectShell[2] = true;
 
    //Make the revolver barrel smoke after the shot.
-   stateName[7] = "Smoke";
-   stateScript[7] = "onSmoke";
-   stateAllowImageChange[7] = true;
-   stateWaitForTimeout[7] = true;
-   stateTimeoutValue[7] = 0.01;
-   stateTransitionOnTimeout[7] = "CooldownCheck";
-   stateEmitter[7] = revolverSmokeEmitter;
-   stateEmitterTime[7] = 0.02;
-   stateEmitterNode[7] = "muzzleNode";
+   stateName[3] = "Smoke";
+   stateScript[3] = "onSmoke";
+   stateAllowImageChange[3] = true;
+   stateWaitForTimeout[3] = true;
+   stateTimeoutValue[3] = 0.01;
+   stateTransitionOnTimeout[3] = "CooldownCheck";
+   stateEmitter[3] = revolverSmokeEmitter;
+   stateEmitterTime[3] = 0.02;
+   stateEmitterNode[3] = "muzzleNode";
+
+   cooldown = 42000;
 };
+revolverImage.implementCooldownCallbacks();
+
+function revolverImage::getHintMessage(%this, %obj)
+{
+	return "Ironically, only has a single bullet.";
+}
 
 //
 // Sequence callbacks.
 //
-
-function revolverImage::onCooldownCheck(%this, %obj)
-{
-   //If the revolver has not passed it's cooldown time limit, transition to the "Cooldown" state.
-   //Otherwise, transition to the "Ready" state.
-   if((%obj.lastRevolverTime + %this.cooldown) > getSimTime())
-   {
-      %obj.setImageAmmo(%this.mountPoint, 1);
-   }
-   else
-   {
-      %obj.setImageAmmo(%this.mountPoint, 0);
-   }
-}
-
-function revolverImage::onCooldown(%this, %obj)
-{
-   //Lower the revolver, it cannot be used.
-   %obj.playThread(1, root);
-}
-
-function revolverImage::onCooldownRevert(%this, %obj)
-{
-   //Raise the arm back up after being lowered.
-   fixArmReady(%obj);
-
-   //Since we have a new bullet, play a reloading sound.
-   %obj.playAudio(3, "revolver_reload_sound");
-}
 
 function revolverImage::onReady(%this, %obj)
 {
@@ -423,7 +369,7 @@ function revolverImage::onFire(%this, %obj)
    %obj.playThread(2, jump);
 
    //Shake the player's camera to mimic recoil.
-   %obj.spawnExplosion("camShakeProjectile", %obj.getScale()); 
+   %obj.shakeCamera(0.5);
 
    //Create a muzzle flash.
    %revolverlight = new fxLight() 
@@ -433,13 +379,8 @@ function revolverImage::onFire(%this, %obj)
    %revolverlight.setTransform(%obj.getMuzzlePoint(0));
    %revolverlight.schedule(50, delete);
 
-   //Essential for cooldown checking upon revolver re-equip.
-   %obj.lastRevolverTime = getSimTime();
-
    //Initiate the revolver's cooldown.
-   //Triggers `stateTransitionOnAmmo[1]`.
-   %cooldown = mCeil(%this.cooldown / 1000);
-   %obj.weaponCooldown(%slot, "The bullet was spent, and you won't get another for " @ %cooldown @ " seconds.", "You have a new bullet, and your revolver is ready to fire!", 6);
+   %obj.weaponCooldown(%slot, "The bullet is spent, and you won't get another for " @ sFromMs(%this.cooldown) @ " seconds.", "You have a new bullet, and your revolver is ready to fire!", 6);
 
 	Parent::onFire(%this, %obj);
 }

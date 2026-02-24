@@ -296,7 +296,7 @@ function epoxyProjectile::radiusImpulse(%this, %obj, %col, %distanceFactor, %pos
 // Item and image.
 //
 
-datablock ItemData(epoxyItem)
+datablock ItemData(epoxyBombItem)
 {
 	category = "Weapon";
 	className = "Weapon";
@@ -310,20 +310,17 @@ datablock ItemData(epoxyItem)
 
 	doColorShift = false;
 	colorShiftColor = "51 51 51 1";
-	image = epoxyImage;
+	image = epoxyBombImage;
 	canDrop = true;
 	canPickup = true;
 	uiName = "Epoxy Bomb";
 	iconName = "./icon_epoxy";
 };
 
-datablock ShapeBaseImageData(epoxyImage)
+datablock ShapeBaseImageData(epoxyBombImage)
 {
-	item = epoxyItem;
+	item = epoxyBombItem;
 	shapeFile = "./models/epoxyBomb/uprightEpoxyBomb.dts";
-
-	hintStyle = "hint";
-	hintMessage = "This bomb will slow down enemies that walk near it. Place it on a flat surface.";
 
 	emap = true;
 	mountPoint = 0;
@@ -353,7 +350,12 @@ datablock ShapeBaseImageData(epoxyImage)
 	stateTransitionOnTriggerUp[2] = "Ready";
 };
 
-function epoxyImage::attemptPlace(%this, %obj)
+function epoxyBombImage::getHintMessage(%this, %obj)
+{
+	return "Place this on a flat surface to slow enemies who walk near it.";
+}
+
+function epoxyBombImage::attemptPlace(%this, %obj)
 {
 	%start = %obj.getEyePoint();
 	%aimVector = VectorNormalize(%obj.getLookVector());

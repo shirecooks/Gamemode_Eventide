@@ -74,7 +74,7 @@ datablock ProjectileData(wrathfulDustExplosionProjectile : tumbleImpactAProjecti
 // Melee weapons.
 //
 
-datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
+datablock ShapeBaseImageData(meleeWrathfulImage : eventideMeleeImage)
 {
    	shapeFile = "base/data/shapes/empty.dts";
 	
@@ -91,7 +91,7 @@ datablock ShapeBaseImageData(MeleeWrathfulImage : eventideMeleeImage)
 	customSwingAnimationCount = 1;
     fixedDamageAmount = 28;
 };
-MeleeWrathfulImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
+meleeWrathfulImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
 //
 //// Ability and item to initiate charging.
@@ -115,9 +115,7 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
 	shapeFile = "base/data/shapes/empty.dts";
 
 	mountPoint = $RightHandSlot;
-   	offset = "0 0 0";
    	eyeOffset = 0;
-   	rotation = eulerToMatrix("0 0 0");
    	correctMuzzleVector = false;
 
    	item = wrathfulChargeAbilityItem;
@@ -126,9 +124,6 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
    	projectileType = Projectile;
    	melee = false;
    	armReady = false;
-
-	hintStyle = "hint";
-	hintMessage = "Click to charge for two seconds, winding everyone in your path.";
 
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
@@ -165,6 +160,11 @@ datablock ShapeBaseImageData(wrathfulChargeAbilityImage)
     chargeCooldown = 24000;
     chargeTime = 2000;
 };
+
+function wrathfulChargeAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Click to charge for two seconds, winding everyone in your path.";
+}
 
 function wrathfulChargeAbilityImage::onCooldownCheck(%this, %obj)
 {
@@ -232,9 +232,6 @@ datablock ShapeBaseImageData(wrathfulRageAbilityImage)
    	melee = false;
    	armReady = false;
 
-	hintStyle = "hint";
-	hintMessage = "Click to become enraged for 30 seconds, moving faster and punching harder.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -267,6 +264,11 @@ datablock ShapeBaseImageData(wrathfulRageAbilityImage)
 	stateTimeoutValue[5] = 0.01;
 	stateTransitionOnTimeout[5] = "Ready";
 };
+
+function wrathfulRageAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Click to become enraged for 30 seconds, moving faster and punching harder.";
+}
 
 function wrathfulRageAbilityImage::onCooldownCheck(%this, %obj)
 {
@@ -433,9 +435,6 @@ datablock ShapeBaseImageData(wrathfulStompAbilityImage)
    	melee = false;
    	armReady = false;
 
-	hintStyle = "hint";
-	hintMessage = "Click to stomp, stunning everyone in a small radius.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -468,6 +467,11 @@ datablock ShapeBaseImageData(wrathfulStompAbilityImage)
 	stateTimeoutValue[5] = 0.01;
 	stateTransitionOnTimeout[5] = "Ready";
 };
+
+function wrathfulStompAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Click to stomp, stunning everyone in a small radius.";
+}
 
 function wrathfulStompAbilityImage::onCooldownCheck(%this, %obj)
 {

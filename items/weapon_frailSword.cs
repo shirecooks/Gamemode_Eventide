@@ -77,16 +77,21 @@ datablock ShapeBaseImageData(frailSwordImage : eventideMeleeImage)
 };
 frailSwordImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
 
+function frailSwordImage::getHintMessage(%this, %obj)
+{
+	return "Brittle and won't last, but might knock them out. Three time's a charm.";
+}
+
 //
 // Sequence callbacks.
 //
 
 function frailSwordImage::onSwing(%this, %obj)
 {	
-	%this.super("onSwing", %this, %obj);
-
+	%victims = %this.super("onSwing", %this, %obj);
+	%victimCount = getWordCount(%victims);
+	
 	%hits = %Obj.getImageAttribute("hits");
-	%victim = %obj.getImageAttribute("lastPersonHit");
 	if(%hits >= 3)
 	{
 		%muzzlePoint = %obj.getMuzzlePoint(0);
@@ -97,21 +102,24 @@ function frailSwordImage::onSwing(%this, %obj)
 		//Spawn some debris.
 		new Projectile()
 		{
-			dataBlock = "frailSwordProjectile";
+			dataBlock = frailSwordProjectile;
 			initialPosition = %muzzlePoint;
 		}.explode();
 
 		//Remove the sword from the player's inventory, reset damage.
 		%obj.removeItemFromInventory();
 
-		//If a player was hit and we are in the same minigame, stun them and push them back.
-		if(minigameCanDamage(%obj, %victim))
+		//If the player(s) we hit are in the same minigame, stun them and push them back.
+		for(%i = 0; %i < %victimCount; %i++)
 		{
-			%victimPosition = %victim.getPosition();
+			if(minigameCanDamage(%obj, %victim))
+			{
+				%victimPosition = %victim.getPosition();
 
-			%victim.applyImpulse(%victimPosition, VectorAdd(VectorScale(%obj.getMuzzleVector(%this.mountPoint), 1000), "0 0 1000"));
-			%victim.Damage(%obj, %victimPosition, 50, $DamageType::frailSword);
-			%victim.stun();
+				%victim.applyImpulse(%victimPosition, VectorAdd(VectorScale(%obj.getMuzzleVector(%this.mountPoint), 1000), "0 0 1000"));
+				%victim.Damage(%obj, %victimPosition, 50, $DamageType::frailSword);
+				%victim.stun();
+			}
 		}
 	}
 }

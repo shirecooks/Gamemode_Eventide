@@ -78,7 +78,7 @@ datablock ItemData(candleItem : ritualItem)
 };
 candleItem.inheritFunctionsFromSuperClass("ritualItem");
 
-datablock ShapeBaseImageData(candleImage)
+datablock ShapeBaseImageData(candleImage : ritualImage)
 {
     shapeFile = candleItem.shapeFile;
 
@@ -98,6 +98,7 @@ datablock ShapeBaseImageData(candleImage)
 
     stateName[0] = "Activate";
 };
+candleImage.inheritFunctionsFromSuperclass("ritualImage");
 
 function candleItem::placeOnRitualCircle(%this, %obj, %circle)
 {

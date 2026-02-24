@@ -1,3 +1,7 @@
+//
+// Item data, with sparkle support and ritual circle functionality.
+//
+
 datablock ItemData(ritualItem)
 {
 	category = "Weapon";
@@ -53,4 +57,23 @@ function ritualItem::placeOnRitualCircle(%this, %obj, %circle)
 	}
 
 	return true;
+}
+
+//
+// Image data, (for now) just a stub to harbor an automatic hint message.
+//
+
+datablock ShapeBaseImageData(ritualImage)
+{
+	shapeFile = "base/data/shapes/empty.dts";
+};
+
+function ritualImage::getHintMessage(%this, %obj)
+{
+    %minigame = getMinigameFromObject(%obj);
+    if(%minigame.allRitualsCompleted)
+    {
+        return "All rituals are already completed! This" SPC %this.item.uiName SPC "is redundant.";
+    }
+	return "Bring this" SPC %this.item.uiName SPC "to the ritual circle and drop it on!";
 }

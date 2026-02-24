@@ -69,7 +69,7 @@ datablock ShapeBaseImageData(redSodaImage)
 	isSpecial = 1;
 
 	mountPoint = 0;
-	offset = "-0.01 0.1 0";
+	offset = "0.025 -0.05 0";
 	armReady = false;
     
 	doColorShift = false;
@@ -77,7 +77,6 @@ datablock ShapeBaseImageData(redSodaImage)
 	item = blueSodaItem;
 	ammo = false;
 	projectile = "";
-	cooldown = 32000;
 
 	//The soda has been equipped.
     stateName[0] = "Activate";
@@ -113,7 +112,14 @@ datablock ShapeBaseImageData(redSodaImage)
 	stateScript[8] = "onDiscard";
 	stateAllowImageChange[8] = false;
 	stateWaitForTimeout[8] = false;
+	
+	cooldown = 32000;
 };
+
+function redSodaImage::getHintMessage(%this, %obj)
+{
+	return "Drink for a short sugar rush, moving faster.";
+}
 
 //
 // Sequence callbacks.

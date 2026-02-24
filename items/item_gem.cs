@@ -1,5 +1,5 @@
 //
-// Base gem datablock.
+// Base gem datablock and image.
 //
 
 datablock ItemData(gemItem : ritualItem)
@@ -30,17 +30,32 @@ datablock ItemData(gemItem : ritualItem)
 };
 gemItem.inheritFunctionsFromSuperClass("ritualItem");
 
+datablock ShapeBaseImageData(gemImage : ritualImage)
+{
+	className = "WeaponImage";
+	
+	emap = true;
+    mountPoint = 0;
+    offset = "-0.1 0.125 0";
+    
+    item = gem1Item;
+    ammo = " ";
+    projectile = "";
+    projectileType = Projectile;
+
+    armReady = true;
+
+	stateName[0] = "Activate";
+};
+gemImage.inheritFunctionsFromSuperclass("ritualImage");
+
 //
 // Red gem.
 //
 
 datablock ItemData(gem1Item : gemItem)
 {
-	category = "Weapon";
-	className = "Weapon";
-
 	uiName = "Red Gem";
-	iconName = "./icons/icon_gem";
 
 	doColorShift = true;
 	colorShiftColor = "1 0.5 0.5 1";	
@@ -49,30 +64,14 @@ datablock ItemData(gem1Item : gemItem)
 };
 gem1Item.inheritFunctionsFromSuperClass("gemItem");
 
-datablock ShapeBaseImageData(gem1Image)
+datablock ShapeBaseImageData(gem1Image : ritualImage)
 {
     shapeFile = "./models/gem/gem1.dts";
-    emap = true;
-
-    mountPoint = 0;
-    offset = "-0.1 0.125 0";
-	offsetrotation = "0 0 0";
-    correctMuzzleVector = false;
-    eyeOffset = "0 0 0";
-    className = "WeaponImage";
-
-    item = gem1Item;
-    ammo = " ";
-    projectile = "";
-    projectileType = Projectile;
-
-    armReady = true;
 
     doColorShift = gem1Item.doColorShift;
     colorShiftColor = gem1Item.colorShiftColor;
-
-    stateName[0]                     = "Activate";
 };
+gem1Image.inheritFunctionsFromSuperclass("gemImage");
 
 //
 // Green gem.
@@ -88,7 +87,7 @@ datablock ItemData(gem2Item : gem1Item)
 
 	image = gem2Image;
 };
-gem2Item.inheritFunctionsFromSuperClass("gem1Item");
+gem2Item.inheritFunctionsFromSuperClass("gemItem");
 
 datablock ShapeBaseImageData(gem2Image : gem1Image)
 {
@@ -98,6 +97,7 @@ datablock ShapeBaseImageData(gem2Image : gem1Image)
     doColorShift = gem2Item.doColorShift;
     colorShiftColor = gem2Item.colorShiftColor;	
 };
+gem2Image.inheritFunctionsFromSuperClass("gemImage");
 
 //
 // Blue gem.
@@ -123,6 +123,7 @@ datablock ShapeBaseImageData(gem3Image : gem1Image)
     doColorShift = gem3Item.doColorShift;
     colorShiftColor = gem3Item.colorShiftColor;		
 };
+gem3Image.inheritFunctionsFromSuperClass("gemImage");
 
 //
 // Yellow gem.
@@ -148,6 +149,7 @@ datablock ShapeBaseImageData(gem4Image : gem1Image)
     doColorShift = gem4Item.doColorShift;
     colorShiftColor = gem4Item.colorShiftColor;	
 };
+gem4Image.inheritFunctionsFromSuperClass("gemImage");
 
 //
 // Purple gem.
@@ -173,3 +175,4 @@ datablock ShapeBaseImageData(gem5Image : gem1Image)
     doColorShift = gem5Item.doColorShift;
     colorShiftColor = gem5Item.colorShiftColor;	
 };
+gem5Image.inheritFunctionsFromSuperClass("gemImage");

@@ -130,3 +130,13 @@ datablock ShapeBaseImageData(daggerImage : eventideMeleeImage)
 	swingSoundAmount = 5;
 };
 daggerImage.inheritFunctionsFromSuperClass("eventideMeleeImage");
+
+function daggerImage::getHintMessage(%this, %obj)
+{
+    %minigame = getMinigameFromObject(%obj);
+    if(%minigame.allRitualsCompleted)
+    {
+        return "Slash and dash!";
+    }
+	return "Bring this to the ritual circle, making use of the blade along the way.";
+}

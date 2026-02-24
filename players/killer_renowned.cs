@@ -181,9 +181,6 @@ datablock ShapeBaseImageData(renownedPossessAbilityImage)
    	melee = true;
    	armReady = true;
 
-	hintStyle = "hint";
-	hintMessage = "Aim at a survivor and release to gain control for a few seconds. Don't miss.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -232,6 +229,11 @@ datablock ShapeBaseImageData(renownedPossessAbilityImage)
 	stateTimeoutValue[7] = 0.1;
 	stateTransitionOnTimeout[7] = "Ready";
 };
+
+function renownedPossessAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Aim at a survivor and release to gain control for a few seconds. Don't miss.";
+}
 
 function renownedPossessAbilityImage::onEnergyCheck(%this, %obj)
 {

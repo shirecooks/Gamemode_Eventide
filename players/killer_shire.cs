@@ -361,9 +361,6 @@ datablock ShapeBaseImageData(shireHowlAbilityImage)
    	melee = false;
    	armReady = false;
 
-	hintStyle = "hint";
-	hintMessage = "Click to let out a howl, dazzling everyone nearby.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -396,6 +393,11 @@ datablock ShapeBaseImageData(shireHowlAbilityImage)
 	stateTimeoutValue[5] = 0.01;
 	stateTransitionOnTimeout[5] = "Ready";
 };
+
+function shireHowlAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Click to let out a howl, dazzling everyone nearby.";
+}
 
 function shireHowlAbilityImage::onCooldownCheck(%this, %obj)
 {
@@ -501,9 +503,6 @@ datablock ShapeBaseImageData(shireCurseAbilityImage)
    	melee = true;
    	armReady = true;
 
-	hintStyle = "hint";
-	hintMessage = "Aim at a survivor and release to gain curse them, blinding and deafening for a few seconds. Don't miss.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -552,6 +551,11 @@ datablock ShapeBaseImageData(shireCurseAbilityImage)
 	stateTimeoutValue[7] = 0.1;
 	stateTransitionOnTimeout[7] = "Ready";
 };
+
+function shireCurseAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Aim at a survivor and release to gain curse them, blinding and deafening for a few seconds. Don't miss.";
+}
 
 function shireCurseAbilityImage::onEnergyCheck(%this, %obj)
 {

@@ -73,6 +73,11 @@ datablock ShapeBaseImageData(medpackImage)
     healTime = 4.0;
 };
 
+function medpackImage::getHintMessage(%this, %obj)
+{
+	return "Patch yourself up, but make sure the coast is clear.";
+}
+
 function medpackImage::onMount(%this, %obj, %slot)
 {
     Parent::onMount(%this, %obj, %slot);

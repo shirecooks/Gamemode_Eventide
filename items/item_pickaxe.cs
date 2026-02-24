@@ -48,17 +48,12 @@ datablock ShapeBaseImageData(pickaxeImage)
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
 
-function pickaxeImage::onUse(%this,%obj,%slot)
+function pickaxeImage::getHintMessage(%this, %obj)
+{
+	return "Dig through shining rubble to unearth ancient artifacts...";
+}
+
+function pickaxeImage::onUse(%this, %obj, %slot)
 {
 	%obj.activateStuff();
-}
-
-function pickaxeImage::onMount(%this,%obj,%slot)
-{
-	%obj.playThread(0, "armReady");
-}
-
-function pickaxeImage::onUnMount(%this,%obj,%slot)
-{
-	%obj.playThread(0, "root");
 }

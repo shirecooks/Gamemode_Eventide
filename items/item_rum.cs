@@ -133,7 +133,7 @@ datablock ItemData(rumBottleItem)
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(rumBottleImage)
+datablock ShapeBaseImageData(rumBottleImage : cooldownImage)
 {
 	shapeFile = "./models/rum/bottle.dts";
 	emap = true;
@@ -153,97 +153,53 @@ datablock ShapeBaseImageData(rumBottleImage)
 	casing = RumBottleCorkDebris;
 	shellExitDir		= "1.0 1.0 1.0";
 	shellExitOffset		= "0 0 0";
-	shellExitVariance	= 5;	
+	shellExitVariance	= 5;
 	shellVelocity		= 10;
 
 	//The rum has been equipped.
     stateName[0] = "Activate";
-    stateSequence[0] = "ready";
 	stateAllowImageChange[0] = false;
     stateTimeoutValue[0] = 0.01;
-    stateTransitionOnTimeout[0]	= "CooldownCheck";
-
-	//Check if the rum is on cooldown. If not, proceed to "Ready".
-    stateName[1] = "CooldownCheck";
-    stateScript[1] = "onCooldownCheck";
-    stateAllowImageChange[1] = false;
-    stateWaitForTimeout[1] = true;
-    stateTimeOutValue[1] = 0.01;
-    stateTransitionOnTimeout[1] = "CooldownRedirect";
-
-	//Redirect to another state based on what was set in the previous "CooldownCheck" state.
-    stateName[2] = "CooldownRedirect";
-    stateAllowImageChange[2] = false;
-    stateTransitionOnNoAmmo[2] = "Ready";
-	stateTransitionOnAmmo[2] = "Cooldown";
-
-	//The rum is on cooldown and cannot be used.
-    stateName[3] = "Cooldown";
-    stateScript[3] = "onCooldown";
-    stateAllowImageChange[3] = true;
-    ////The cooldown ended while the rum was equipped, transition to the "Ready" state.
-    stateTransitionOnNoAmmo[3] = "CooldownRevert";
-
-	//The rum is transitioning from "Cooldown" to "Ready", we need to raise the arm back up.
-    stateName[4] = "CooldownRevert";
-    stateScript[4] = "onCooldownRevert";
-    stateAllowImageChange[4] = false;
-    stateWaitForTimeout[4] = true;
-    stateTimeOutValue[4] = 0.01;
-    stateTransitionOnTimeout[4] = "Ready";
 
 	//The rum is inactive, simply being held.
-    stateName[5] = "Ready";
-    stateScript[5] = "onReady";
-	stateAllowImageChange[5] = true;
-    stateTransitionOnTriggerDown[5]	= "Open";
+    stateName[1] = "Ready";
+    stateScript[1] = "onReady";
+	stateAllowImageChange[1] = true;
+    stateTransitionOnTriggerDown[1]	= "Open";
 
 	//The rum has been opened, prepare to drink.
-	stateName[6] = "Open";
-	stateScript[6] = "onOpen";
-	stateAllowImageChange[6] = false;
-	stateWaitForTimeout[6] = true;
-	stateTimeOutValue[6] = 1;
-	stateTransitionOnTimeout[6] = "Drink";
+	stateName[2] = "Open";
+	stateScript[2] = "onOpen";
+	stateAllowImageChange[2] = false;
+	stateWaitForTimeout[2] = true;
+	stateTimeOutValue[2] = 1;
+	stateTransitionOnTimeout[2] = "Drink";
 
 	//Activate the status effect, put the rum on cooldown.
-	stateName[7] = "Drink";
-	stateScript[7] = "onDrink";
-	stateAllowImageChange[7] = false;
-	stateWaitForTimeout[7] = true;
-	stateTimeOutValue[7] = 0.5;
-	stateTransitionOnTimeout[7] = "Discard";
+	stateName[3] = "Drink";
+	stateScript[3] = "onDrink";
+	stateAllowImageChange[3] = false;
+	stateWaitForTimeout[3] = true;
+	stateTimeOutValue[3] = 0.5;
+	stateTransitionOnTimeout[3] = "Discard";
 
     //Remove the rum bottle from the player's inventory, spawn debris.
-	stateName[8] = "Discard";
-	stateScript[8] = "onDiscard";
-	stateAllowImageChange[8] = false;
-	stateWaitForTimeout[8] = false;
+	stateName[4] = "Discard";
+	stateScript[4] = "onDiscard";
+	stateAllowImageChange[4] = false;
+	stateWaitForTimeout[4] = false;
 
-	cooldown = 45000;
+	cooldown = 60000;
 };
+rumBottleImage.implementCooldownCallbacks();
+
+function rumBottleImage::getHintMessage(%this, %obj)
+{
+	return "Hunter giving you a hard time? Drown your sorrows.";
+}
 
 //
 // Sequence callbacks.
-
-function rumBottleImage::onCooldownCheck(%this, %obj)
-{
-    //The rum's animation always needs to be reset at this point.
-    %obj.playThread(2, root);
-
-    //If the rum has not passed it's cooldown time limit, transition to the "Cooldown" state.
-    //Otherwise, transition to the "Ready" state.
-	%cooldownEndTime = (%obj.lastRumTime + %this.cooldown);
-	%currentTime = getSimTime();
-    if(%cooldownEndTime > %currentTime)
-    {
-        %obj.setImageAmmo(%this.mountPoint, true);
-    }
-    else
-    {
-        %obj.setImageAmmo(%this.mountPoint, false);
-    }
-}
 
 function rumBottleImage::onCooldown(%this, %obj)
 {
@@ -255,12 +211,6 @@ function rumBottleImage::onCooldown(%this, %obj)
 	{
 		%client.printFormatString("hint", "You've had enough to drink.");
 	}
-}
-
-function rumBottleImage::onCooldownRevert(%this, %obj)
-{
-    //Raise the arm back up after being lowered.
-    fixArmReady(%obj);
 }
 
 function rumBottleImage::onReady(%this, %obj)
@@ -327,7 +277,7 @@ function rumBottleImage::onDiscard(%this, %obj)
 	schedule(200, 0, "serverPlay3D", "rum_break" @ getRandom(1, 3) @ "_sound", MatrixMulPoint(%obj.getTransform(), "1 0 0"));
 
 	//If the player happens to be holding another rum bottle by the time they're sober, let them know they can drink again.
-	%obj.weaponCooldown(%this.mountPoint, "", "");
+	%obj.weaponCooldown(%this.mountPoint, "I'm feeling a little woozy...", "Ugh, that's better. I could sure use another drink.");
 
     //Remove the leftover image from the player's hand and communicate to the client.
     %obj.unmountImage(%this.mountPoint);

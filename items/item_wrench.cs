@@ -23,9 +23,6 @@ datablock ShapeBaseImageData(monkeyWrenchImage)
 	shapeFile = "base/data/shapes/wrench.dts";
 	emap = false;
 	mountPoint = 0;
-	offset = "0.0 0.0 0.0";
-	eyeOffset = 0;
-	rotation = eulerToMatrix("0 0 0");
 	isSpecial = true;
 
 	doColorShift = monkeyWrenchItem.doColorShift;
@@ -51,7 +48,12 @@ datablock ShapeBaseImageData(monkeyWrenchImage)
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
 
-function MonkeyWrenchImage::onUse(%this, %obj)
+function monkeyWrenchImage::getHintMessage(%this, %obj)
+{
+	return "Get some old things working again with this.";
+}
+
+function monkeyWrenchImage::onUse(%this, %obj)
 {
 	%obj.activateStuff();
 }

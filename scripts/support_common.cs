@@ -61,10 +61,16 @@ function pushServerPackageToBack(%package)
     enableWinConsole($Server::Dedicated);
 }
 
-//Seconds to milliseconds.
+//Milliseconds to seconds.
 function sFromMs(%milliseconds)
 {
     return mCeil(%milliseconds / 1000);
+}
+
+//Seconds to milliseconds.
+function msFromS(%milliseconds)
+{
+    return mCeil(%milliseconds * 1000);
 }
 
 function VectorToEuler(%vec) 

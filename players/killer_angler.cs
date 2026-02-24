@@ -269,9 +269,6 @@ datablock ShapeBaseImageData(anglerCastAbilityImage)
    	melee = false;
    	armReady = true;
 
-	hintStyle = "hint";
-	hintMessage = "Click to throw a hook that reels other people in. Don't miss.";
-
 	stateName[0] = "Activate";
 	stateWaitForTimeout[0] = true;
 	stateTimeoutValue[0] = 0.01;
@@ -304,6 +301,11 @@ datablock ShapeBaseImageData(anglerCastAbilityImage)
 	stateTimeoutValue[5] = 0.01;
 	stateTransitionOnTimeout[5] = "Ready";
 };
+
+function anglerCastAbilityImage::getHintMessage(%this, %obj)
+{
+	return "Click to throw a hook that reels other people in. Don't miss.";
+}
 
 function anglerCastAbilityImage::onCooldownCheck(%this, %obj)
 {

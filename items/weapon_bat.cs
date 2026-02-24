@@ -38,8 +38,15 @@ datablock ShapeBaseImageData(batImage : eventideCooldownMeleeImage)
 	meleeTrail = $Eventide_MeleeTrails["base.trail"];
 	swingSound = "generic_heavySwing";
 	swingSoundAmount = 2;
+
+	cooldown = 36000;
 };
 batImage.inheritFunctionsFromSuperClass("eventideMeleeImage").implementCooldownCallbacks();
+
+function batImage::getHintMessage(%this, %obj)
+{
+	return "Clobber someone mean to make them see stars.";
+}
 
 //
 // Sequence callbacks.

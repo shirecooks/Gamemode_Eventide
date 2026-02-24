@@ -15,7 +15,7 @@ datablock ItemData(bookItem : ritualItem)
 };
 bookItem.inheritFunctionsFromSuperClass("ritualItem");
 
-datablock ShapeBaseImageData(bookImage)
+datablock ShapeBaseImageData(bookImage : ritualImage)
 {
     className = "WeaponImage";
 
@@ -35,6 +35,7 @@ datablock ShapeBaseImageData(bookImage)
 
     stateName[0] = "Activate";
 };
+bookImage.inheritFunctionsFromSuperclass("ritualImage");
 
 function bookImage::onMount(%this, %obj)
 {    
