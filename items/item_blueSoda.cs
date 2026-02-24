@@ -24,7 +24,7 @@ datablock ItemData(blueSodaItem)
 	canDrop = true;
 };
 
-datablock ShapeBaseImageData(blueSodaImage)
+datablock ShapeBaseImageData(blueSodaImage : cooldownImage)
 {
 	className = "WeaponImage";
 
@@ -33,7 +33,8 @@ datablock ShapeBaseImageData(blueSodaImage)
 	isSpecial = 1;
 
 	mountPoint = 0;
-	offset = "-0.01 0.1 0";
+	offset = "0.157 0.1 0";
+	rotation = eulerToMatrix("0 0 90");
 	armReady = false;
 
 	doColorShift = false;
@@ -41,111 +42,47 @@ datablock ShapeBaseImageData(blueSodaImage)
 	item = blueSodaItem;
 	ammo = false;
 	projectile = "";
-	cooldown = 32000;
-
-	//The soda has been equipped.
-    stateName[0] = "Activate";
-    stateSequence[0] = "ready";
-	stateAllowImageChange[0] = false;
-    stateTimeoutValue[0] = 0.01;
-    stateTransitionOnTimeout[0]	= "CooldownCheck";
-
-	//Check if the soda is on cooldown. If not, proceed to "Ready".
-    stateName[1] = "CooldownCheck";
-    stateScript[1] = "onCooldownCheck";
-    stateAllowImageChange[1] = false;
-    stateWaitForTimeout[1] = true;
-    stateTimeOutValue[1] = 0.01;
-    stateTransitionOnTimeout[1] = "CooldownRedirect";
-
-	//Redirect to another state based on what was set in the previous "CooldownCheck" state.
-    stateName[2] = "CooldownRedirect";
-    stateAllowImageChange[2] = false;
-    stateTransitionOnNoAmmo[2] = "Ready";
-	stateTransitionOnAmmo[2] = "Cooldown";
-
-	//The soda is on cooldown and cannot be used.
-    stateName[3] = "Cooldown";
-    stateScript[3] = "onCooldown";
-    stateAllowImageChange[3] = false;
-    ////The cooldown ended while the soda was equipped, transition to the "Ready" state.
-    stateTransitionOnNoAmmo[3] = "CooldownRevert";
-
-	//The soda is transitioning from "Cooldown" to "Ready", we need to raise the arm back up.
-    stateName[4] = "CooldownRevert";
-    stateScript[4] = "onCooldownRevert";
-    stateAllowImageChange[4] = false;
-    stateWaitForTimeout[4] = true;
-    stateTimeOutValue[4] = 0.01;
-    stateTransitionOnTimeout[4] = "Ready";
 
 	//The soda is inactive, simply being held.
-    stateName[5] = "Ready";
-    stateScript[5] = "onReady";
-	stateAllowImageChange[5] = true;
-    stateTransitionOnTriggerDown[5]	= "Open";
+	//This state NEEDS to start at 1, not 0. `implementCooldownCallbacks` reserves the first slot.
+    stateName[1] = "Ready";
+    stateScript[1] = "onReady";
+	stateAllowImageChange[1] = true;
+    stateTransitionOnTriggerDown[1]	= "Open";
 
 	//The soda has been opened, prepare to drink.
-	stateName[6] = "Open";
-	stateScript[6] = "onOpen";
-	stateAllowImageChange[6] = false;
-	stateWaitForTimeout[6] = true;
-	stateTimeOutValue[6] = 1;
-	stateTransitionOnTimeout[6] = "Drink";
+	stateName[2] = "Open";
+	stateScript[2] = "onOpen";
+	stateAllowImageChange[2] = false;
+	stateWaitForTimeout[2] = true;
+	stateTimeOutValue[2] = 1;
+	stateTransitionOnTimeout[2] = "Drink";
 
 	//Activate the status effect, put the soda on cooldown.
-	stateName[7] = "Drink";
-	stateScript[7] = "onDrink";
-	stateAllowImageChange[7] = false;
-	stateWaitForTimeout[7] = true;
-	stateTimeOutValue[7] = 0.5;
-	stateTransitionOnTimeout[7] = "Cooldown";
+	stateName[3] = "Drink";
+	stateScript[3] = "onDrink";
+	stateAllowImageChange[3] = false;
+	stateWaitForTimeout[3] = true;
+	stateTimeOutValue[3] = 0.5;
+	stateTransitionOnTimeout[3] = "Activate";
+	
+	cooldown = 32000;
 };
+blueSodaImage.implementCooldownCallbacks();
+
+function blueSodaImage::getHintMessage(%this, %obj)
+{
+	return "Drink for a short sugar rush, moving faster. Free refills!";
+}
 
 //
 // Sequence callbacks.
 //
 
-function blueSodaImage::onCooldownCheck(%this, %obj)
-{
-    //The soda's animation always needs to be reset at this point.
-    %obj.playThread(2, root);
-
-    //If the soda has not passed it's cooldown time limit, transition to the "Cooldown" state.
-    //Otherwise, transition to the "Ready" state.
-	%cooldownEndTime = (%obj.lastSpeedSodaTime + %this.cooldown);
-	%currentTime = getSimTime();
-    if(%cooldownEndTime > %currentTime)
-    {
-        %obj.setImageAmmo(%this.mountPoint, true);
-    }
-    else
-    {
-        %obj.setImageAmmo(%this.mountPoint, false);
-    }
-}
-
-function blueSodaImage::onCooldown(%this, %obj)
-{
-	//The soda can was raised during the drinking animation, lower it again.
-	%obj.playThread(1, root);
-}
-
-function blueSodaImage::onCooldownRevert(%this, %obj)
-{
-    //Raise the arm back up after being lowered.
-    fixArmReady(%obj);
-}
-
-function blueSodaImage::onReady(%this, %obj)
-{
-
-}
-
 function blueSodaImage::onOpen(%this, %obj)
 {
 	//Play the sound of the soda opening.
-	serverPlay3D("soda_can_open_sound", %obj.getMuzzlePoint(0));
+	serverPlay3D("sodaCan_open_sound", %obj.getMuzzlePoint(0));
 
 	//Raise the can so it is ready to drink.
 	%obj.playThread(1, armReadyRight);
@@ -159,7 +96,7 @@ function blueSodaImage::OnDrink(%this, %obj)
 	%slot = %obj.currTool;
 	
 	//Play the soda drinking sound and animation.
-	serverPlay3D("soda_gulp" @ getRandom(1,3) @ "_sound", %obj.getEyePoint());
+	serverPlay3D("drink_gulp" @ getRandom(1, 3) @ "_sound", %obj.getEyePoint());
 	%obj.playThread(2, shiftUp);
 
 	//Essential for cooldown purposes.
