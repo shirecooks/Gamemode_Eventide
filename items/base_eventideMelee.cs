@@ -10,7 +10,7 @@ datablock ShapeBaseImageData(eventideMeleeImage)
 	useCustomMeleeTrail = true;
 
 	hitProjectile = "";
-	hitObscureProjectile = "";
+	hitObscureProjectile = "KillerGenericSharpClankProjectile";
 
 	meleeRange = 0.5;
 	meleeCooldown = 1750;
@@ -141,20 +141,47 @@ function eventideMeleeImage::onSwing(%this, %obj)
 		%obj.playThread(2, "melee" @ %meleeAnim); //Weapon Swing animation.
 	}
 
+	%killerEyePosition = %obj.getEyePoint();
+	%damageAmount = %this.fixedDamageAmount;
+	if(%damageAmount $= "")
+	{
+		%damageAmount = (25 * getWord(%obj.getScale(), 2));
+	}
+
 	//Missing and/or striking the environment with the melee weapon.
+	%hitObscureProjectile = %this.hitObscureProjectile;
 	%typemasks = $TypeMasks::VehicleObjectType | $TypeMasks::FxBrickObjectType;
-	%obstruction = ContainerRayCast(%killerWeaponPosition, VectorAdd(%killerWeaponPosition, VectorScale(%killerLookVector, %this.meleeRange)), %typemasks, %obj);
-	if(isObject(%obstruction) && %this.hitObscureProjectile !$= "")
+	%obstruction = ContainerRayCast(%killerEyePosition, VectorAdd(%killerEyePosition, VectorScale(%killerLookVector, mClampF(%this.meleeRange * 3, 3, $maxInt))), %typemasks);
+	if(isObject(%obstruction) && %hitObscureProjectile !$= "")
 	{							
 		//Spawn a debris explosion.	
 		%impactProjectile = new Projectile()
 		{
-			dataBlock = %this.hitObscureProjectile;
+			dataBlock = %hitObscureProjectile;
 			initialPosition = posFromRaycast(%obstruction);
 			sourceObject = %obj;
 			client = %obj.client;
 		};
 		%impactProjectile.explode();
+
+		%client = %obj.client;
+		%minigameCanDamage = minigameCanDamage(%obj, %obstruction);
+		if(%obstruction.getType() & $TypeMasks::FxBrickObjectType)
+		{
+			if(%minigameCanDamage)
+			{
+				%obstruction.onBlownUp(%client, %obj);
+				transmitBrickExplosion(%pos, 40, 0.02, %respawnTime, %col);
+			}
+			else
+			{
+				%obstruction.onProjectileHit(%hitObscureProjectile, %client);
+			}
+		}
+		else if(%minigameCanDamage)
+		{
+			%obstruction.damage(%obj, %killerPosition, %damageAmount, $DamageType::Default);
+		}
 
 		//Dynamic weapon recoil animation based on which direction the weapon was swung.
 		%recoilAnimationDelay = 50;
@@ -227,11 +254,6 @@ function eventideMeleeImage::onSwing(%this, %obj)
 		
 		//Damage the target and give them a good shove.
 		%hit.setVelocity(VectorScale(VectorNormalize(VectorAdd(%obj.getForwardVector(), "0 0 0.15")), 15));
-		%damageAmount = %this.fixedDamageAmount;
-		if(%damageAmount $= "")
-		{
-			%damageAmount = (25 * getWord(%obj.getScale(), 2));
-		}
 		%hit.damage(%obj, %hit.getHackPosition(), %damageAmount, $DamageType::Default);
 		
 		//Temporarily slow down the killer.
