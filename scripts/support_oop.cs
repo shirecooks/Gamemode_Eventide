@@ -164,7 +164,6 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
 
     //Determined during `inheritFunctionsFromSuperClass` execution.
     %superClass = $OOP_superMap[%currentNamespace];
-    talk("Super class:" SPC %superClass);
     if(%superClass $= "")
     {
         return;
@@ -172,7 +171,6 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
 
     //Check if a wrapper function has already been defined for this namespaced function. If not, define one.
     %superChainCall = $OOP_functionMap[%superClass, %function];
-    talk("Cached function:" SPC %superChainCall);
     if(%superChainCall $= "")
     {
         //Check if the superclass is valid and not a poisoned string.
@@ -200,8 +198,6 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         // }
         eval("function " @ %functionName @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){return " @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}");
 
-        talk("Created function:" SPC %functionName);
-
         //Cache it. No more checks or eval.
         $OOP_functionMap[%superClass, %function] = %functionName;
         %superChainCall = %functionName;
@@ -210,9 +206,7 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
     $OOP_callStackDepth++;
     $OOP_callStack[$OOP_callStackDepth] = %superClass;
 
-    talk("Stack depth:" SPC $OOP_callStackDepth);
     %returnValue = call(%superChainCall, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
-    talk("Return value:" SPC %returnValue);
 
     $OOP_callStack[$OOP_callStackDepth] = "";
     $OOP_callStackDepth--;
