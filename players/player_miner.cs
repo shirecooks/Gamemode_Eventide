@@ -25,8 +25,8 @@ function PlayerMiner::eventideBodyColors(%this, %obj)
 {
     %this.super("eventideBodyColors", %this, %obj);
 
-    //Color the hardhat, and overalls.
-    %obj.setNodeColor("scouthat", "1.0 0.98431372549 0.0 1.0");
+    //Color the hardhat orange, and overalls.
+    %obj.setNodeColor("scoutHat", "0.9020 0.3412 0.0784 1.0");
 
     %overallsColor = "0.23529411764 0.23529411764 0.23529411764 1.0"; //Matches the color of the decal.
     %obj.setNodeColor("pants", %overallsColor);
