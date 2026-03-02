@@ -28,13 +28,11 @@ function Player::setImageAttribute(%obj, %attribute, %value, %invPosition)
     else
     {
         //Check if the value is already in the list. Skip adding it if so.
-        for(%i = 0; %i < getWordCount(%attributeList); %i++)
+        if(strstr(%attributeList, " "@%attribute@" ") != -1)
         {
-            if(getWord(%attributeList, %i) $= %attribute)
-            {
-                return 1;
-            }
+            return 1;
         }
+
         //The attribute isn't already in the index, add it.
         %obj.tool[%invPosition, "index"] = %attributeList SPC %attribute;
     }
@@ -71,13 +69,32 @@ function Player::clearImageAttributes(%obj, %invPosition)
 
     //Cycle through each attribute available to an item, and zero it out.
     %attributeList = %obj.tool[%invPosition, "index"];
-    for(%i = 0; %i < getWordCount(%attributeList); %i++)
+    %attributeCount = getWordCount(%attributeList);
+    for(%i = 0; %i < %attributeCount; %i++)
     {
         %attribute = getWord(%attributeList, %i);
         %obj.setImageAttribute(%attribute, "", %invPosition);
     }
 
     return 1;
+}
+
+function Player::incrementImageAttribute(%obj, %attribute, %increment, %invPosition)
+{
+    if(%increment $= "")
+    {
+        %increment = 1;
+    }
+    %obj.setImageAttribute(%attribute, (%obj.getImageAttribute(%attribute, %invPosition) + %increment), %invPosition);
+}
+
+function Player::decrementImageAttribute(%obj, %attribute, %decrement, %invPosition)
+{
+    if(%decrement $= "")
+    {
+        %decrement = 1;
+    }
+    %obj.setImageAttribute(%attribute, (%obj.getImageAttribute(%attribute, %invPosition) - %decrement), %invPosition);
 }
 
 //
@@ -126,7 +143,8 @@ package Support_ImageAttributes
                 if(%thrownItem.hash !$= "") //If the hash exists, it is possible there are attributes.
                 {
                     %attributeList = %player.tool[%invPosition, "index"];
-                    for(%i = 0; %i < getWordCount(%attributeList); %i++)
+                    %attributeCount = getWordCount(%attributeList);
+                    for(%i = 0; %i < %attributeCount; %i++)
                     {
                         %attribute = getWord(%attributeList, %i);
                         %thrownItem.attributes[%attribute] = %player.tool[%invPosition, %attribute]; //Add the attribute to the Item object.
@@ -246,7 +264,8 @@ package Support_ImageAttributes
                 %player.tool[%freeslot, "hash"] = %obj.hash;
 
                 %attributeList = %obj.attributes["index"];
-                for(%i = 0; %i < getWordCount(%attributeList); %i++)
+                %attributeCount = getWordCount(%attributeList);
+                for(%i = 0; %i < %attributeCount; %i++)
                 {
                     %attribute = getWord(%attributeList, %i);
                     %player.tool[%freeslot, %attribute] = %obj.attributes[%attribute];
