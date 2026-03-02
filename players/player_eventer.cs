@@ -20,6 +20,9 @@ function PlayerEventer::eventideBodyParts(%this, %obj)
 {
 	%this.super("eventideBodyParts", %this, %obj);
 
+	//Give the builder a blue hardhat.
+    %obj.setNodeColor("scoutHat", "0.0 0.0 1.0 1.0");
+
     //Give their torso a custom decal.
 	%obj.setDecalName("civilian");
 }
