@@ -24,6 +24,7 @@ function Player::removeItemFromInventory(%obj, %slot, %noUnmount)
     }
 
     //Remove the item from the player's inventory.
+    %obj.clearImageAttributes(%slot);
     %obj.weaponCount--;
     %obj.decInventory(%tool, 1);
     %obj.tool[%slot] = 0;
@@ -39,7 +40,8 @@ function Player::removeItemFromInventory(%obj, %slot, %noUnmount)
 
 function Player::addItemToInventory(%obj, %image)
 {
-    for(%i = 0; %i < %obj.getDatablock().maxTools; %i++)
+    %maxTools = %obj.Datablock.maxTools;
+    for(%i = 0; %i < %maxTools; %i++)
     {
         //Search for an empty slot in the player's inventory.
         %tool = %obj.tool[%i];
@@ -58,4 +60,19 @@ function Player::addItemToInventory(%obj, %image)
             break;
         }
     }
+}
+
+function Player::hasItemInInventory(%obj, %itemID)
+{
+    %maxTools = %obj.Datablock.maxTools;
+    for(%i = 0; %i < %maxTools; %i++)
+    {
+        %tool = %obj.tool[%i];
+        if(%tool != 0 && %tool.getID() == %itemID)
+        {
+            return %i;
+        }
+    }
+
+    return false;
 }
