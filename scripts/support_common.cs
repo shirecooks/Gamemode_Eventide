@@ -61,6 +61,16 @@ function pushServerPackageToBack(%package)
     enableWinConsole($Server::Dedicated);
 }
 
+function mMin(%numberOne, %numberTwo)
+{
+    return (%numberOne < %numberTwo) ? %numberOne : %numberTwo;
+}
+
+function mMax(%numberOne, %numberTwo)
+{
+    return (%numberOne > %numberTwo) ? %numberOne : %numberTwo;
+}
+
 //Milliseconds to seconds.
 function sFromMs(%milliseconds)
 {
@@ -103,8 +113,8 @@ package Support_Common
 
     function destroyServer()
     {
-        deleteVariables("$Eventide_*");
         Parent::destroyServer();
+        deleteVariables("$Eventide_*");
     }
 };
 if(isPackage(Support_Common))
