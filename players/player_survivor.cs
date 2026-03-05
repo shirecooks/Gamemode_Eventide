@@ -67,7 +67,7 @@ function PlayerSurvivor::onKillerEnterRange(%this, %obj, %target)
 	}
 
 	//Play the killer's nearby music.
-	%obj.playAmbiantMusic(%target.killerNearMusic, 1, 1.0);
+	%obj.playAmbiantMusic(%target.killerNearMusic, 1.0, "Chase");
 }
 
 function PlayerSurvivor::onKillerExitRange(%this, %obj, %target)
@@ -230,19 +230,6 @@ function PlayerSurvivor::shove(%this, %obj)
 		%obj.shoveFatigue++;
 		%obj.shoveCooldown = (%triggerTime + 400) + (40 * %obj.shoveFatigue);
 		%soundpitch = getRandom(50, 125);
-
-		//Shoving five times consecutively causing exhaustion.
-		if(%obj.shoveFatigue >= 5)
-		{
-			cancel(%obj.resetStamina);
-			%soundpitch = getRandom(50,80);
-			%obj.resetStamina = %this.schedule(4000, resetStamina, %obj);
-
-			if(%obj.shoveFatigue == 5)
-			{							
-				%obj.resetStamina = %this.schedule(4000, resetStamina, %obj);
-			}								
-		}
 		
 		//Play the shoving animation.
 		%obj.playThread(2, "activate2");
