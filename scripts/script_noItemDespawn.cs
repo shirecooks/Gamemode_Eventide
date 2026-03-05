@@ -66,7 +66,11 @@ package Script_NoItemDespawn
 
     function MiniGameSO::Reset(%obj, %client)
     {
-        %obj.spawnedItems.delete();
+        %spawnedItemsGroup = %obj.spawnedItems;
+        if(isObject(%spawnedItemsGroup))
+        {
+            %spawnedItemsGroup.delete();
+        }
         %obj.spawnedItems = new SimGroup();
 
         parent::Reset(%obj, %client);
