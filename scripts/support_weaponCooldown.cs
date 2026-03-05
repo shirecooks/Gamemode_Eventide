@@ -82,14 +82,14 @@ function SimObject::implementCooldownCallbacks(%this)
     //     if(%client = %obj.client)
     //     {
     //         %hintStyle = %this.getHintStyle();
-    //         %hintTime = (%hintStyle !$= "") ? msFromS(getTextStyle(%hintStyle).displayTime) : 6000;
+    //         %hintTime = (%hintStyle !$= "") ? getTextStyle(%hintStyle).displayTime : 6;
 
     //         %lastItemUseTime = %obj.lastUseTime[objectClassImage];
     //         %currentTime = getSimTime();
 
-    //         if((%lastItemUseTime + %hintTime) < %currentTime)
+    //         if((%lastItemUseTime + msFromS(%hintTime)) < %currentTime)
     //         {
-    //             %client.printFormatString("hint", "You can't use this " @ %this.item.uiName @ " for another " @ sFromMs((%lastItemUseTime + %this.cooldown) - %currentTime) @ " seconds.", 6);
+    //             %client.printFormatString("hint", "You can't use this " @ %this.item.uiName @ " for another " @ sFromMs((%lastItemUseTime + %this.cooldown) - %currentTime) @ " seconds.", sFromMs(%hintTime));
     //         }
     //     }
     // }
@@ -99,7 +99,7 @@ function SimObject::implementCooldownCallbacks(%this)
     //     //Raise the item back up, it's ready.
     //     fixArmReady(%obj);
     // }
-    %definitions = "function "@%objectClass@"::onCooldown(%this,%obj){%obj.playThread(1,root);if(%client=%obj.client){%hintStyle=%this.getHintStyle();%hintTime=(%hintStyle!$=\"\")?sFromMs(getTextStyle(%hintStyle).displayTime):6000;%lastItemUseTime=%obj.lastUseTime["@%objectClass@"];%currentTime=getSimTime();if((%lastItemUseTime+%hintTime)<%currentTime){%client.printFormatString(\"hint\",\"You can't use this \"@%this.item.uiName@\" for another \"@sFromMs((%lastItemUseTime+%this.cooldown)-%currentTime)@\" seconds.\",6);}}}";
+    %definitions = "function "@%objectClass@"::onCooldown(%this,%obj){%obj.playThread(1,root);if(%client=%obj.client){%hintStyle=%this.getHintStyle();%hintTime=(%hintStyle!$=\"\")?getTextStyle(%hintStyle).displayTime:6;%lastItemUseTime=%obj.lastUseTime["@%objectClass@"];%currentTime=getSimTime();if((%lastItemUseTime+msFromS(%hintTime))<%currentTime){%client.printFormatString(\"hint\",\"You can't use this \"@%this.item.uiName@\" for another \"@sFromMs((%lastItemUseTime+%this.cooldown)-%currentTime)@\" seconds.\",%hintTime);}}}";
     %definitions = %definitions @ "function "@%objectClass@"::onCooldownCheck(%this,%obj){fixArmReady(%obj);if((%obj.lastUseTime["@%objectClass@"]+%this.cooldown)>getSimTime()){%obj.setImageAmmo(%this.mountPoint,1);}else{%obj.setImageAmmo(%this.mountPoint,0);}}";
     %definitions = %definitions @ "function "@%objectClass@"::onCooldownRevert(%this,%obj){fixArmReady(%obj);}";
     eval(%definitions);
