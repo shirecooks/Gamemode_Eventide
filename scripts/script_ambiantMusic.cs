@@ -36,9 +36,9 @@ function GameConnection::playAmbiantMusic(%this, %musicDatablock, %volume, %cate
         useProfileDescription = false;
         is3D = false;
     };
-    %this.eventideMusicEmitter = %eventideMusicEmitter;
-    %eventideMusicEmitter.adjustObjectScopeToAll(false, %this);
+    %this.eventideMusicEmitter = %eventideMusicEmitter.getID();
 
+    %eventideMusicEmitter.adjustObjectScopeToAll(false, %this);
     return %eventideMusicEmitter;
 }
 function Player::playAmbiantMusic(%obj, %musicDatablock, %volume, %category)
@@ -299,16 +299,18 @@ package Gamemode_Eventide_AmbiantMusic
     {
         Parent::onNewDataBlock(%this, %obj);
         
-        if(!%this.isEventideClass)
+        if(getMinigameFromObject(%obj) != -1)
         {
-            if(%obj.hasAmbiantMusic())
-            {
-                %obj.stopAmbiantMusic();
-            }
-            if(%obj.hasAccessoryMusic())
-            {
-                %obj.stopAccessoryMusic();
-            }
+            return;
+        }
+
+        if(%obj.hasAmbiantMusic())
+        {
+            %obj.stopAmbiantMusic();
+        }
+        if(%obj.hasAccessoryMusic())
+        {
+            %obj.stopAccessoryMusic();
         }
     }
 };
