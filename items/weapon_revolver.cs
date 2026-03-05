@@ -305,7 +305,6 @@ datablock ShapeBaseImageData(revolverImage : cooldownImage)
    //The revolver has been equipped.
    stateName[0] = "Activate";
    stateSequence[0] = "activate";
-   stateSound[0] = weaponSwitchSound;
    stateWaitForTimeout[0] = true;
    stateTimeoutValue[0] = 0.01;
    stateTransitionOnTimeout[0] = "CooldownCheck";
@@ -358,7 +357,7 @@ function revolverImage::getHintMessage(%this, %obj)
 
 function revolverImage::onReady(%this, %obj)
 {
-   
+   serverPlay3D("revolver_reload_sound", %obj.getMuzzlePoint(revolverImage.mountPoint));
 }
 
 function revolverImage::onFire(%this, %obj)
