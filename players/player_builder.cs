@@ -410,7 +410,6 @@ $Eventide_BuilderBrickGroup = new SimGroup(BrickGroup_Builder);
 $Eventide_BuilderBrickGroup.client = 0;
 $Eventide_BuilderBrickGroup.name = "\c1BL_ID: 888888\c0";
 $Eventide_BuilderBrickGroup.bl_id = 888888;
-mainBrickGroup.add($Eventide_BuilderBrickGroup);
 
 //
 // Server command for clearing Builder's bricks.
@@ -713,6 +712,12 @@ package Player_Builder
         
         $Eventide_BuilderBrickGroup.ChainDeleteAll();
 	}
+
+    function createMission()
+    {
+        Parent::createMission();
+        mainBrickGroup.add($Eventide_BuilderBrickGroup);
+    }
 };
 if(isPackage(Player_Builder))
 {
