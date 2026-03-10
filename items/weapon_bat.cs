@@ -2,7 +2,7 @@
 // Item and image data.
 //
 
-AddDamageType("bat", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_poolCue> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_poolCue> %1', 0.75, 1);
+AddDamageType("bat", '<bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_bat> %1', '%2 <bitmap:Add-Ons/Gamemode_Eventide/items/icons/ci_bat> %1', 0.75, 1);
 
 datablock ItemData(batItem)
 {
