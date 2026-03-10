@@ -204,6 +204,7 @@ function brickEventideRitualCircle::onAllRitualsPlaced(%this, %obj)
 	//Process input events.
 	$InputTarget_["Self"] = %obj;
 	$InputTarget_["MiniGame"] = %minigame;
+	%obj.processInputEvent("onEventideRitual"); //Banana2 compatibility.
 	%obj.processInputEvent("onAllRitualsPlaced");
 }
 
@@ -346,3 +347,4 @@ activatePackage(Brick_RitualCircle);
 //
 
 registerInputEvent("fxDTSBrick", "onAllRitualsPlaced", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1);
+registerInputEvent("fxDTSBrick", "onEventideRitual", "Self fxDTSBrick" TAB "MiniGame MiniGame", 1); //Banana2 compatibility.
