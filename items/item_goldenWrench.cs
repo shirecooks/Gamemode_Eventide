@@ -34,6 +34,7 @@ datablock ParticleEmitterData(goldenWrenchSparkleEmitter)
 	uiName = "Aged Wrench Sparkle";
 	ejectionPeriodMS = 6000;
 	periodVarianceMS = 100;
+	velocityVariance = 0.0;
 	ejectionVelocity = 0.5;
 	ejectionOffset = 0.5;
 	thetaMin = 0;
