@@ -1,6 +1,6 @@
 $Eventide_BaseDirectory = filePath($Con::File);
 
-exec("./scripts/support_globalVarAccess.cs");
+exec("./scripts/Support_MultiSourceEvents.cs");
 exec("./scripts/support_oop.cs");
 exec("./scripts/support_common.cs");
 exec("./scripts/support_imageAttributes.cs");
