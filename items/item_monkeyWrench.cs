@@ -47,6 +47,7 @@ datablock ShapeBaseImageData(monkeyWrenchImage)
 	stateScript[2]					= "onUse";
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
+monkeyWrenchImage.registerImageOutputEvent("onEvented");
 
 function monkeyWrenchImage::getHintMessage(%this, %obj)
 {
@@ -56,4 +57,5 @@ function monkeyWrenchImage::getHintMessage(%this, %obj)
 function monkeyWrenchImage::onUse(%this, %obj)
 {
 	%obj.activateStuff();
+	%this.eventRaycast(%obj);
 }

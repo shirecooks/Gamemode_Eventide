@@ -31,18 +31,19 @@ exec("./sounds/datablock_sounds.cs");
 exec("./players/datablock_textures.cs");
 exec("./players/datablock_lights.cs");
 exec("./players/datablock_killerBlood.cs");
-exec("./items/datablock_woodFrag.cs");
 exec("./items/datablock_sharpMelee.cs");
 
+exec("./items/base_tool.cs");
 exec("./items/base_ritual.cs");
 exec("./items/item_gem.cs");
 exec("./items/item_candle.cs");
 exec("./items/item_book.cs");
-exec("./items/item_wrench.cs");
+exec("./items/item_monkeyWrench.cs");
 exec("./items/item_pickaxe.cs");
 exec("./items/item_rum.cs");
 exec("./items/item_camera.cs");
 exec("./items/item_medpack.cs");
+exec("./items/item_goldenWrench.cs");
 
 exec("./items/base_eventideMelee.cs");
 exec("./items/weapon_butterflyKnife.cs");

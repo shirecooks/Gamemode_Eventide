@@ -47,13 +47,15 @@ datablock ShapeBaseImageData(pickaxeImage)
 	stateScript[2]					= "onUse";
 	stateTransitionOnTriggerUp[2]	= "Ready";
 };
+pickaxeImage.registerImageOutputEvent("onPickaxeHit");
 
 function pickaxeImage::getHintMessage(%this, %obj)
 {
 	return "Dig through shining rubble to unearth ancient artifacts...";
 }
 
-function pickaxeImage::onUse(%this, %obj, %slot)
+function pickaxeImage::onUse(%this, %obj)
 {
 	%obj.activateStuff();
+	%this.eventRaycast(%obj);
 }
