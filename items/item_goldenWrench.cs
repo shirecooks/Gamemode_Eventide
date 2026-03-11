@@ -208,6 +208,12 @@ function goldenWrenchImage::onSpin(%this, %obj)
 
 function goldenWrenchImage::onCast(%this, %obj)
 {
+	//In case the Hunter kills the Mender while they're casting a heal, do nothing.
+	if(%obj.getState() $= "Dead")
+	{
+		return;
+	}
+
 	//Play a sound effect.
 	serverPlay3D("goldenWrench_cast_sound", %obj.getMuzzlePoint(goldenWrenchImage.mountPoint));
 
