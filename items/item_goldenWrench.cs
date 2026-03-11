@@ -193,6 +193,8 @@ function goldenWrenchImage::getHintMessage(%this, %obj)
 
 function goldenWrenchImage::onSpin(%this, %obj)
 {
+	%obj.playAudio(3, "goldenWrench_raise_sound");
+
     //Play an animation for raising the wrench and spinning it.
     %obj.setArmThread(spearReady);
 	%obj.playThread(1, spearReady);
@@ -200,10 +202,15 @@ function goldenWrenchImage::onSpin(%this, %obj)
     {
         %obj.schedule(250 * %i, playThread, 3, rotCW);
     }
+	
+	schedule(750, %obj, serverPlay3D, "goldenWrench_swing_sound", %obj.getMuzzlePoint(goldenWrenchImage.mountPoint));
 }
 
 function goldenWrenchImage::onCast(%this, %obj)
 {
+	//Play a sound effect.
+	serverPlay3D("goldenWrench_cast_sound", %obj.getMuzzlePoint(goldenWrenchImage.mountPoint));
+
     //Cast the wrench down and end the animation.
     %obj.setArmThread(look);
 	%obj.playThread(1, spearThrow);
@@ -227,6 +234,9 @@ function goldenWrenchImage::onCast(%this, %obj)
     while(%patient = containerSearchNext())
     {
         %patientPosition = %patient.getHackPosition();
+
+		//Play a sound effect on the heal target.
+		serverPlay3D("goldenWrench_heal_sound", %patientPosition);
 
         //If the player is an enemy or can't be seen, don't heal.
         if(%patent == %healer || minigameCanDamage(%obj, %patient) || containerRayCast(%position, %patientPosition, %obstructions) != 0)
