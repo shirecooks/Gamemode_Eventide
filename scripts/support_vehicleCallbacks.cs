@@ -88,3 +88,13 @@ function Vehicle::getEmptyMountPoint(%this)
 	}
     return -1;
 }
+
+function Vehicle::setVehiclePowered(%obj, %bool)
+{
+	for(%i = 0; %i < %obj.Datablock.numWheels; %i++)
+	{
+		%obj.setWheelPowered(%i, %bool);
+        %obj.setWheelSteering(%i, %bool);
+	}
+	%obj.poweredTime = getSimTime();
+}
