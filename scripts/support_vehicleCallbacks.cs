@@ -74,3 +74,17 @@ package Support_VehicleCallbacks
     }
 };
 activatePackage(Support_VehicleCallbacks);
+
+function Vehicle::getEmptyMountPoint(%this)
+{
+    %numMountPoints = %this.Datablock.numMountPoints;
+    for(%i = 0; %i < %numMountPoints; %i++)
+	{
+        %mountedObject = %this.getMountNodeObject(%i);
+		if(!isObject(%mountedObject))
+        {
+            return %i;
+        }
+	}
+    return -1;
+}
