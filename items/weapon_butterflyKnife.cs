@@ -237,7 +237,8 @@ function butterflyKnifeImage::getHintMessage(%this, %obj)
 
 function butterflyKnifeImage::onReady(%this, %obj)
 {
-
+    //Needed to end the swing animation if the player released the knife before it was fully raised.
+    %obj.playThread(2, root);
 }
 
 function butterflyKnifeImage::onRaising(%this, %obj)
