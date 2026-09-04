@@ -121,11 +121,11 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
     {
         %function = getWord(%methodList, %i);
 
-        //Class::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH)
+        //Class::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
         //{
-        //      SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
+        //      return SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
         //}
-        %functionDefinition = "function " @ %objectClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){return " @ %superClass @ "::" @ %function @ "(%t,%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}";
+        %functionDefinition = "function " @ %objectClass @ "::" @ %function @ "(%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH,%vI,%vJ,%vK,%vL,%vM,%vN,%vO,%vP,%vQ,%vR){return " @ %superClass @ "::" @ %function @ "(%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH,%vI,%vJ,%vK,%vL,%vM,%vN,%vO,%vP,%vQ,%vR);}";
 
         //Collapse all function calls into a single eval statement, if possible.
         //I've heard rumors of a max string length of 5 KB or similar. Let's test that.
@@ -144,7 +144,7 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
     {
         $OOP_superMap[%objectClass] = %parentClass;
 
-        %originalParent = %parent;
+        %originalParent = %parentClass;
         %parentClass = %parentClass.superClass;
         %objectClass = %originalParent;
     }
@@ -157,10 +157,19 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 //Take advantage of the fact that everything in TorqueScript is a string, so nothing can be lost by presenting all arguments as a string.
 $OOP_functionMap = "";
 $OOP_callStack = "";
-$OOP_callStackDepth = 0;
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
-    %currentNamespace = ($OOP_callStackDepth == 0) ? %this.objectClass : $OOP_callStack[$OOP_callStackDepth];
+    //If the function changed, the context might've changed. We need to verify the current namespace using .objectClass.
+    %currentFrame = $OOP_callStack["frame"];
+    %currentNamespace = "";
+    if(%currentFrame == 0 || $OOP_callStack[%currentFrame, "function"] !$= $OOP_callStack[%currentFrame--, "function"])
+    {
+        %currentNamespace = %this.objectClass;
+    }
+    else
+    {
+        %currentNamespace = $OOP_callStack[%currentFrame, "namespace"];
+    }
 
     //Determined during `inheritFunctionsFromSuperClass` execution.
     %superClass = $OOP_superMap[%currentNamespace];
@@ -192,24 +201,26 @@ function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %
         //Finally, create the wrapper. This covers both us and any other class that might need this callback.
         %functionName = "_OOP_" @ %superClass @ "_" @ %function;
         
-        // function _OOP_SuperClass_function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH)
+        // function _OOP_SuperClass_function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
         // {
-        //     SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %vA, %vB, %vC, %vD, %vE, %vF, %vG, %vH);
+        //     return SuperClass::function(%v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
         // }
-        eval("function " @ %functionName @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH){return " @ %superClass @ "::" @ %function @ "(%v0,%v1,%v2,%v3,%v4,%v5,%v6,%v7,%v8,%v9,%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH);}");
+        eval("function " @ %functionName @ "(%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH,%vI,%vJ,%vK,%vL,%vM,%vN,%vO,%vP,%vQ,%vR){return " @ %superClass @ "::" @ %function @ "(%vA,%vB,%vC,%vD,%vE,%vF,%vG,%vH,%vI,%vJ,%vK,%vL,%vM,%vN,%vO,%vP,%vQ,%vR);}");
 
         //Cache it. No more checks or eval.
         $OOP_functionMap[%superClass, %function] = %functionName;
         %superChainCall = %functionName;
     }
 
-    $OOP_callStackDepth++;
-    $OOP_callStack[$OOP_callStackDepth] = %superClass;
+    %currentFrame = $OOP_callStack["frame"]++;
+    $OOP_callStack[%currentFrame, "namespace"] = %superClass;
+    $OOP_callStack[%currentFrame, "function"] = %function;
 
     %returnValue = call(%superChainCall, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17);
 
-    $OOP_callStack[$OOP_callStackDepth] = "";
-    $OOP_callStackDepth--;
+    $OOP_callStack[%currentFrame, "namespace"] = "";
+    $OOP_callStack[%currentFrame, "function"] = "";
+    $OOP_callStack["frame"]--;
 
     return %returnValue;
 }
