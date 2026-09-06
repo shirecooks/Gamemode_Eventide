@@ -4,6 +4,10 @@
 //Take advantage of `eval` and the lax-arity function model of TorqueScript to define a function that calls the equivalent parent function.
 $OOP_superMap = "";
 $OOP_fileObject = new FileObject();
+
+$OOP_consoleLoggerObject = new ConsoleLogger(objectIntrospectLogger, "config/introspect.log", false);
+$OOP_consoleLoggerObject.level = 0;
+
 function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 {
     %superClassID = nameToID(%superClass);
@@ -51,15 +55,12 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
     //Prepare a separate console object, prevent the main one from logging spam.
     enableWinConsole(0);
     $Con::logBufferEnabled = 0;
-    %objectIntrospectLogger = new ConsoleLogger(objectIntrospectLogger, %introspectLogLocation, false);
-    %objectIntrospectLogger.level = 0;
-    %objectIntrospectLogger.attach();
+    $OOP_consoleLoggerObject.attach();
 
     %superClassID.dump();
 
     //Re-enable main console, delete secondary one.
-    %objectIntrospectLogger.detach();
-    %objectIntrospectLogger.delete();
+    $OOP_consoleLoggerObject.detach();
     $Con::logBufferEnabled = 1;
     enableWinConsole($Server::Dedicated); //Inaccurate, but most people don't use the `-console` argument as far as I know.
 
