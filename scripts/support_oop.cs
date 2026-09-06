@@ -156,13 +156,13 @@ function SimObject::inheritFunctionsFromSuperClass(%this, %superClass)
 //Call a parent class function with arbitrary arguments.
 //Take advantage of the fact that everything in TorqueScript is a string, so nothing can be lost by presenting all arguments as a string.
 $OOP_functionMap = "";
-$OOP_callStack = "";
+$OOP_callStack["frame"] = -1;
 function SimObject::super(%this, %function, %v0, %v1, %v2, %v3, %v4, %v5, %v6, %v7, %v8, %v9, %v10, %v11, %v12, %v13, %v14, %v15, %v16, %v17)
 {
     //If the function changed, the context might've changed. We need to verify the current namespace using .objectClass.
     %currentFrame = $OOP_callStack["frame"];
     %currentNamespace = "";
-    if(%currentFrame == 0 || $OOP_callStack[%currentFrame, "function"] !$= $OOP_callStack[%currentFrame--, "function"])
+    if(%currentFrame < 0 || %function !$= $OOP_callStack[%currentFrame, "function"])
     {
         %currentNamespace = %this.objectClass;
     }
