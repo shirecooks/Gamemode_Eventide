@@ -445,6 +445,24 @@ package Support_VehicleCallbacks
     {
 
     }
+
+    //
+    // Some players/bots are mountable, so we need functions for them too.
+    function Armor::onEnter(%this, %obj, %node)
+    {
+
+    }
+
+    function Armor::onLeave(%this, %obj, %node)
+    {
+
+    }
+
+    function Armor::onSwitchSeat(%this, %obj, %node)
+    {
+
+    }
+
 };
 activatePackage(Support_VehicleCallbacks);
 
