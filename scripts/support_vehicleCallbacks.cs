@@ -451,6 +451,13 @@ activatePackage(Support_VehicleCallbacks);
 function Vehicle::getEmptyMountPoint(%this)
 {
     %numMountPoints = %this.Datablock.numMountPoints;
+    if(%this.getMountedObjectCount() >= %numMountPoints)
+    {
+        //There are no available seats.
+        return -1;
+    }
+
+    //A seat is available, but we need to find it.
     for(%i = 0; %i < %numMountPoints; %i++)
 	{
         %mountedObject = %this.getMountNodeObject(%i);
@@ -459,7 +466,6 @@ function Vehicle::getEmptyMountPoint(%this)
             return %i;
         }
 	}
-    return -1;
 }
 
 function Vehicle::setVehiclePowered(%obj, %bool)
